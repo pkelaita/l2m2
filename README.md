@@ -9,8 +9,8 @@ L2M2 currently supports the following models:
 | Provider                                     | Model Name        | Model Version              |
 | -------------------------------------------- | ----------------- | -------------------------- |
 | [`openai`](https://openai.com/product)       | `gpt-4-turbo`     | `gpt-4-0125-preview`       |
-| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`  |                            |
-| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`  |                            |
+| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`  | `gemini-1.5-pro-latest`    |
+| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`  | `gemini-1.0-pro-latest`    |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-opus`   | `claude-3-opus-20240229`   |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-sonnet` | `claude-3-sonnet-20240229` |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-haiku`  | `claude-3-haiku-20240307`  |

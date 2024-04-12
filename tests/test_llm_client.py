@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 from l2m2.llm_client import LLMClient
 
 # This ensures all providers are available for import.
@@ -77,6 +77,46 @@ def test_call_with_cohere(llm_client):
         llm_client.active_models = {"command-r"}
 
         response = llm_client.call(prompt="Hello", model="command-r")
+        assert response == "response"
+
+
+def test_call_with_google_1_5(llm_client):
+    with patch("l2m2.llm_client.google.GenerativeModel") as mock_model:
+        mock_instance = mock_model.return_value
+        mock_response = MagicMock()
+        mock_response.candidates = [
+            MagicMock(content=MagicMock(parts=[MagicMock(text="response")]))
+        ]
+        mock_instance.generate_content.return_value = mock_response
+
+        llm_client.API_KEYS = {"google": "fake-key"}
+        llm_client.active_models = {"gemini-1.5-pro"}
+
+        response = llm_client.call(
+            prompt="Hello",
+            model="gemini-1.5-pro",
+            system_prompt="Respond as if you were a pirate.",
+        )
+        assert response == "response"
+
+
+def test_call_with_google_1_0(llm_client):
+    with patch("l2m2.llm_client.google.GenerativeModel") as mock_model:
+        mock_instance = mock_model.return_value
+        mock_response = MagicMock()
+        mock_response.candidates = [
+            MagicMock(content=MagicMock(parts=[MagicMock(text="response")]))
+        ]
+        mock_instance.generate_content.return_value = mock_response
+
+        llm_client.API_KEYS = {"google": "fake-key"}
+        llm_client.active_models = {"gemini-1.0-pro"}
+
+        response = llm_client.call(
+            prompt="Hello",
+            model="gemini-1.0-pro",
+            system_prompt="Respond as if you were a pirate.",
+        )
         assert response == "response"
 
 

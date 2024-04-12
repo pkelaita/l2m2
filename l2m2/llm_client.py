@@ -1,3 +1,4 @@
+import google.generativeai as google
 from cohere import Client as CohereClient
 from openai import OpenAI
 from anthropic import Anthropic
@@ -8,6 +9,14 @@ _MODEL_INFO = {
     "gpt-4-turbo": {
         "provider": "openai",
         "model_id": "gpt-4-0125-preview",
+    },
+    "gemini-1.5-pro": {
+        "provider": "google",
+        "model_id": "gemini-1.5-pro-latest",
+    },
+    "gemini-1.0-pro": {
+        "provider": "google",
+        "model_id": "gemini-1.0-pro-latest",
     },
     "claude-3-opus": {
         "provider": "anthropic",
@@ -144,3 +153,18 @@ class LLMClient:
                 temperature=temperature,
             )
             return result.choices[0].message.content
+
+        elif model_info["provider"] == "google":
+            print("here")
+            google.configure(api_key=self.API_KEYS["google"])
+            if model_info["model_id"] not in ["gemini-1.5-pro-latest"]:
+                prompt = f"{system_prompt}\n{prompt}"
+                model = google.GenerativeModel(model_name=model_info["model_id"])
+            else:
+                model = google.GenerativeModel(
+                    model_name=model_info["model_id"],
+                    system_instruction=system_prompt,
+                )
+            config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
+            response = model.generate_content(prompt, generation_config=config)
+            return response.candidates[0].content.parts[0].text
