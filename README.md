@@ -2,8 +2,6 @@
 
 [L2M2](https://pypi.org/project/l2m2/) ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python.
 
----
-
 ## Supported Models
 
 L2M2 currently supports the following models:
