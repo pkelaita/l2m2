@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "l2m2"
 authors = [{ name = "Pierce Kelaita", email = "pierce@kelaita.com" }]
 description = "A very simple LLM manager for Python."
-version = "0.0.8"
+version = "0.0.9"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"

@@ -8,6 +8,11 @@ from groq import Groq
 _MODEL_INFO = {
     "gpt-4-turbo": {
         "provider": "openai",
+        "model_id": "gpt-4-turbo-2024-04-09",
+        "provider_homepage": "https://openai.com/product",
+    },
+    "gpt-4-turbo-0125": {
+        "provider": "openai",
         "model_id": "gpt-4-0125-preview",
         "provider_homepage": "https://openai.com/product",
     },

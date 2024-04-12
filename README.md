@@ -6,19 +6,22 @@
 
 L2M2 currently supports the following models:
 
-| Provider                                     | Model Name        | Model Version              |
-| -------------------------------------------- | ----------------- | -------------------------- |
-| [`openai`](https://openai.com/product)       | `gpt-4-turbo`     | `gpt-4-0125-preview`       |
-| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`  | `gemini-1.5-pro-latest`    |
-| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`  | `gemini-1.0-pro-latest`    |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-opus`   | `claude-3-opus-20240229`   |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-sonnet` | `claude-3-sonnet-20240229` |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-haiku`  | `claude-3-haiku-20240307`  |
-| [`cohere`](https://docs.cohere.com/)         | `command-r`       | `command-r`                |
-| [`cohere`](https://docs.cohere.com/)         | `command-r-plus`  | `command-r-plus`           |
-| [`groq`](https://wow.groq.com/)              | `llama2-70b`      | `llama2-70b-4096`          |
-| [`groq`](https://wow.groq.com/)              | `mixtral-8x7b`    | `mixtral-8x7b-32768`       |
-| [`groq`](https://wow.groq.com/)              | `gemma-7b`        | `gemma-7b-it`              |
+| Provider                                     | Model Name         | Model Version              |
+| -------------------------------------------- | ------------------ | -------------------------- |
+| [`openai`](https://openai.com/product)       | `gpt-4-turbo`      | `gpt-4-turbo-2024-04-09`   |
+| [`openai`](https://openai.com/product)       | `gpt-4-turbo-0125` | `gpt-4-0125-preview`       |
+| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`   | `gemini-1.5-pro-latest`    |
+| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`   | `gemini-1.0-pro-latest`    |
+| [`anthropic`](https://www.anthropic.com/api) | `claude-3-opus`    | `claude-3-opus-20240229`   |
+| [`anthropic`](https://www.anthropic.com/api) | `claude-3-sonnet`  | `claude-3-sonnet-20240229` |
+| [`anthropic`](https://www.anthropic.com/api) | `claude-3-haiku`   | `claude-3-haiku-20240307`  |
+| [`cohere`](https://docs.cohere.com/)         | `command-r`        | `command-r`                |
+| [`cohere`](https://docs.cohere.com/)         | `command-r-plus`   | `command-r-plus`           |
+| [`groq`](https://wow.groq.com/)              | `llama2-70b`       | `llama2-70b-4096`          |
+| [`groq`](https://wow.groq.com/)              | `mixtral-8x7b`     | `mixtral-8x7b-32768`       |
+| [`groq`](https://wow.groq.com/)              | `gemma-7b`         | `gemma-7b-it`              |
+
+            |
 
 ## Installation
 
