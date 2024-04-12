@@ -29,3 +29,6 @@ clean:
 
 publish: clean build
 	@twine upload dist/*
+
+update-models:
+	@python scripts/create_model_table.py | pbcopy
