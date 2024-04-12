@@ -1,3 +1,5 @@
+from typing import Set, Dict, Optional
+
 import google.generativeai as google
 from cohere import Client as CohereClient
 from openai import OpenAI
@@ -5,7 +7,7 @@ from anthropic import Anthropic
 from groq import Groq
 
 
-_MODEL_INFO = {
+_MODEL_INFO: Dict[str, Dict[str, str]] = {
     "gpt-4-turbo": {
         "provider": "openai",
         "model_id": "gpt-4-turbo-2024-04-09",
@@ -71,30 +73,30 @@ _MODEL_INFO = {
 
 class LLMClient:
 
-    def __init__(self):
-        self.API_KEYS = {}
-        self.active_providers = set()
-        self.active_models = set()
+    def __init__(self) -> None:
+        self.API_KEYS: Dict[str, str] = {}
+        self.active_providers: Set[str] = set()
+        self.active_models: Set[str] = set()
 
     @staticmethod
-    def get_available_providers():
+    def get_available_providers() -> Set[str]:
         return set([info["provider"] for info in _MODEL_INFO.values()])
 
     @staticmethod
-    def get_available_models():
+    def get_available_models() -> Set[str]:
         return set(_MODEL_INFO.keys())
 
-    def get_active_providers(self):
+    def get_active_providers(self) -> Set[str]:
         return set(self.active_providers)
 
-    def get_active_models(self):
+    def get_active_models(self) -> Set[str]:
         return set(self.active_models)
 
-    def add_provider(self, provider, api_key):
-        providers = self.get_available_providers()
-        if provider not in providers:
-            msg = f"Invalid provider: {provider}. Must be one of {providers}"
-            raise ValueError(msg)
+    def add_provider(self, provider: str, api_key: str) -> None:
+        if provider not in (providers := self.get_available_providers()):
+            raise ValueError(
+                f"Invalid provider: {provider}. Available providers: {providers}"
+            )
 
         self.API_KEYS[provider] = api_key
         self.active_providers.add(provider)
@@ -102,7 +104,7 @@ class LLMClient:
             model for model, info in _MODEL_INFO.items() if info["provider"] == provider
         )
 
-    def remove_provider(self, provider):
+    def remove_provider(self, provider: str) -> None:
         if provider not in self.active_providers:
             raise ValueError(f"Provider not active: {provider}")
 
@@ -112,7 +114,14 @@ class LLMClient:
             model for model, info in _MODEL_INFO.items() if info["provider"] == provider
         )
 
-    def call(self, *, prompt, model, temperature=0.0, system_prompt=None):
+    def call(
+        self,
+        *,
+        prompt: str,
+        model: str,
+        temperature: float = 0.0,
+        system_prompt: Optional[str] = None,
+    ) -> str:
         if model not in self.active_models:
             if model in self.get_available_models():
                 provider = _MODEL_INFO[model]["provider"]
@@ -125,33 +134,55 @@ class LLMClient:
                 raise ValueError(f"Invalid model: {model}")
 
         model_info = _MODEL_INFO[model]
-        provider_method = getattr(self, f"_call_{model_info['provider']}", None)
-        return provider_method(model_info, prompt, temperature, system_prompt)
+        call_impl = getattr(self, f"_call_{model_info['provider']}", None)
+        if call_impl is None:
+            raise ValueError(f"Malformed model info entry: {model_info}")
 
-    def _call_openai(self, model_info, prompt, temperature, system_prompt):
+        return call_impl(model_info, prompt, temperature, system_prompt)
+
+    def _call_openai(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
         oai = OpenAI(api_key=self.API_KEYS["openai"])
         messages = [{"role": "user", "content": prompt}]
         if system_prompt:
             messages.insert(0, {"role": "system", "content": system_prompt})
         result = oai.chat.completions.create(
             model=model_info["model_id"],
-            messages=messages,
+            messages=messages,  # type: ignore
             temperature=temperature,
         )
-        return result.choices[0].message.content
+        return str(result.choices[0].message.content)
 
-    def _call_anthropic(self, model_info, prompt, temperature, system_prompt):
+    def _call_anthropic(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
         anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
+        # system_value = system_prompt if system_prompt is not None else NotGiven()
         result = anthr.messages.create(
             model=model_info["model_id"],
             max_tokens=1000,
             temperature=temperature,
-            system=system_prompt,
+            system=system_prompt,  # type: ignore
             messages=[{"role": "user", "content": prompt}],
         )
         return result.content[0].text
 
-    def _call_cohere(self, model_info, prompt, temperature, system_prompt):
+    def _call_cohere(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
         cohere = CohereClient(api_key=self.API_KEYS["cohere"])
         result = cohere.chat(
             model=model_info["model_id"],
@@ -161,19 +192,31 @@ class LLMClient:
         )
         return result.text
 
-    def _call_groq(self, model_info, prompt, temperature, system_prompt):
+    def _call_groq(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
         groq = Groq(api_key=self.API_KEYS["groq"])
         messages = [{"role": "user", "content": prompt}]
         if system_prompt:
             messages.insert(0, {"role": "system", "content": system_prompt})
         result = groq.chat.completions.create(
             model=model_info["model_id"],
-            messages=messages,
+            messages=messages,  # type: ignore
             temperature=temperature,
         )
         return result.choices[0].message.content
 
-    def _call_google(self, model_info, prompt, temperature, system_prompt):
+    def _call_google(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
         google.configure(api_key=self.API_KEYS["google"])
 
         # Earlier versions don't support system prompts

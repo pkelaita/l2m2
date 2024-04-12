@@ -13,7 +13,8 @@ coverage:
 	@pytest --cov=l2m2 --cov-report=html
 
 lint:
-	@flake8 l2m2 tests
+	@flake8 .
+	@mypy .
 
 build:
 	@python -m build
@@ -23,6 +24,7 @@ clean:
 		dist \
 		*.egg-info \
 		.pytest_cache \
+		.mypy_cache \
 		htmlcov \
 		.coverage
 	@find . -type d -name __pycache__ -exec rm -r {} +

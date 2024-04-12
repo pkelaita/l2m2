@@ -6,14 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "l2m2"
 authors = [{ name = "Pierce Kelaita", email = "pierce@kelaita.com" }]
 description = "A very simple LLM manager for Python."
-version = "0.0.9"
+version = "0.0.10"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
 dynamic = ["dependencies"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.txt"] }
 
 [project.urls]
 Homepage = "https://github.com/pkelaita/l2m2"
@@ -21,6 +18,14 @@ Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"
 Repository = "https://github.com/pkelaita/l2m2.git"
 Issues = "https://github.com/pkelaita/l2m2/issues"
 
-[tool.setuptools.packages.find]
-exclude = ["tests*"]
-namespaces = false
+[tool.setuptools]
+dynamic.dependencies = { file = ["requirements.txt"] }
+packages.find.exclude = ["tests*"]
+packages.find.namespaces = false
+
+[tool.mypy]
+exclude = ["build", "dist", "venv", "integration_tests", "scripts", "tests"]
+ignore_missing_imports = true
+explicit_package_bases = true
+namespace_packages = true
+python_version = "3.12"
