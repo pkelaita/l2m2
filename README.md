@@ -64,8 +64,8 @@ response = llms.call(
 These will return all valid models that can be passed into `call` and providers that can be passed into `add_provider`.
 
 ```python
-print(llms.get_available_models())
-print(llms.get_available_providers())
+print(LLMClient.get_available_models())
+print(LLMClient.get_available_providers())
 ```
 
 **List Active Models and Providers**

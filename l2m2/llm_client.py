@@ -63,8 +63,6 @@ _MODEL_INFO = {
     },
 }
 
-_PROVIDERS = set([info["provider"] for info in _MODEL_INFO.values()])
-
 
 class LLMClient:
 
@@ -73,16 +71,13 @@ class LLMClient:
         self.active_providers = set()
         self.active_models = set()
 
-    def add_provider(self, provider, api_key):
-        if provider not in _PROVIDERS:
-            msg = f"Invalid provider: {provider}. Must be one of {_PROVIDERS}"
-            raise ValueError(msg)
+    @staticmethod
+    def get_available_providers():
+        return set([info["provider"] for info in _MODEL_INFO.values()])
 
-        self.API_KEYS[provider] = api_key
-        self.active_providers.add(provider)
-        self.active_models.update(
-            model for model, info in _MODEL_INFO.items() if info["provider"] == provider
-        )
+    @staticmethod
+    def get_available_models():
+        return set(_MODEL_INFO.keys())
 
     def get_active_providers(self):
         return set(self.active_providers)
@@ -90,11 +85,17 @@ class LLMClient:
     def get_active_models(self):
         return set(self.active_models)
 
-    def get_available_providers(self):
-        return set(_PROVIDERS)
+    def add_provider(self, provider, api_key):
+        providers = self.get_available_providers()
+        if provider not in providers:
+            msg = f"Invalid provider: {provider}. Must be one of {providers}"
+            raise ValueError(msg)
 
-    def get_available_models(self):
-        return set(_MODEL_INFO.keys())
+        self.API_KEYS[provider] = api_key
+        self.active_providers.add(provider)
+        self.active_models.update(
+            model for model, info in _MODEL_INFO.items() if info["provider"] == provider
+        )
 
     def remove_provider(self, provider):
         if provider not in self.active_providers:
@@ -119,63 +120,66 @@ class LLMClient:
                 raise ValueError(f"Invalid model: {model}")
 
         model_info = _MODEL_INFO[model]
+        provider_method = getattr(self, f"_call_{model_info['provider']}", None)
+        return provider_method(model_info, prompt, temperature, system_prompt)
 
-        if model_info["provider"] == "openai":
-            oai = OpenAI(api_key=self.API_KEYS["openai"])
-            messages = [{"role": "user", "content": prompt}]
-            if system_prompt:
-                messages.insert(0, {"role": "system", "content": system_prompt})
-            result = oai.chat.completions.create(
-                model=model_info["model_id"],
-                messages=messages,
-                temperature=temperature,
+    def _call_openai(self, model_info, prompt, temperature, system_prompt):
+        oai = OpenAI(api_key=self.API_KEYS["openai"])
+        messages = [{"role": "user", "content": prompt}]
+        if system_prompt:
+            messages.insert(0, {"role": "system", "content": system_prompt})
+        result = oai.chat.completions.create(
+            model=model_info["model_id"],
+            messages=messages,
+            temperature=temperature,
+        )
+        return result.choices[0].message.content
+
+    def _call_anthropic(self, model_info, prompt, temperature, system_prompt):
+        anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
+        result = anthr.messages.create(
+            model=model_info["model_id"],
+            max_tokens=1000,
+            temperature=temperature,
+            system=system_prompt,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return result.content[0].text
+
+    def _call_cohere(self, model_info, prompt, temperature, system_prompt):
+        cohere = CohereClient(api_key=self.API_KEYS["cohere"])
+        result = cohere.chat(
+            model=model_info["model_id"],
+            message=prompt,
+            preamble=system_prompt,
+            temperature=temperature,
+        )
+        return result.text
+
+    def _call_groq(self, model_info, prompt, temperature, system_prompt):
+        groq = Groq(api_key=self.API_KEYS["groq"])
+        messages = [{"role": "user", "content": prompt}]
+        if system_prompt:
+            messages.insert(0, {"role": "system", "content": system_prompt})
+        result = groq.chat.completions.create(
+            model=model_info["model_id"],
+            messages=messages,
+            temperature=temperature,
+        )
+        return result.choices[0].message.content
+
+    def _call_google(self, model_info, prompt, temperature, system_prompt):
+        google.configure(api_key=self.API_KEYS["google"])
+
+        # Earlier versions don't support system prompts
+        if model_info["model_id"] not in ["gemini-1.5-pro-latest"]:
+            prompt = f"{system_prompt}\n{prompt}"
+            model = google.GenerativeModel(model_name=model_info["model_id"])
+        else:
+            model = google.GenerativeModel(
+                model_name=model_info["model_id"], system_instruction=system_prompt
             )
-            return result.choices[0].message.content
 
-        elif model_info["provider"] == "anthropic":
-            anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
-            result = anthr.messages.create(
-                model=model_info["model_id"],
-                max_tokens=1000,
-                temperature=temperature,
-                system=system_prompt,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return result.content[0].text
-
-        elif model_info["provider"] == "cohere":
-            cohere = CohereClient(api_key=self.API_KEYS["cohere"])
-            result = cohere.chat(
-                model=model_info["model_id"],
-                message=prompt,
-                preamble=system_prompt,
-                temperature=temperature,
-            )
-            return result.text
-
-        elif model_info["provider"] == "groq":
-            groq = Groq(api_key=self.API_KEYS["groq"])
-            messages = [{"role": "user", "content": prompt}]
-            if system_prompt:
-                messages.insert(0, {"role": "system", "content": system_prompt})
-            result = groq.chat.completions.create(
-                model=model_info["model_id"],
-                messages=messages,
-                temperature=temperature,
-            )
-            return result.choices[0].message.content
-
-        elif model_info["provider"] == "google":
-            print("here")
-            google.configure(api_key=self.API_KEYS["google"])
-            if model_info["model_id"] not in ["gemini-1.5-pro-latest"]:
-                prompt = f"{system_prompt}\n{prompt}"
-                model = google.GenerativeModel(model_name=model_info["model_id"])
-            else:
-                model = google.GenerativeModel(
-                    model_name=model_info["model_id"],
-                    system_instruction=system_prompt,
-                )
-            config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
-            response = model.generate_content(prompt, generation_config=config)
-            return response.candidates[0].content.parts[0].text
+        config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
+        response = model.generate_content(prompt, generation_config=config)
+        return response.candidates[0].content.parts[0].text

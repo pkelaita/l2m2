@@ -25,7 +25,9 @@ def test_initialization(llm_client):
 
 
 def test_add_provider_valid(llm_client):
-    with patch("l2m2.llm_client._PROVIDERS", new={"openai", "cohere"}):
+    with patch.object(
+        LLMClient, "get_available_providers", return_value={"openai", "cohere"}
+    ):
         llm_client.add_provider("openai", "test-key-openai")
         assert "openai" in llm_client.active_providers
         assert "gpt-4-turbo" in llm_client.active_models
@@ -37,7 +39,7 @@ def test_add_provider_invalid(llm_client):
 
 
 def test_remove_provider(llm_client):
-    with patch("l2m2.llm_client._PROVIDERS", new={"openai"}):
+    with patch.object(LLMClient, "get_available_providers", return_value={"openai"}):
         llm_client.add_provider("openai", "test-key-openai")
         llm_client.remove_provider("openai")
         assert "openai" not in llm_client.active_providers
