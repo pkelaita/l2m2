@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="l2m2",
-    version="0.0.6",
+    version="0.0.7",
     packages=find_packages(exclude=["tests", "integration_tests"]),
     install_requires=[i.strip() for i in open("requirements.txt").readlines()],
     long_description=readme,
