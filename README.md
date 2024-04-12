@@ -70,7 +70,7 @@ load_dotenv()
 
 
 client = LLMClient()
-llclientms.add_provider("openai", os.getenv("OPENAI_API_KEY"))
+client.add_provider("openai", os.getenv("OPENAI_API_KEY"))
 
 response = client.call(
     system_prompt="Respond as if you were a pirate.",
