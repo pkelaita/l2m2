@@ -21,11 +21,9 @@ L2M2 currently supports the following models:
 | [`groq`](https://wow.groq.com/)              | `mixtral-8x7b`     | `mixtral-8x7b-32768`       |
 | [`groq`](https://wow.groq.com/)              | `gemma-7b`         | `gemma-7b-it`              |
 
-## Installation
+## Requirements
 
-```sh
-pip install l2m2
-```
+- Python >= 3.12
 
 ## Installation
 
