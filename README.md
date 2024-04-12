@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that allows you to expose lots of models through a single API. This is useful for evaluation, demos, and production LLM apps.
+**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that allows you to expose lots of models through a single API. This is useful for evaluation, demos, and production LLM apps that use multiple models.
 
 ## Supported Models
 
@@ -70,7 +70,7 @@ load_dotenv()
 
 
 client = LLMClient()
-llclientms.add_provider("openai", os.getenv("OAI_APIKEY"))
+llclientms.add_provider("openai", os.getenv("OPENAI_API_KEY"))
 
 response = client.call(
     system_prompt="Respond as if you were a pirate.",
