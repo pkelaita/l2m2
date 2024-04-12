@@ -16,10 +16,15 @@ lint:
 	@flake8 l2m2 tests
 
 build:
-	@python setup.py sdist bdist_wheel
+	@python -m build
 
 clean:
-	@rm -rf build dist *.egg-info .pytest_cache htmlcov .coverage
+	@rm -rf build \
+		dist \
+		*.egg-info \
+		.pytest_cache \
+		htmlcov \
+		.coverage
 	@find . -type d -name __pycache__ -exec rm -r {} +
 
 publish: clean build
