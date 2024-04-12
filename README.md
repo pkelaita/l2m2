@@ -27,6 +27,12 @@ L2M2 currently supports the following models:
 pip install l2m2
 ```
 
+## Installation
+
+```sh
+pip install l2m2
+```
+
 ## Usage
 
 **Import the LLM Client**
