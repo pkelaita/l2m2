@@ -1,6 +1,6 @@
-# L2M2: Simple LLM Manager for Python
+# L2M2: A Simple Python LLM Manager 💬👍
 
-[L2M2](https://pypi.org/project/l2m2/) ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python.
+**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that allows you to expose lots of models through a single API. This is useful for evaluation, demos, and production LLM apps.
 
 ## Supported Models
 
@@ -33,23 +33,23 @@ pip install l2m2
 ```python
 from l2m2 import LLMClient
 
-llms = LLMClient()
+client = LLMClient()
 ```
 
 **Add a Provider**
 
-In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to use the provider name as shown in the table above.
+In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to pass in a valid provider as shown in the table above.
 
 ```python
-llms.add_provider("<provider name>", "<API key>")
+client.add_provider("<provider name>", "<API key>")
 ```
 
-**Call your LLM**
+**Call your LLM 💬👍**
 
-The `call` API is the same regardless of model or provider.
+The `call` API is the same regardless of model or provider. Make sure to pass in a valid model name as shown in the table above.
 
 ```python
-response = llms.call(
+response = client.call(
     system_prompt="<system prompt>",
     prompt="<prompt>",
     model="<model name>",
@@ -58,24 +58,6 @@ response = llms.call(
 ```
 
 `system_prompt` and `temperature` are optional, and default to `None` and `0.0` respectively.
-
-**List Available Models and Providers**
-
-These will return all valid models that can be passed into `call` and providers that can be passed into `add_provider`.
-
-```python
-print(LLMClient.get_available_models())
-print(LLMClient.get_available_providers())
-```
-
-**List Active Models and Providers**
-
-These will only return models and providers added with `add_provider`.
-
-```python
-print(llms.get_active_models())
-print(llms.get_active_providers())
-```
 
 ### Example
 
@@ -87,10 +69,10 @@ from l2m2 import LLMClient
 load_dotenv()
 
 
-llms = LLMClient()
-llms.add_provider("openai", os.getenv("OAI_APIKEY"))
+client = LLMClient()
+llclientms.add_provider("openai", os.getenv("OAI_APIKEY"))
 
-response = llms.call(
+response = client.call(
     system_prompt="Respond as if you were a pirate.",
     prompt="How's the weather today?",
     model="gpt-4-turbo",
