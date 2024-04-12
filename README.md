@@ -9,6 +9,8 @@ L2M2 currently supports the following models:
 | Provider                                     | Model Name        | Model Version              |
 | -------------------------------------------- | ----------------- | -------------------------- |
 | [`openai`](https://openai.com/product)       | `gpt-4-turbo`     | `gpt-4-0125-preview`       |
+| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`  |                            |
+| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`  |                            |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-opus`   | `claude-3-opus-20240229`   |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-sonnet` | `claude-3-sonnet-20240229` |
 | [`anthropic`](https://www.anthropic.com/api) | `claude-3-haiku`  | `claude-3-haiku-20240307`  |
@@ -34,28 +36,12 @@ from l2m2 import LLMClient
 llms = LLMClient()
 ```
 
-**List Available Models and Providers**
-
-```python
-print(llms.get_available_models())
-print(llms.get_available_providers())
-```
-
 **Add a Provider**
 
 In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to use the provider name as shown in the table above.
 
 ```python
 llms.add_provider("<provider name>", "<API key>")
-```
-
-**List Active Models and Providers**
-
-This will only show models and providers added with `add_provider`.
-
-```python
-print(llms.get_active_models())
-print(llms.get_active_providers())
 ```
 
 **Call your LLM**
@@ -72,6 +58,24 @@ response = llms.call(
 ```
 
 `system_prompt` and `temperature` are optional, and default to `None` and `0.0` respectively.
+
+**List Available Models and Providers**
+
+These will return all valid models that can be passed into `call` and providers that can be passed into `add_provider`.
+
+```python
+print(llms.get_available_models())
+print(llms.get_available_providers())
+```
+
+**List Active Models and Providers**
+
+These will only return models and providers added with `add_provider`.
+
+```python
+print(llms.get_active_models())
+print(llms.get_active_providers())
+```
 
 ### Example
 
