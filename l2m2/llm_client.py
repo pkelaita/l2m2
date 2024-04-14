@@ -72,7 +72,6 @@ _MODEL_INFO: Dict[str, Dict[str, str]] = {
 
 
 class LLMClient:
-
     def __init__(self) -> None:
         self.API_KEYS: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
@@ -166,7 +165,6 @@ class LLMClient:
         system_prompt: Optional[str],
     ) -> str:
         anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
-        # system_value = system_prompt if system_prompt is not None else NotGiven()
         result = anthr.messages.create(
             model=model_info["model_id"],
             max_tokens=1000,
