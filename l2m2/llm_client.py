@@ -136,8 +136,9 @@ class LLMClient:
         call_impl = getattr(self, f"_call_{model_info['provider']}", None)
         if call_impl is None:
             raise ValueError(f"Malformed model info entry: {model_info}")
-
-        return call_impl(model_info, prompt, temperature, system_prompt)
+        result = call_impl(model_info, prompt, temperature, system_prompt)
+        assert isinstance(result, str)
+        return result
 
     def _call_openai(
         self,
@@ -172,7 +173,7 @@ class LLMClient:
             system=system_prompt,  # type: ignore
             messages=[{"role": "user", "content": prompt}],
         )
-        return result.content[0].text
+        return str(result.content[0].text)
 
     def _call_cohere(
         self,
@@ -188,7 +189,7 @@ class LLMClient:
             preamble=system_prompt,
             temperature=temperature,
         )
-        return result.text
+        return str(result.text)
 
     def _call_groq(
         self,
@@ -206,7 +207,7 @@ class LLMClient:
             messages=messages,  # type: ignore
             temperature=temperature,
         )
-        return result.choices[0].message.content
+        return str(result.choices[0].message.content)
 
     def _call_google(
         self,
@@ -228,4 +229,4 @@ class LLMClient:
 
         config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
         response = model.generate_content(prompt, generation_config=config)
-        return response.candidates[0].content.parts[0].text
+        return str(response.candidates[0].content.parts[0].text)
