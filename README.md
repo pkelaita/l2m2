@@ -53,7 +53,7 @@ client.add_provider("<provider name>", "<API key>")
 
 **Call your LLM 💬👍**
 
-The `call` API is the same regardless of model or provider. Make sure to pass in a valid model name as shown in the table above.
+The `call` API is the same regardless of model or provider.
 
 ```python
 response = client.call(
