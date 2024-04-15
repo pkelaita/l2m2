@@ -329,23 +329,23 @@ class LLMClient:
         add_param("max_tokens", max_tokens)
 
         call_provider = getattr(self, f"_call_{model_info['provider']}")
-        result = call_provider(model_info, prompt, system_prompt, params)
+        result = call_provider(model_info["model_id"], prompt, system_prompt, params)
         assert isinstance(result, str)
         return result
 
     def _call_openai(
         self,
-        model_info: Dict[str, str],
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
         oai = OpenAI(api_key=self.API_KEYS["openai"])
         messages = [{"role": "user", "content": prompt}]
-        if system_prompt:
+        if system_prompt is not None:
             messages.insert(0, {"role": "system", "content": system_prompt})
         result = oai.chat.completions.create(
-            model=model_info["model_id"],
+            model=model_id,
             messages=messages,  # type: ignore
             **params,
         )
@@ -353,49 +353,51 @@ class LLMClient:
 
     def _call_anthropic(
         self,
-        model_info: Dict[str, str],
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
         anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
+        if system_prompt is not None:
+            params["system"] = system_prompt
         result = anthr.messages.create(
-            model=model_info["model_id"],
+            model=model_id,
             messages=[{"role": "user", "content": prompt}],
-            system=system_prompt,  # type: ignore
             **params,
         )
         return str(result.content[0].text)
 
     def _call_cohere(
         self,
-        model_info: Dict[str, str],
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
         cohere = CohereClient(api_key=self.API_KEYS["cohere"])
+        if system_prompt is not None:
+            params["preamble"] = system_prompt
         result = cohere.chat(
-            model=model_info["model_id"],
+            model=model_id,
             message=prompt,
-            preamble=system_prompt,
             **params,
         )
         return str(result.text)
 
     def _call_groq(
         self,
-        model_info: Dict[str, str],
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
         groq = Groq(api_key=self.API_KEYS["groq"])
         messages = [{"role": "user", "content": prompt}]
-        if system_prompt:
+        if system_prompt is not None:
             messages.insert(0, {"role": "system", "content": system_prompt})
         result = groq.chat.completions.create(
-            model=model_info["model_id"],
+            model=model_id,
             messages=messages,  # type: ignore
             **params,
         )
@@ -403,27 +405,27 @@ class LLMClient:
 
     def _call_google(
         self,
-        model_info: Dict[str, str],
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
         google.configure(api_key=self.API_KEYS["google"])
 
-        # Earlier versions don't support system prompts
-        if model_info["model_id"] not in ["gemini-1.5-pro-latest"]:
-            prompt = f"{system_prompt}\n{prompt}"
-            model = google.GenerativeModel(model_name=model_info["model_id"])
-        else:
-            model = google.GenerativeModel(
-                model_name=model_info["model_id"], system_instruction=system_prompt
-            )
+        model_params = {"model_name": model_id}
+        if system_prompt is not None:
+            # Earlier versions don't support system prompts, so prepend it to the prompt
+            if model_id not in ["gemini-1.5-pro-latest"]:
+                prompt = f"{system_prompt}\n{prompt}"
+            else:
+                model_params["system_instruction"] = system_prompt
+        model = google.GenerativeModel(**model_params)
 
-        config = {}
-        if "temperature" in params:
-            config["temperature"] = params["temperature"]
-        if "max_tokens" in params:
-            config["max_output_tokens"] = params["max_tokens"]
+        config_map = {
+            "temperature": "temperature",
+            "max_tokens": "max_output_tokens",
+        }
+        config = {config_map[k]: v for k, v in params.items() if k in config_map}
 
         result = model.generate_content(prompt, generation_config=config)
         result = result.candidates[0]
