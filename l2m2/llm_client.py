@@ -77,6 +77,13 @@ class LLMClient:
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
 
+    @classmethod
+    def with_providers(cls, providers: Dict[str, str]) -> "LLMClient":
+        obj = cls()
+        for provider, api_key in providers.items():
+            obj.add_provider(provider, api_key)
+        return obj
+
     @staticmethod
     def get_available_providers() -> Set[str]:
         return set([info["provider"] for info in _MODEL_INFO.values()])
@@ -228,5 +235,5 @@ class LLMClient:
             )
 
         config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
-        response = model.generate_content(prompt, generation_config=config)
-        return str(response.candidates[0].content.parts[0].text)
+        result = model.generate_content(prompt, generation_config=config)
+        return str(result.candidates[0].content.parts[0].text)
