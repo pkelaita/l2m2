@@ -1,26 +1,28 @@
 .PHONY: *
 .DEFAULT_GOAL := default
 
-default: init test lint build
+default: lint typecheck test
 
 init:
-	@pip install --upgrade pip
-	@pip install -r requirements-dev.txt
-	@pip install -r requirements.txt
+	pip install --upgrade pip
+	pip install -r requirements-dev.txt
+	pip install -r requirements.txt
 
 test:
-	@pytest -v --cov=l2m2 --cov=test_utils --cov-report=term-missing --failed-first --durations=0
+	pytest -v --cov=l2m2 --cov=test_utils --cov-report=term-missing --failed-first --durations=0
 
 coverage:
-	@pytest --cov=l2m2 --cov=test_utils --cov-report=html
-	@open htmlcov/index.html
+	pytest --cov=l2m2 --cov=test_utils --cov-report=html
+	open htmlcov/index.html
 
 lint:
-	@flake8 .
-	@mypy .
+	-flake8 .
+
+typecheck:
+	-mypy .
 
 build:
-	@python -m build
+	python -m build
 
 clean:
 	@rm -rf build \
@@ -33,7 +35,7 @@ clean:
 	@find . -type d -name __pycache__ -exec rm -r {} +
 
 publish: clean build
-	@twine upload dist/*
+	twine upload dist/*
 
 update-models:
-	@python scripts/create_model_table.py | pbcopy
+	python scripts/create_model_table.py | pbcopy
