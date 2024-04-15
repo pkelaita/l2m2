@@ -57,14 +57,15 @@ The `call` API is the same regardless of model or provider. Make sure to pass in
 
 ```python
 response = client.call(
-    system_prompt="<system prompt>",
-    prompt="<prompt>",
     model="<model name>",
+    prompt="<prompt>",
+    system_prompt="<system prompt>",
     temperature=<temperature>,
+    max_tokens=<max_tokens>
 )
 ```
 
-`system_prompt` and `temperature` are optional, and default to `None` and `0.0` respectively.
+`model` and `prompt` are required, while the remaining fields are optional. When possible, L2M2 uses the provider's default model parameter values when they are not given.
 
 If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-3.5-turbo`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
 
@@ -82,10 +83,11 @@ client = LLMClient()
 client.add_provider("openai", os.getenv("OPENAI_API_KEY"))
 
 response = client.call(
-    system_prompt="Respond as if you were a pirate.",
-    prompt="How's the weather today?",
     model="gpt-4-turbo",
+    prompt="How's the weather today?",
+    system_prompt="Respond as if you were a pirate.",
     temperature=0.5,
+    max_tokens=250,
 )
 
 print(response)
