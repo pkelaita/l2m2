@@ -140,9 +140,7 @@ class LLMClient:
                 raise ValueError(f"Invalid model: {model}")
 
         model_info = _MODEL_INFO[model]
-        call_impl = getattr(self, f"_call_{model_info['provider']}", None)
-        if call_impl is None:
-            raise ValueError(f"Malformed model info entry: {model_info}")
+        call_impl = getattr(self, f"_call_{model_info['provider']}")
         result = call_impl(model_info, prompt, temperature, system_prompt)
         assert isinstance(result, str)
         return result
