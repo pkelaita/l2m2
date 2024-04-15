@@ -2,35 +2,43 @@
 requires = ["setuptools>=69.2.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
 [project]
 name = "l2m2"
 authors = [{ name = "Pierce Kelaita", email = "pierce@kelaita.com" }]
 description = "A very simple LLM manager for Python."
 version = "0.0.10"
+
+urls.Homepage = "https://github.com/pkelaita/l2m2"
+urls.Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"
+urls.Repository = "https://github.com/pkelaita/l2m2.git"
+urls.Issues = "https://github.com/pkelaita/l2m2/issues"
+
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
 dynamic = ["dependencies"]
 
-[project.urls]
-Homepage = "https://github.com/pkelaita/l2m2"
-Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"
-Repository = "https://github.com/pkelaita/l2m2.git"
-Issues = "https://github.com/pkelaita/l2m2/issues"
 
 [tool.setuptools]
 dynamic.dependencies = { file = ["requirements.txt"] }
-packages.find.exclude = ["tests*"]
+packages.find.exclude = ["tests*", "test_utils*"]
 packages.find.namespaces = false
+
 
 [tool.mypy]
 exclude = ["build", "dist", "venv", "integration_tests", "scripts", "tests"]
+
 ignore_missing_imports = true
 explicit_package_bases = true
 namespace_packages = true
-disallow_incomplete_defs = true
+
+# disallow_incomplete_defs = true
+disallow_untyped_defs = true
 disallow_any_generics = true
+
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
+
 python_version = "3.12"

@@ -1,5 +1,7 @@
 .PHONY: *
-.DEFAULT_GOAL := lint
+.DEFAULT_GOAL := default
+
+default: init test lint build
 
 init:
 	@pip install --upgrade pip
@@ -7,10 +9,11 @@ init:
 	@pip install -r requirements.txt
 
 test:
-	@pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
+	@pytest -v --cov=l2m2 --cov=test_utils --cov-report=term-missing --failed-first --durations=0
 
 coverage:
-	@pytest --cov=l2m2 --cov-report=html
+	@pytest --cov=l2m2 --cov=test_utils --cov-report=html
+	@open htmlcov/index.html
 
 lint:
 	@flake8 .
