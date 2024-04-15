@@ -21,6 +21,8 @@ L2M2 currently supports the following models:
 | [`groq`](https://wow.groq.com/)              | `mixtral-8x7b`     | `mixtral-8x7b-32768`       |
 | [`groq`](https://wow.groq.com/)              | `gemma-7b`         | `gemma-7b-it`              |
 
+You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
+
 ## Requirements
 
 - Python >= 3.12
@@ -63,6 +65,8 @@ response = client.call(
 ```
 
 `system_prompt` and `temperature` are optional, and default to `None` and `0.0` respectively.
+
+If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-3.5-turbo`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
 
 ### Example
 

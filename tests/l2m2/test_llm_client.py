@@ -92,11 +92,6 @@ def test_remove_provider_not_active(llm_client):
 # -- Tests for call -- #
 
 
-def test_call_valid_model_not_active(llm_client):
-    with pytest.raises(ValueError):
-        llm_client.call(prompt="Hello", model="gpt-4-turbo")
-
-
 def _generic_test_call(
     llm_client,
     provider_patch_path,
@@ -195,6 +190,58 @@ def test_call_google_1_0(llm_client):
     )
 
 
+def test_call_valid_model_not_active(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.call(prompt="Hello", model="gpt-4-turbo")
+
+
 def test_call_invalid_model(llm_client):
     with pytest.raises(ValueError):
         llm_client.call(prompt="Hello", model="unknown-model")
+
+
+# -- Tests for call_custom -- #
+
+
+def test_call_custom(llm_client):
+    with patch("l2m2.llm_client.OpenAI") as mock_openai:
+        mock_client = Mock()
+        mock_call = mock_client.chat.completions.create
+        mock_response = construct_mock_from_path("choices[0].message.content")
+        mock_call.return_value = mock_response
+        mock_openai.return_value = mock_client
+
+        llm_client.add_provider("openai", "fake-api-key")
+        response_default = llm_client.call_custom(
+            provider="openai",
+            prompt="Hello",
+            model="custom-model-xyz",
+        )
+        response_custom = llm_client.call_custom(
+            provider="openai",
+            prompt="Hello",
+            model="custom-model-xyz",
+            system_prompt="System prompt",
+            temperature=0.5,
+        )
+
+        assert response_default == "response"
+        assert response_custom == "response"
+
+
+def test_call_custom_invalid_provider(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.call_custom(
+            provider="invalid_provider",
+            prompt="Hello",
+            model="custom-model-xyz",
+        )
+
+
+def test_call_custom_not_active(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.call_custom(
+            provider="openai",
+            prompt="Hello",
+            model="custom-model-xyz",
+        )

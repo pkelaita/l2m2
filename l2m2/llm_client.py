@@ -140,8 +140,39 @@ class LLMClient:
                 raise ValueError(f"Invalid model: {model}")
 
         model_info = _MODEL_INFO[model]
-        call_impl = getattr(self, f"_call_{model_info['provider']}")
-        result = call_impl(model_info, prompt, temperature, system_prompt)
+        result = self._call_impl(model_info, prompt, temperature, system_prompt)
+        return result
+
+    def call_custom(
+        self,
+        *,
+        prompt: str,
+        model: str,
+        provider: str,
+        temperature: float = 0.0,
+        system_prompt: Optional[str] = None,
+    ) -> str:
+        if provider not in self.get_available_providers():
+            raise ValueError(f"Invalid provider: {provider}")
+        if provider not in self.active_providers:
+            raise ValueError(f"Provider not active: {provider}")
+
+        model_info = {
+            "provider": provider,
+            "model_id": model,
+        }
+        result = self._call_impl(model_info, prompt, temperature, system_prompt)
+        return result
+
+    def _call_impl(
+        self,
+        model_info: Dict[str, str],
+        prompt: str,
+        temperature: float,
+        system_prompt: Optional[str],
+    ) -> str:
+        call_provider = getattr(self, f"_call_{model_info['provider']}")
+        result = call_provider(model_info, prompt, temperature, system_prompt)
         assert isinstance(result, str)
         return result
 
