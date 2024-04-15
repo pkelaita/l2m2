@@ -117,6 +117,7 @@ def _generic_test_call(
             model=model_name,
             system_prompt="System prompt",
             temperature=0.5,
+            max_tokens=100,
         )
 
         assert response_default == "response"
@@ -198,6 +199,18 @@ def test_call_valid_model_not_active(llm_client):
 def test_call_invalid_model(llm_client):
     with pytest.raises(ValueError):
         llm_client.call(prompt="Hello", model="unknown-model")
+
+
+def test_call_tokens_too_large(llm_client):
+    llm_client.add_provider("openai", "fake-api-key")
+    with pytest.raises(ValueError):
+        llm_client.call(prompt="Hello", model="gpt-4-turbo", max_tokens=float("inf"))
+
+
+def test_call_temperature_too_high(llm_client):
+    llm_client.add_provider("openai", "fake-api-key")
+    with pytest.raises(ValueError):
+        llm_client.call(prompt="Hello", model="gpt-4-turbo", temperature=3.0)
 
 
 # -- Tests for call_custom -- #

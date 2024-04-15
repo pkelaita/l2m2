@@ -1,4 +1,5 @@
-from typing import Set, Dict, Optional
+from typing import Any, Set, Dict, Optional
+import pydash as py_
 
 import google.generativeai as google
 from cohere import Client as CohereClient
@@ -7,66 +8,192 @@ from anthropic import Anthropic
 from groq import Groq
 
 
-_MODEL_INFO: Dict[str, Dict[str, str]] = {
+ModelInfo = Dict[str, Any]
+
+PROVIDER_DEFAULT = "<<PROVIDER_DEFAULT>>"
+
+_MODEL_INFO: Dict[str, ModelInfo] = {
     "gpt-4-turbo": {
         "provider": "openai",
         "model_id": "gpt-4-turbo-2024-04-09",
         "provider_homepage": "https://openai.com/product",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 4096,
+            },
+        },
     },
     "gpt-4-turbo-0125": {
         "provider": "openai",
         "model_id": "gpt-4-0125-preview",
         "provider_homepage": "https://openai.com/product",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 4096,
+            },
+        },
     },
     "gemini-1.5-pro": {
         "provider": "google",
         "model_id": "gemini-1.5-pro-latest",
         "provider_homepage": "https://ai.google.dev/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                "max": 8192,
+            },
+        },
     },
     "gemini-1.0-pro": {
         "provider": "google",
         "model_id": "gemini-1.0-pro-latest",
         "provider_homepage": "https://ai.google.dev/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                "max": 8192,
+            },
+        },
     },
     "claude-3-opus": {
         "provider": "anthropic",
         "model_id": "claude-3-opus-20240229",
         "provider_homepage": "https://www.anthropic.com/api",
+        "params": {
+            "temperature": {
+                "default": 0.0,
+                "max": 1.0,
+            },
+            "max_tokens": {
+                "default": 1000,  # L2M2 default, field is required
+                "max": 4096,
+            },
+        },
     },
     "claude-3-sonnet": {
         "provider": "anthropic",
         "model_id": "claude-3-sonnet-20240229",
         "provider_homepage": "https://www.anthropic.com/api",
+        "params": {
+            "temperature": {
+                "default": 0.0,
+                "max": 1.0,
+            },
+            "max_tokens": {
+                "default": 1000,  # L2M2 default, field is required
+                "max": 4096,
+            },
+        },
     },
     "claude-3-haiku": {
         "provider": "anthropic",
         "model_id": "claude-3-haiku-20240307",
         "provider_homepage": "https://www.anthropic.com/api",
+        "params": {
+            "temperature": {
+                "default": 0.0,
+                "max": 1.0,
+            },
+            "max_tokens": {
+                "default": 1000,  # L2M2 default, field is required
+                "max": 4096,
+            },
+        },
     },
     "command-r": {
         "provider": "cohere",
         "model_id": "command-r",
         "provider_homepage": "https://docs.cohere.com/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 1.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 4000,
+            },
+        },
     },
     "command-r-plus": {
         "provider": "cohere",
         "model_id": "command-r-plus",
         "provider_homepage": "https://docs.cohere.com/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 1.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 4000,
+            },
+        },
     },
     "llama2-70b": {
         "provider": "groq",
         "model_id": "llama2-70b-4096",
         "provider_homepage": "https://wow.groq.com/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2**16 - 1,
+            },
+        },
     },
     "mixtral-8x7b": {
         "provider": "groq",
         "model_id": "mixtral-8x7b-32768",
         "provider_homepage": "https://wow.groq.com/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2**16 - 1,
+            },
+        },
     },
     "gemma-7b": {
         "provider": "groq",
         "model_id": "gemma-7b-it",
         "provider_homepage": "https://wow.groq.com/",
+        "params": {
+            "temperature": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2.0,
+            },
+            "max_tokens": {
+                "default": PROVIDER_DEFAULT,
+                "max": 2**16 - 1,
+            },
+        },
     },
 }
 
@@ -86,7 +213,7 @@ class LLMClient:
 
     @staticmethod
     def get_available_providers() -> Set[str]:
-        return set([info["provider"] for info in _MODEL_INFO.values()])
+        return set([str(info["provider"]) for info in _MODEL_INFO.values()])
 
     @staticmethod
     def get_available_models() -> Set[str]:
@@ -123,10 +250,11 @@ class LLMClient:
     def call(
         self,
         *,
-        prompt: str,
         model: str,
-        temperature: float = 0.0,
+        prompt: str,
         system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
     ) -> str:
         if model not in self.active_models:
             if model in self.get_available_models():
@@ -139,18 +267,20 @@ class LLMClient:
             else:
                 raise ValueError(f"Invalid model: {model}")
 
-        model_info = _MODEL_INFO[model]
-        result = self._call_impl(model_info, prompt, temperature, system_prompt)
+        result = self._call_impl(
+            _MODEL_INFO[model], prompt, system_prompt, temperature, max_tokens
+        )
         return result
 
     def call_custom(
         self,
         *,
-        prompt: str,
-        model: str,
         provider: str,
-        temperature: float = 0.0,
+        model: str,
+        prompt: str,
         system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
     ) -> str:
         if provider not in self.get_available_providers():
             raise ValueError(f"Invalid provider: {provider}")
@@ -160,19 +290,46 @@ class LLMClient:
         model_info = {
             "provider": provider,
             "model_id": model,
+            # Get the param info from the first model where the provider matches.
+            # Not ideal, but the best we can do for user-provided models.
+            **py_.pick(
+                py_.find(list(_MODEL_INFO.values()), {"provider": provider}),
+                "params",
+            ),
         }
-        result = self._call_impl(model_info, prompt, temperature, system_prompt)
+
+        result = self._call_impl(
+            model_info, prompt, system_prompt, temperature, max_tokens
+        )
         return result
 
     def _call_impl(
         self,
-        model_info: Dict[str, str],
+        model_info: ModelInfo,
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        temperature: Optional[float],
+        max_tokens: Optional[int],
     ) -> str:
+        param_info = model_info["params"]
+        params = {}
+
+        def add_param(name: str, value: Any) -> None:
+            if value is not None and value > (max_val := param_info[name]["max"]):
+                msg = f"Parameter {name} exceeds max value {max_val}"
+                raise ValueError(msg)
+
+            if value is not None:
+                params[name] = value
+
+            elif (default := param_info[name]["default"]) != PROVIDER_DEFAULT:
+                params[name] = default
+
+        add_param("temperature", temperature)
+        add_param("max_tokens", max_tokens)
+
         call_provider = getattr(self, f"_call_{model_info['provider']}")
-        result = call_provider(model_info, prompt, temperature, system_prompt)
+        result = call_provider(model_info, prompt, system_prompt, params)
         assert isinstance(result, str)
         return result
 
@@ -180,8 +337,8 @@ class LLMClient:
         self,
         model_info: Dict[str, str],
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        params: Dict[str, Any],
     ) -> str:
         oai = OpenAI(api_key=self.API_KEYS["openai"])
         messages = [{"role": "user", "content": prompt}]
@@ -190,7 +347,7 @@ class LLMClient:
         result = oai.chat.completions.create(
             model=model_info["model_id"],
             messages=messages,  # type: ignore
-            temperature=temperature,
+            **params,
         )
         return str(result.choices[0].message.content)
 
@@ -198,16 +355,15 @@ class LLMClient:
         self,
         model_info: Dict[str, str],
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        params: Dict[str, Any],
     ) -> str:
         anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
         result = anthr.messages.create(
             model=model_info["model_id"],
-            max_tokens=1000,
-            temperature=temperature,
-            system=system_prompt,  # type: ignore
             messages=[{"role": "user", "content": prompt}],
+            system=system_prompt,  # type: ignore
+            **params,
         )
         return str(result.content[0].text)
 
@@ -215,15 +371,15 @@ class LLMClient:
         self,
         model_info: Dict[str, str],
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        params: Dict[str, Any],
     ) -> str:
         cohere = CohereClient(api_key=self.API_KEYS["cohere"])
         result = cohere.chat(
             model=model_info["model_id"],
             message=prompt,
             preamble=system_prompt,
-            temperature=temperature,
+            **params,
         )
         return str(result.text)
 
@@ -231,8 +387,8 @@ class LLMClient:
         self,
         model_info: Dict[str, str],
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        params: Dict[str, Any],
     ) -> str:
         groq = Groq(api_key=self.API_KEYS["groq"])
         messages = [{"role": "user", "content": prompt}]
@@ -241,7 +397,7 @@ class LLMClient:
         result = groq.chat.completions.create(
             model=model_info["model_id"],
             messages=messages,  # type: ignore
-            temperature=temperature,
+            **params,
         )
         return str(result.choices[0].message.content)
 
@@ -249,8 +405,8 @@ class LLMClient:
         self,
         model_info: Dict[str, str],
         prompt: str,
-        temperature: float,
         system_prompt: Optional[str],
+        params: Dict[str, Any],
     ) -> str:
         google.configure(api_key=self.API_KEYS["google"])
 
@@ -263,6 +419,17 @@ class LLMClient:
                 model_name=model_info["model_id"], system_instruction=system_prompt
             )
 
-        config = {"max_output_tokens": 2048, "temperature": temperature, "top_p": 1}
+        config = {}
+        if "temperature" in params:
+            config["temperature"] = params["temperature"]
+        if "max_tokens" in params:
+            config["max_output_tokens"] = params["max_tokens"]
+
         result = model.generate_content(prompt, generation_config=config)
-        return str(result.candidates[0].content.parts[0].text)
+        result = result.candidates[0]
+
+        # Will sometimes fail due to safety filters
+        if result.content:
+            return str(result.content.parts[0].text)
+        else:
+            return str(result)
