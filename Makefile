@@ -13,6 +13,11 @@ init:
 test:
 	pytest -v --cov=l2m2 --cov=test_utils --cov-report=term-missing --failed-first --durations=0
 
+itest:
+	@pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
+	python integration_tests/itests.py
+	@pip uninstall -y l2m2 > /dev/null
+
 coverage:
 	pytest --cov=l2m2 --cov=test_utils --cov-report=html
 	open htmlcov/index.html
