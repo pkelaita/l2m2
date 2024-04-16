@@ -1,6 +1,8 @@
 .PHONY: *
 .DEFAULT_GOAL := default
 
+VERSION := $(shell python -c "from l2m2 import __version__; print(__version__)")
+
 default: lint typecheck test
 
 init:
