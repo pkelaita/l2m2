@@ -78,12 +78,7 @@ If you'd like to call a language model from one of the supported providers that 
 ### Example
 
 ```python
-import os
-from dotenv import load_dotenv
-from l2m2 import LLMClient
-
-load_dotenv()
-
+from l2m2.client import LLMClient
 
 client = LLMClient()
 client.add_provider("openai", os.getenv("OPENAI_API_KEY"))
