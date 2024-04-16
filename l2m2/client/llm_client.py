@@ -7,195 +7,11 @@ from openai import OpenAI
 from anthropic import Anthropic
 from groq import Groq
 
-
-ModelInfo = Dict[str, Any]
-
-PROVIDER_DEFAULT = "<<PROVIDER_DEFAULT>>"
-
-_MODEL_INFO: Dict[str, ModelInfo] = {
-    "gpt-4-turbo": {
-        "provider": "openai",
-        "model_id": "gpt-4-turbo-2024-04-09",
-        "provider_homepage": "https://openai.com/product",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 4096,
-            },
-        },
-    },
-    "gpt-4-turbo-0125": {
-        "provider": "openai",
-        "model_id": "gpt-4-0125-preview",
-        "provider_homepage": "https://openai.com/product",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 4096,
-            },
-        },
-    },
-    "gemini-1.5-pro": {
-        "provider": "google",
-        "model_id": "gemini-1.5-pro-latest",
-        "provider_homepage": "https://ai.google.dev/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                "max": 8192,
-            },
-        },
-    },
-    "gemini-1.0-pro": {
-        "provider": "google",
-        "model_id": "gemini-1.0-pro-latest",
-        "provider_homepage": "https://ai.google.dev/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                "max": 8192,
-            },
-        },
-    },
-    "claude-3-opus": {
-        "provider": "anthropic",
-        "model_id": "claude-3-opus-20240229",
-        "provider_homepage": "https://www.anthropic.com/api",
-        "params": {
-            "temperature": {
-                "default": 0.0,
-                "max": 1.0,
-            },
-            "max_tokens": {
-                "default": 1000,  # L2M2 default, field is required
-                "max": 4096,
-            },
-        },
-    },
-    "claude-3-sonnet": {
-        "provider": "anthropic",
-        "model_id": "claude-3-sonnet-20240229",
-        "provider_homepage": "https://www.anthropic.com/api",
-        "params": {
-            "temperature": {
-                "default": 0.0,
-                "max": 1.0,
-            },
-            "max_tokens": {
-                "default": 1000,  # L2M2 default, field is required
-                "max": 4096,
-            },
-        },
-    },
-    "claude-3-haiku": {
-        "provider": "anthropic",
-        "model_id": "claude-3-haiku-20240307",
-        "provider_homepage": "https://www.anthropic.com/api",
-        "params": {
-            "temperature": {
-                "default": 0.0,
-                "max": 1.0,
-            },
-            "max_tokens": {
-                "default": 1000,  # L2M2 default, field is required
-                "max": 4096,
-            },
-        },
-    },
-    "command-r": {
-        "provider": "cohere",
-        "model_id": "command-r",
-        "provider_homepage": "https://docs.cohere.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 1.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 4000,
-            },
-        },
-    },
-    "command-r-plus": {
-        "provider": "cohere",
-        "model_id": "command-r-plus",
-        "provider_homepage": "https://docs.cohere.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 1.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 4000,
-            },
-        },
-    },
-    "llama2-70b": {
-        "provider": "groq",
-        "model_id": "llama2-70b-4096",
-        "provider_homepage": "https://wow.groq.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2**16 - 1,
-            },
-        },
-    },
-    "mixtral-8x7b": {
-        "provider": "groq",
-        "model_id": "mixtral-8x7b-32768",
-        "provider_homepage": "https://wow.groq.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2**16 - 1,
-            },
-        },
-    },
-    "gemma-7b": {
-        "provider": "groq",
-        "model_id": "gemma-7b-it",
-        "provider_homepage": "https://wow.groq.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2.0,
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": 2**16 - 1,
-            },
-        },
-    },
-}
+from l2m2.model_info import (
+    MODEL_INFO,
+    PROVIDER_DEFAULT,
+    ModelInfo,
+)
 
 
 class LLMClient:
@@ -236,7 +52,7 @@ class LLMClient:
         Returns:
             Set[str]: A set of available providers.
         """
-        return set([str(info["provider"]) for info in _MODEL_INFO.values()])
+        return set([str(info["provider"]) for info in MODEL_INFO.values()])
 
     @staticmethod
     def get_available_models() -> Set[str]:
@@ -247,7 +63,7 @@ class LLMClient:
         Returns:
             Set[str]: A set of available models.
         """
-        return set(_MODEL_INFO.keys())
+        return set(MODEL_INFO.keys())
 
     def get_active_providers(self) -> Set[str]:
         """Get the set of currently active providers. Active providers are those for which an API
@@ -285,7 +101,7 @@ class LLMClient:
         self.API_KEYS[provider] = api_key
         self.active_providers.add(provider)
         self.active_models.update(
-            model for model, info in _MODEL_INFO.items() if info["provider"] == provider
+            model for model, info in MODEL_INFO.items() if info["provider"] == provider
         )
 
     def remove_provider(self, provider: str) -> None:
@@ -303,7 +119,7 @@ class LLMClient:
         del self.API_KEYS[provider]
         self.active_providers.remove(provider)
         self.active_models.difference_update(
-            model for model, info in _MODEL_INFO.items() if info["provider"] == provider
+            model for model, info in MODEL_INFO.items() if info["provider"] == provider
         )
 
     def call(
@@ -337,7 +153,7 @@ class LLMClient:
         """
         if model not in self.active_models:
             if model in self.get_available_models():
-                provider = _MODEL_INFO[model]["provider"]
+                provider = MODEL_INFO[model]["provider"]
                 msg = (
                     f"Model {model} is available, but not active."
                     + f" Please add provider {provider} to activate it."
@@ -347,7 +163,7 @@ class LLMClient:
                 raise ValueError(f"Invalid model: {model}")
 
         result = self._call_impl(
-            _MODEL_INFO[model], prompt, system_prompt, temperature, max_tokens
+            MODEL_INFO[model], prompt, system_prompt, temperature, max_tokens
         )
         return result
 
@@ -394,7 +210,7 @@ class LLMClient:
             # Get the param info from the first model where the provider matches.
             # Not ideal, but the best we can do for user-provided models.
             **py_.pick(
-                py_.find(list(_MODEL_INFO.values()), {"provider": provider}),
+                py_.find(list(MODEL_INFO.values()), {"provider": provider}),
                 "params",
             ),
         }

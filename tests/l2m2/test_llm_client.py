@@ -12,7 +12,9 @@ from test_utils.llm_mock import (
     construct_mock_from_path,
     get_nested_attribute,
 )
-from l2m2.llm_client import LLMClient
+from l2m2.client import LLMClient
+
+MODULE_PATH = "l2m2.client.llm_client"
 
 
 @pytest.fixture
@@ -99,13 +101,13 @@ def test_remove_provider_not_active(llm_client):
 
 def _generic_test_call(
     llm_client,
-    provider_patch_path,
+    provider_module,
     call_path,
     response_path,
     provider_key,
     model_name,
 ):
-    with patch(provider_patch_path) as mock_provider:
+    with patch(f"{MODULE_PATH}.{provider_module}") as mock_provider:
         mock_client = Mock()
 
         # Dynamically get the mock call and response objects based on the delimited paths
@@ -132,7 +134,7 @@ def _generic_test_call(
 def test_call_openai(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.OpenAI",
+        provider_module="OpenAI",
         call_path="chat.completions.create",
         response_path="choices[0].message.content",
         provider_key="openai",
@@ -143,7 +145,7 @@ def test_call_openai(llm_client):
 def test_call_anthropic(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.Anthropic",
+        provider_module="Anthropic",
         call_path="messages.create",
         response_path="content[0].text",
         provider_key="anthropic",
@@ -154,7 +156,7 @@ def test_call_anthropic(llm_client):
 def test_call_cohere(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.CohereClient",
+        provider_module="CohereClient",
         call_path="chat",
         response_path="text",
         provider_key="cohere",
@@ -165,7 +167,7 @@ def test_call_cohere(llm_client):
 def test_call_groq(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.Groq",
+        provider_module="Groq",
         call_path="chat.completions.create",
         response_path="choices[0].message.content",
         provider_key="groq",
@@ -177,7 +179,7 @@ def test_call_groq(llm_client):
 def test_call_google_1_5(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.google.GenerativeModel",
+        provider_module="google.GenerativeModel",
         call_path="generate_content",
         response_path="candidates[0].content.parts[0].text",
         provider_key="google",
@@ -188,7 +190,7 @@ def test_call_google_1_5(llm_client):
 def test_call_google_1_0(llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_patch_path="l2m2.llm_client.google.GenerativeModel",
+        provider_module="google.GenerativeModel",
         call_path="generate_content",
         response_path="candidates[0].content.parts[0].text",
         provider_key="google",
@@ -222,7 +224,7 @@ def test_call_temperature_too_high(llm_client):
 
 
 def test_call_custom(llm_client):
-    with patch("l2m2.llm_client.OpenAI") as mock_openai:
+    with patch(f"{MODULE_PATH}.OpenAI") as mock_openai:
         mock_client = Mock()
         mock_call = mock_client.chat.completions.create
         mock_response = construct_mock_from_path("choices[0].message.content")

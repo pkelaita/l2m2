@@ -38,7 +38,7 @@ pip install l2m2
 **Import the LLM Client**
 
 ```python
-from l2m2 import LLMClient
+from l2m2.client import LLMClient
 ```
 
 **Add Providers**
