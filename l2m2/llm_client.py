@@ -200,12 +200,30 @@ _MODEL_INFO: Dict[str, ModelInfo] = {
 
 class LLMClient:
     def __init__(self) -> None:
+        """Initializes a new LLMClient."""
         self.API_KEYS: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
 
     @classmethod
     def with_providers(cls, providers: Dict[str, str]) -> "LLMClient":
+        """Create an LLMClient with pre-specified providers activated.
+
+        Args:
+            providers (Dict[str, str]): Mapping from provider name to API key. For example::
+
+                {
+                    "openai": "openai-api
+                    "anthropic": "anthropic-api-key",
+                    "google": "google-api-key",
+                }
+
+        Returns:
+            LLMClient: An LLMClient instance with the specified providers activated.
+
+        Raises:
+            ValueError: If an invalid provider is specified.
+        """
         obj = cls()
         for provider, api_key in providers.items():
             obj.add_provider(provider, api_key)
@@ -213,19 +231,54 @@ class LLMClient:
 
     @staticmethod
     def get_available_providers() -> Set[str]:
+        """Get the exhaustive set of L2M2's available model providers. This set includes
+        all providers, regardless of whether they are currently active. L2M2 does not currently
+        support adding custom providers.
+
+        Returns:
+            Set[str]: A set of available providers.
+        """
         return set([str(info["provider"]) for info in _MODEL_INFO.values()])
 
     @staticmethod
     def get_available_models() -> Set[str]:
+        """The set of L2M2's supported models. This set includes all models, regardless of
+        whether they are currently active. L2M2 allows users to call non-available models
+        from available and active providers, but does not guarantee correctness for such calls.
+
+        Returns:
+            Set[str]: A set of available models.
+        """
         return set(_MODEL_INFO.keys())
 
     def get_active_providers(self) -> Set[str]:
+        """Get the set of currently active providers. Active providers are those for which an API
+        key has been set.
+
+        Returns:
+            Set[str]: A set of active providers.
+        """
         return set(self.active_providers)
 
     def get_active_models(self) -> Set[str]:
+        """Get the set of currently active models. Active models are those that are available and
+        have a provider that is active.
+
+        Returns:
+            Set[str]: A set of active models.
+        """
         return set(self.active_models)
 
     def add_provider(self, provider: str, api_key: str) -> None:
+        """Add a provider to the LLMClient, making its models available for use.
+
+        Args:
+            provider (str): The provider name. Must be one of the available providers.
+            api_key (str): The API key for the provider.
+
+        Raises:
+            ValueError: If the provider is not one of the available providers.
+        """
         if provider not in (providers := self.get_available_providers()):
             raise ValueError(
                 f"Invalid provider: {provider}. Available providers: {providers}"
@@ -238,6 +291,14 @@ class LLMClient:
         )
 
     def remove_provider(self, provider: str) -> None:
+        """Remove a provider from the LLMClient, making its models unavailable for use.
+
+        Args:
+            provider (str): The active provider to remove.
+
+        Raises:
+            ValueError: If the given provider is not active.
+        """
         if provider not in self.active_providers:
             raise ValueError(f"Provider not active: {provider}")
 
@@ -256,6 +317,28 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
     ) -> str:
+        """Performs inference on any active model.
+
+        Args:
+            model (str): The active model to call.
+            prompt (str): The user prompt for which to generate a completion.
+            system_prompt (Optional[str], optional): The system prompt to send to the model.
+                If the specified model does not support system prompts, it is prepended to the
+                user prompt. Defaults to None.
+            temperature (Optional[float], optional): The sampling temperature for the model.
+                If not specified, the provider's default value for the model is used. Defaults
+                to None.
+            max_tokens (Optional[int], optional): The maximum number of tokens to generate.
+                If not specified, the provider's default value for the model is used. Defaults
+                to None.
+
+        Raises:
+            ValueError: If the provided model is not active and/or not available.
+
+        Returns:
+            str: The model's completion for the prompt, or an error message if the model is
+                unable to generate a completion.
+        """
         if model not in self.active_models:
             if model in self.get_available_models():
                 provider = _MODEL_INFO[model]["provider"]
@@ -276,12 +359,38 @@ class LLMClient:
         self,
         *,
         provider: str,
-        model: str,
+        model_id: str,
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
     ) -> str:
+        """Performs inference on any model from an active provider that is not officially supported
+        by L2M2. This method does not guarantee correctness.
+
+        Args:
+            provider (str): The provider to use. Must be one of the active providers.
+            model_id (str): The ID of model to call. Must be the exact match to how you would call
+                it with the provider's API. For example, `gpt-3.5-turbo-0125` can be used to call
+                a legacy model from OpenAI as per the OpenAI API docs.
+                (https://platform.openai.com/docs/api-reference/chat)
+            prompt (str): The user prompt for which to generate a completion.
+            system_prompt (Optional[str], optional): The system prompt to send to the model.
+                If the specified model does not support system prompts, it is prepended to the
+                user prompt. Defaults to None.
+            temperature (Optional[float], optional): The sampling temperature for the model.
+                If not specified, the provider's default value for the model is used. Defaults
+                to None.
+            max_tokens (Optional[int], optional): The maximum number of tokens to generate.
+                If not specified, the provider's default value for the model is used. Defaults
+                to None.
+
+        Raises:
+            ValueError: If the provided model is not active and/or not available.
+
+        Returns:
+            str: The model's completion for the prompt (correctness not guaranteed).
+        """
         if provider not in self.get_available_providers():
             raise ValueError(f"Invalid provider: {provider}")
         if provider not in self.active_providers:
@@ -289,7 +398,7 @@ class LLMClient:
 
         model_info = {
             "provider": provider,
-            "model_id": model,
+            "model_id": model_id,
             # Get the param info from the first model where the provider matches.
             # Not ideal, but the best we can do for user-provided models.
             **py_.pick(

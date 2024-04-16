@@ -228,14 +228,15 @@ def test_call_custom(llm_client):
         response_default = llm_client.call_custom(
             provider="openai",
             prompt="Hello",
-            model="custom-model-xyz",
+            model_id="custom-model-xyz",
         )
         response_custom = llm_client.call_custom(
             provider="openai",
             prompt="Hello",
-            model="custom-model-xyz",
+            model_id="custom-model-xyz",
             system_prompt="System prompt",
             temperature=0.5,
+            max_tokens=100,
         )
 
         assert response_default == "response"
@@ -247,7 +248,7 @@ def test_call_custom_invalid_provider(llm_client):
         llm_client.call_custom(
             provider="invalid_provider",
             prompt="Hello",
-            model="custom-model-xyz",
+            model_id="custom-model-xyz",
         )
 
 
@@ -256,5 +257,5 @@ def test_call_custom_not_active(llm_client):
         llm_client.call_custom(
             provider="openai",
             prompt="Hello",
-            model="custom-model-xyz",
+            model_id="custom-model-xyz",
         )
