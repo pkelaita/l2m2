@@ -199,6 +199,8 @@ _MODEL_INFO: Dict[str, ModelInfo] = {
 
 
 class LLMClient:
+    """A high-level interface for interacting with L2M2's supported language models."""
+
     def __init__(self) -> None:
         """Initializes a new LLMClient."""
         self.API_KEYS: Dict[str, str] = {}
