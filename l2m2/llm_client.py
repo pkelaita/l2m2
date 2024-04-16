@@ -201,35 +201,31 @@ _MODEL_INFO: Dict[str, ModelInfo] = {
 class LLMClient:
     """A high-level interface for interacting with L2M2's supported language models."""
 
-    def __init__(self) -> None:
-        """Initializes a new LLMClient."""
+    def __init__(self, providers: Optional[Dict[str, str]] = None) -> None:
+        """Initialize the LLMClient, optionally with active providers.
+
+        Args:
+            providers ([Dict[str, str]], optional): Mapping from provider name to API key.
+                For example::
+
+                    {
+                        "openai": "openai-api
+                        "anthropic": "anthropic-api-key",
+                        "google": "google-api-key",
+                    }
+
+                Defaults to None.
+
+        Raises:
+            ValueError: If an invalid provider is specified in `providers`.
+        """
         self.API_KEYS: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
 
-    @classmethod
-    def with_providers(cls, providers: Dict[str, str]) -> "LLMClient":
-        """Create an LLMClient with pre-specified providers activated.
-
-        Args:
-            providers (Dict[str, str]): Mapping from provider name to API key. For example::
-
-                {
-                    "openai": "openai-api
-                    "anthropic": "anthropic-api-key",
-                    "google": "google-api-key",
-                }
-
-        Returns:
-            LLMClient: An LLMClient instance with the specified providers activated.
-
-        Raises:
-            ValueError: If an invalid provider is specified.
-        """
-        obj = cls()
-        for provider, api_key in providers.items():
-            obj.add_provider(provider, api_key)
-        return obj
+        if providers is not None:
+            for provider, api_key in providers.items():
+                self.add_provider(provider, api_key)
 
     @staticmethod
     def get_available_providers() -> Set[str]:
@@ -324,15 +320,13 @@ class LLMClient:
         Args:
             model (str): The active model to call.
             prompt (str): The user prompt for which to generate a completion.
-            system_prompt (Optional[str], optional): The system prompt to send to the model.
-                If the specified model does not support system prompts, it is prepended to the
-                user prompt. Defaults to None.
-            temperature (Optional[float], optional): The sampling temperature for the model.
-                If not specified, the provider's default value for the model is used. Defaults
+            system_prompt (str, optional): The system prompt to send to the model. If the specified
+                model does not support system prompts, it is prepended to the user prompt. Defaults
                 to None.
-            max_tokens (Optional[int], optional): The maximum number of tokens to generate.
-                If not specified, the provider's default value for the model is used. Defaults
-                to None.
+            temperature (float, optional): The sampling temperature for the model. If not specified,
+                the provider's default value for the model is used. Defaults to None.
+            max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
+                the provider's default value for the model is used. Defaults to None.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -377,15 +371,11 @@ class LLMClient:
                 a legacy model from OpenAI as per the OpenAI API docs.
                 (https://platform.openai.com/docs/api-reference/chat)
             prompt (str): The user prompt for which to generate a completion.
-            system_prompt (Optional[str], optional): The system prompt to send to the model.
-                If the specified model does not support system prompts, it is prepended to the
-                user prompt. Defaults to None.
-            temperature (Optional[float], optional): The sampling temperature for the model.
-                If not specified, the provider's default value for the model is used. Defaults
-                to None.
-            max_tokens (Optional[int], optional): The maximum number of tokens to generate.
-                If not specified, the provider's default value for the model is used. Defaults
-                to None.
+            system_prompt (str, optional): The system prompt to send to the model. Defaults to None.
+            temperature (float, optional): The sampling temperature for the model. If not specified,
+                the provider's default value for the model is used. Defaults to None.
+            max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
+                the provider's default value for the model is used. Defaults to None.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.

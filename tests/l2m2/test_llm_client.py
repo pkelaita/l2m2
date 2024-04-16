@@ -30,10 +30,8 @@ def test_init(llm_client):
     assert llm_client.active_models == set()
 
 
-def test_with_providers():
-    llm_client = LLMClient.with_providers(
-        {"openai": "test-key-openai", "cohere": "test-key-cohere"}
-    )
+def test_init_with_providers():
+    llm_client = LLMClient({"openai": "test-key-openai", "cohere": "test-key-cohere"})
     assert llm_client.API_KEYS == {
         "openai": "test-key-openai",
         "cohere": "test-key-cohere",
@@ -44,21 +42,28 @@ def test_with_providers():
     assert "claude-3-opus" not in llm_client.active_models
 
 
-def test_with_providers_invalid():
+def test_init_with_providers_invalid():
     with pytest.raises(ValueError):
-        LLMClient.with_providers(
-            {"invalid_provider": "some-key", "openai": "test-key-openai"}
-        )
+        LLMClient({"invalid_provider": "some-key", "openai": "test-key-openai"})
 
 
 def test_getters(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
     llm_client.add_provider("cohere", "test-key-cohere")
     assert llm_client.get_active_providers() == {"openai", "cohere"}
+
     active_models = llm_client.get_active_models()
     assert "gpt-4-turbo" in active_models
     assert "command-r" in active_models
     assert "claude-3-opus" not in active_models
+
+    available_providers = LLMClient.get_available_providers()
+    assert llm_client.active_providers.issubset(available_providers)
+    assert len(available_providers) > len(llm_client.active_providers)
+
+    available_models = LLMClient.get_available_models()
+    assert llm_client.active_models.issubset(available_models)
+    assert len(available_models) > len(llm_client.active_models)
 
 
 def test_add_provider(llm_client):
@@ -105,7 +110,7 @@ def _generic_test_call(
 
         # Dynamically get the mock call and response objects based on the delimited paths
         mock_call = get_nested_attribute(mock_client, call_path)
-        mock_response = construct_mock_from_path(response_path)
+        mock_response = construct_mock_from_path(response_path, "response")
         mock_call.return_value = mock_response
 
         mock_provider.return_value = mock_client

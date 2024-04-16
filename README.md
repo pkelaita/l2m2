@@ -39,16 +39,22 @@ pip install l2m2
 
 ```python
 from l2m2 import LLMClient
-
-client = LLMClient()
 ```
 
-**Add a Provider**
+**Add Providers**
 
 In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to pass in a valid provider as shown in the table above.
 
 ```python
-client.add_provider("<provider name>", "<API key>")
+client = LLMClient()
+client.add_provider("<provider-name>", "<api-key>")
+
+# Alternatively, you can pass in providers via the constructor
+client = LLMClient({
+    "<provider-a>": "<api-key-a>",
+    "<provider-b>": "<api-key-b>",
+    ...
+})
 ```
 
 **Call your LLM 💬👍**
