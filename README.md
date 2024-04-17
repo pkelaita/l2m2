@@ -1,8 +1,14 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that allows you to expose lots of models through a single API. This is useful for evaluation, demos, and production LLM apps that use multiple models.
+**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
-## Supported Models
+## Features
+
+- 12 supported models (see below), with more on the way
+- Asynchronous and concurrent calls
+- User-provided models from supported providers
+
+#### Supported Models
 
 L2M2 currently supports the following models:
 
@@ -22,6 +28,13 @@ L2M2 currently supports the following models:
 | [`groq`](https://wow.groq.com/)              | `gemma-7b`         | `gemma-7b-it`              |
 
 You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
+
+#### Planned Featires
+
+- Support for Huggingface & open-source LLMs
+- Chat-specific features (e.g. context, history, etc)
+- Typescript clone
+- ...etc
 
 ## Requirements
 
@@ -75,9 +88,12 @@ response = client.call(
 
 If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-3.5-turbo`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
 
-### Example
+#### Example
 
 ```python
+# example.py
+
+import os
 from l2m2.client import LLMClient
 
 client = LLMClient()
@@ -95,5 +111,105 @@ print(response)
 ```
 
 ```
+>> python3 example.py
+
 Arrr, matey! The skies be clear as the Caribbean waters today, with the sun blazin' high 'bove us. A fine day fer settin' sail and huntin' fer treasure, it be. But keep yer eye on the horizon, for the weather can turn quicker than a sloop in a squall. Yarrr!
 ```
+
+### Async Calls
+
+L2M2 utilizes `asyncio` to allow for multiple concurrent calls. This is useful for calling multiple models at with the same prompt, calling the same model with multiple prompts, mixing and matching parameters, etc.
+
+`AsyncLLMClient`, which extends `LLMClient`, is provided for this purpose. Its usage is similar to above:
+
+```python
+# example_async.py
+
+import asyncio
+import os
+from l2m2.client import AsyncLLMClient
+
+client = AsyncLLMClient({
+    "openai": os.getenv("OPENAI_API_KEY"),
+    "google": os.getenv("GOOGLE_API_KEY"),
+})
+
+
+async def make_two_calls():
+    responses = await asyncio.gather(
+        client.call_async(
+            model="gpt-4-turbo",
+            prompt="How's the weather today?",
+            system_prompt="Respond as if you were a pirate.",
+            temperature=0.3,
+            max_tokens=100,
+        ),
+        client.call_async(
+            model="gemini-1.0-pro",
+            prompt="How's the weather today?",
+            system_prompt="Respond as if you were a pirate.",
+            temperature=0.3,
+            max_tokens=100,
+        ),
+    )
+    for response in responses:
+        print(response)
+
+
+if __name__ == "__main__":
+    asyncio.run(make_two_calls())
+```
+
+```
+>> python3 example_async.py
+
+Arrr, the skies be clear and the winds be in our favor, matey! A fine day for sailin' the high seas, it be.
+Avast there, matey! The weather be fair and sunny, with a gentle breeze from the east. The sea be calm, and the sky be clear. A perfect day for sailin' and plunderin'!
+```
+
+For convenience `AsyncLLMClient` also provides `call_concurrent`, which allows you to easily make concurrent calls mixing and matching models, prompts, and parameters. In the example shown below, parameter arrays of size `n` are applied linearly to the `n` concurrent calls, and arrays of size `1` are applied across all `n` calls.
+
+```python
+# example_concurrent.py
+
+import asyncio
+import os
+from l2m2.client import AsyncLLMClient
+
+client = AsyncLLMClient({
+    "openai": os.getenv("OPENAI_API_KEY"),
+    "google": os.getenv("GOOGLE_API_KEY"),
+    "cohere": os.getenv("COHERE_API_KEY"),
+})
+
+
+async def multiple_models_same_prompt():
+    responses = await client.call_concurrent(
+        n=3,
+        models=["gpt-4-turbo", "gemini-1.0-pro", "command-r"],
+        prompts=["What is your name, and which company made your model?"],
+        system_prompts=["Your name is Bob, and you respond to questions briefly."],
+        temperatures=[0.4, 0.5, 0.7],
+        max_tokens=[75],
+    )
+
+    for response in responses:
+        print(response)
+
+if __name__ == "__main__":
+    asyncio.run(multiple_models_same_prompt())
+```
+
+```
+>> python3 example_concurrent.py
+
+My name is Bob, and OpenAI created my model.
+Bob; Google
+My name is Bob, and I am a product of Cohere, a company that focuses on developing outstanding AI technology.
+```
+
+Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage.
+
+## Contact
+
+If you'd like to contribute, have feature requests, or have any other questions about l2m2 please shoot me a note at [pierce@kelaita.com](mailto:pierce@kelaita.com), open an issue on the [Github repo](https://github.com/pkelaita/l2m2/issues), or DM me on the GenAI Collective [Slack Channel](https://join.slack.com/t/genai-collective/shared_invite/zt-285qq7joi-~bqHwFZcNtqntoRmGirAfQ).
