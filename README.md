@@ -8,7 +8,7 @@
 - Asynchronous and concurrent calls
 - User-provided models from supported providers
 
-#### Supported Models
+### Supported Models
 
 L2M2 currently supports the following models:
 
@@ -29,7 +29,7 @@ L2M2 currently supports the following models:
 
 You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
 
-#### Planned Featires
+### Planned Featires
 
 - Support for Huggingface & open-source LLMs
 - Chat-specific features (e.g. context, history, etc)
