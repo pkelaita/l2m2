@@ -2,3 +2,5 @@
 exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,venv,integration_tests,scripts
 max-line-length = 120
 max-complexity = 10
+
+ignore = E731, W503

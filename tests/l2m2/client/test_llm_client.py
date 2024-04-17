@@ -1,13 +1,6 @@
 import pytest
 from unittest.mock import patch, Mock
 
-# These aren't used, but are imported to ensure they are available
-from openai import OpenAI  # noqa: F401
-from cohere import Client as CohereClient  # noqa: F401
-from anthropic import Anthropic  # noqa: F401
-from groq import Groq  # noqa: F401
-import google.generativeai as google  # noqa: F401
-
 from test_utils.llm_mock import (
     construct_mock_from_path,
     get_nested_attribute,
@@ -15,6 +8,15 @@ from test_utils.llm_mock import (
 from l2m2.client import LLMClient
 
 MODULE_PATH = "l2m2.client.llm_client"
+
+
+# Make sure all the providers are available
+def test_provider_imports():
+    from openai import OpenAI  # noqa: F401
+    from cohere import Client as CohereClient  # noqa: F401
+    from anthropic import Anthropic  # noqa: F401
+    from groq import Groq  # noqa: F401
+    import google.generativeai as google  # noqa: F401
 
 
 @pytest.fixture
