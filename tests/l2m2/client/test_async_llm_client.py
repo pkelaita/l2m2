@@ -112,28 +112,28 @@ def _prepare_three_mock_clients(mock_openai, mock_anthropic, mock_cohere, respon
 
 
 @pytest.mark.asyncio
-async def test_call_async(async_llm_client):
-    with patch(f"{BASE_MODULE_PATH}.OpenAI") as mock_openai:
-        mock_openai.return_value = _get_mock_client(
-            "chat.completions.create",
-            "choices[0].message.content",
-            "response",
-        )
+@patch(f"{BASE_MODULE_PATH}.OpenAI")
+async def test_call_async(mock_openai, async_llm_client):
+    mock_openai.return_value = _get_mock_client(
+        "chat.completions.create",
+        "choices[0].message.content",
+        "response",
+    )
 
-        async_llm_client.add_provider("openai", "fake-api-key")
-        response_default = await async_llm_client.call_async(
-            prompt="Hello", model="gpt-4-turbo"
-        )
-        response_custom = await async_llm_client.call_async(
-            prompt="Hello",
-            model="gpt-4-turbo",
-            system_prompt="System prompt",
-            temperature=0.5,
-            max_tokens=100,
-        )
+    async_llm_client.add_provider("openai", "fake-api-key")
+    response_default = await async_llm_client.call_async(
+        prompt="Hello", model="gpt-4-turbo"
+    )
+    response_custom = await async_llm_client.call_async(
+        prompt="Hello",
+        model="gpt-4-turbo",
+        system_prompt="System prompt",
+        temperature=0.5,
+        max_tokens=100,
+    )
 
-        assert response_default == "response"
-        assert response_custom == "response"
+    assert response_default == "response"
+    assert response_custom == "response"
 
 
 @pytest.mark.asyncio
@@ -340,31 +340,31 @@ async def test_call_concurrent_array_mismatch(async_llm_client):
 
 
 @pytest.mark.asyncio
-async def test_call_custom_async(async_llm_client):
-    with patch(f"{BASE_MODULE_PATH}.OpenAI") as mock_openai:
-        mock_openai.return_value = _get_mock_client(
-            "chat.completions.create",
-            "choices[0].message.content",
-            "response",
-        )
+@patch(f"{BASE_MODULE_PATH}.OpenAI")
+async def test_call_custom_async(mock_openai, async_llm_client):
+    mock_openai.return_value = _get_mock_client(
+        "chat.completions.create",
+        "choices[0].message.content",
+        "response",
+    )
 
-        async_llm_client.add_provider("openai", "fake-api-key")
-        response_default = await async_llm_client.call_custom_async(
-            provider="openai",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-        )
-        response_custom = await async_llm_client.call_custom_async(
-            provider="openai",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-            system_prompt="System prompt",
-            temperature=0.5,
-            max_tokens=100,
-        )
+    async_llm_client.add_provider("openai", "fake-api-key")
+    response_default = await async_llm_client.call_custom_async(
+        provider="openai",
+        prompt="Hello",
+        model_id="custom-model-xyz",
+    )
+    response_custom = await async_llm_client.call_custom_async(
+        provider="openai",
+        prompt="Hello",
+        model_id="custom-model-xyz",
+        system_prompt="System prompt",
+        temperature=0.5,
+        max_tokens=100,
+    )
 
-        assert response_default == "response"
-        assert response_custom == "response"
+    assert response_default == "response"
+    assert response_custom == "response"
 
 
 @pytest.mark.asyncio

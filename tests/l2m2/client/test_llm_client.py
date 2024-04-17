@@ -81,16 +81,12 @@ def test_add_provider_invalid(llm_client):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
+@patch.object(LLMClient, "get_available_providers", return_value={"openai"})
 def test_remove_provider(llm_client):
-    with patch.object(
-        LLMClient,
-        "get_available_providers",
-        return_value={"openai"},
-    ):
-        llm_client.add_provider("openai", "test-key-openai")
-        llm_client.remove_provider("openai")
-        assert "openai" not in llm_client.active_providers
-        assert "gpt-4-turbo" not in llm_client.active_models
+    llm_client.add_provider("openai", "test-key-openai")
+    llm_client.remove_provider("openai")
+    assert "openai" not in llm_client.active_providers
+    assert "gpt-4-turbo" not in llm_client.active_models
 
 
 def test_remove_provider_not_active(llm_client):
@@ -103,40 +99,40 @@ def test_remove_provider_not_active(llm_client):
 
 def _generic_test_call(
     llm_client,
-    provider_module,
+    mock_provider,
     call_path,
     response_path,
     provider_key,
     model_name,
 ):
-    with patch(f"{MODULE_PATH}.{provider_module}") as mock_provider:
-        mock_client = Mock()
+    mock_client = Mock()
 
-        # Dynamically get the mock call and response objects based on the delimited paths
-        mock_call = get_nested_attribute(mock_client, call_path)
-        mock_response = construct_mock_from_path(response_path, "response")
-        mock_call.return_value = mock_response
+    # Dynamically get the mock call and response objects based on the delimited paths
+    mock_call = get_nested_attribute(mock_client, call_path)
+    mock_response = construct_mock_from_path(response_path, "response")
+    mock_call.return_value = mock_response
 
-        mock_provider.return_value = mock_client
+    mock_provider.return_value = mock_client
 
-        llm_client.add_provider(provider_key, "fake-api-key")
-        response_default = llm_client.call(prompt="Hello", model=model_name)
-        response_custom = llm_client.call(
-            prompt="Hello",
-            model=model_name,
-            system_prompt="System prompt",
-            temperature=0.5,
-            max_tokens=100,
-        )
+    llm_client.add_provider(provider_key, "fake-api-key")
+    response_default = llm_client.call(prompt="Hello", model=model_name)
+    response_custom = llm_client.call(
+        prompt="Hello",
+        model=model_name,
+        system_prompt="System prompt",
+        temperature=0.5,
+        max_tokens=100,
+    )
 
-        assert response_default == "response"
-        assert response_custom == "response"
+    assert response_default == "response"
+    assert response_custom == "response"
 
 
-def test_call_openai(llm_client):
+@patch(f"{MODULE_PATH}.OpenAI")
+def test_call_openai(mock_openai, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="OpenAI",
+        mock_provider=mock_openai,
         call_path="chat.completions.create",
         response_path="choices[0].message.content",
         provider_key="openai",
@@ -144,10 +140,11 @@ def test_call_openai(llm_client):
     )
 
 
-def test_call_anthropic(llm_client):
+@patch(f"{MODULE_PATH}.Anthropic")
+def test_call_anthropic(mock_anthropic, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="Anthropic",
+        mock_provider=mock_anthropic,
         call_path="messages.create",
         response_path="content[0].text",
         provider_key="anthropic",
@@ -155,10 +152,11 @@ def test_call_anthropic(llm_client):
     )
 
 
-def test_call_cohere(llm_client):
+@patch(f"{MODULE_PATH}.CohereClient")
+def test_call_cohere(mock_cohere, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="CohereClient",
+        mock_provider=mock_cohere,
         call_path="chat",
         response_path="text",
         provider_key="cohere",
@@ -166,10 +164,11 @@ def test_call_cohere(llm_client):
     )
 
 
-def test_call_groq(llm_client):
+@patch(f"{MODULE_PATH}.Groq")
+def test_call_groq(mock_groq, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="Groq",
+        mock_provider=mock_groq,
         call_path="chat.completions.create",
         response_path="choices[0].message.content",
         provider_key="groq",
@@ -178,10 +177,11 @@ def test_call_groq(llm_client):
 
 
 # Need to test gemini 1.0 and 1.5 separately because 1.0 doesn't support system prompts
-def test_call_google_1_5(llm_client):
+@patch(f"{MODULE_PATH}.google.GenerativeModel")
+def test_call_google_1_5(mock_google, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="google.GenerativeModel",
+        mock_provider=mock_google,
         call_path="generate_content",
         response_path="candidates[0].content.parts[0].text",
         provider_key="google",
@@ -189,10 +189,11 @@ def test_call_google_1_5(llm_client):
     )
 
 
-def test_call_google_1_0(llm_client):
+@patch(f"{MODULE_PATH}.google.GenerativeModel")
+def test_call_google_1_0(mock_google, llm_client):
     _generic_test_call(
         llm_client=llm_client,
-        provider_module="google.GenerativeModel",
+        mock_provider=mock_google,
         call_path="generate_content",
         response_path="candidates[0].content.parts[0].text",
         provider_key="google",
@@ -225,31 +226,31 @@ def test_call_temperature_too_high(llm_client):
 # -- Tests for call_custom -- #
 
 
-def test_call_custom(llm_client):
-    with patch(f"{MODULE_PATH}.OpenAI") as mock_openai:
-        mock_client = Mock()
-        mock_call = mock_client.chat.completions.create
-        mock_response = construct_mock_from_path("choices[0].message.content")
-        mock_call.return_value = mock_response
-        mock_openai.return_value = mock_client
+@patch(f"{MODULE_PATH}.OpenAI")
+def test_call_custom(mock_openai, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.chat.completions.create
+    mock_response = construct_mock_from_path("choices[0].message.content")
+    mock_call.return_value = mock_response
+    mock_openai.return_value = mock_client
 
-        llm_client.add_provider("openai", "fake-api-key")
-        response_default = llm_client.call_custom(
-            provider="openai",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-        )
-        response_custom = llm_client.call_custom(
-            provider="openai",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-            system_prompt="System prompt",
-            temperature=0.5,
-            max_tokens=100,
-        )
+    llm_client.add_provider("openai", "fake-api-key")
+    response_default = llm_client.call_custom(
+        provider="openai",
+        prompt="Hello",
+        model_id="custom-model-xyz",
+    )
+    response_custom = llm_client.call_custom(
+        provider="openai",
+        prompt="Hello",
+        model_id="custom-model-xyz",
+        system_prompt="System prompt",
+        temperature=0.5,
+        max_tokens=100,
+    )
 
-        assert response_default == "response"
-        assert response_custom == "response"
+    assert response_default == "response"
+    assert response_custom == "response"
 
 
 def test_call_custom_invalid_provider(llm_client):
