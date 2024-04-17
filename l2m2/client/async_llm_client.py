@@ -5,29 +5,6 @@ from typing import Optional, List, Any
 from l2m2.client import LLMClient
 
 
-def _get_helper(param: Optional[List[Any]], i: int) -> Optional[Any]:
-    if param is None:
-        return None
-    if len(param) == 1:
-        return param[0]
-    return param[i]
-
-
-def _check_concurrent_params(
-    n: int,
-    params: List[Optional[List[Any]]],
-    argnames: List[str],
-) -> None:
-    if n < 1:
-        raise ValueError("n must be at least 1")
-
-    for i, param in enumerate(params):
-        if param is not None and len(param) not in [1, n]:
-            raise ValueError(
-                f"{argnames[i]} must have length 1 or {n}, got {len(param)}"
-            )
-
-
 class AsyncLLMClient(LLMClient):
     """A high-level interface for asynchronously interacting with L2M2's language models."""
 
@@ -293,3 +270,26 @@ class AsyncLLMClient(LLMClient):
 
     async def _call_custom_wrapper(self, **kwargs: Any) -> str:
         return self.call_custom(**kwargs)
+
+
+def _get_helper(param: Optional[List[Any]], i: int) -> Optional[Any]:
+    if param is None:
+        return None
+    if len(param) == 1:
+        return param[0]
+    return param[i]
+
+
+def _check_concurrent_params(
+    n: int,
+    params: List[Optional[List[Any]]],
+    argnames: List[str],
+) -> None:
+    if n < 1:
+        raise ValueError("n must be at least 1")
+
+    for i, param in enumerate(params):
+        if param is not None and len(param) not in [1, n]:
+            raise ValueError(
+                f"{argnames[i]} must have length 1 or {n}, got {len(param)}"
+            )
