@@ -196,9 +196,10 @@ MODEL_INFO: Dict[str, ModelInfo] = {
         "params": {
             "temperature": {
                 "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
+                "max": 5.0,
             },
             "max_tokens": {
+                "custom_key": "max_new_tokens",
                 "default": PROVIDER_DEFAULT,
                 "max": float("inf"),
             },
@@ -211,9 +212,10 @@ MODEL_INFO: Dict[str, ModelInfo] = {
         "params": {
             "temperature": {
                 "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
+                "max": 5.0,
             },
             "max_tokens": {
+                "custom_key": "max_new_tokens",
                 "default": PROVIDER_DEFAULT,
                 "max": float("inf"),
             },

@@ -238,11 +238,14 @@ class LLMClient:
                 msg = f"Parameter {name} exceeds max value {max_val}"
                 raise ValueError(msg)
 
-            if value is not None:
-                params[name] = value
+            key = name
+            if "custom_key" in param_info[name]:
+                key = param_info[name]["custom_key"]
 
+            if value is not None:
+                params[key] = value
             elif (default := param_info[name]["default"]) != PROVIDER_DEFAULT:
-                params[name] = default
+                params[key] = default
 
         add_param("temperature", temperature)
         add_param("max_tokens", max_tokens)
@@ -363,22 +366,12 @@ class LLMClient:
         params: Dict[str, Any],
     ) -> str:
         client = replicate.Client(api_token=self.API_KEYS["replicate"])
-        prompt_template = (
-            "<|begin_of_text|>"
-            + (
-                f"<|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|>"
-                if system_prompt is not None
-                else ""
-            )
-            + "<|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|>"
-            + "<|start_header_id|>assistant<|end_header_id|>\n\n"
-        )
+        if system_prompt is not None:
+            params["system_prompt"] = system_prompt
         result = client.run(
             model_id,
             input={
                 "prompt": prompt,
-                "prompt_template": prompt_template,
-                "auth_token": self.API_KEYS["replicate"],
                 **params,
             },
         )
