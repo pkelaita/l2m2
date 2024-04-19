@@ -6,6 +6,8 @@ from cohere import Client as CohereClient
 from openai import OpenAI
 from anthropic import Anthropic
 from groq import Groq
+import replicate
+import replicate.account
 
 from l2m2.model_info import (
     MODEL_INFO,
@@ -352,3 +354,32 @@ class LLMClient:
             return str(result.content.parts[0].text)
         else:
             return str(result)
+
+    def _call_replicate(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+    ) -> str:
+        client = replicate.Client(api_token=self.API_KEYS["replicate"])
+        prompt_template = (
+            "<|begin_of_text|>"
+            + (
+                f"<|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|>"
+                if system_prompt is not None
+                else ""
+            )
+            + "<|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|>"
+            + "<|start_header_id|>assistant<|end_header_id|>\n\n"
+        )
+        result = client.run(
+            model_id,
+            input={
+                "prompt": prompt,
+                "prompt_template": prompt_template,
+                "auth_token": self.API_KEYS["replicate"],
+                **params,
+            },
+        )
+        return "".join(result)

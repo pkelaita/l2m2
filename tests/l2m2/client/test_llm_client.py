@@ -17,6 +17,7 @@ def test_provider_imports():
     from anthropic import Anthropic  # noqa: F401
     from groq import Groq  # noqa: F401
     import google.generativeai as google  # noqa: F401
+    import replicate  # noqa: F401
 
 
 @pytest.fixture
@@ -109,8 +110,12 @@ def _generic_test_call(
 
     # Dynamically get the mock call and response objects based on the delimited paths
     mock_call = get_nested_attribute(mock_client, call_path)
-    mock_response = construct_mock_from_path(response_path, "response")
-    mock_call.return_value = mock_response
+    if response_path == "":
+        # Stopgap for replicate, #TODO fix this!
+        mock_call.return_value = ["response"]
+    else:
+        mock_response = construct_mock_from_path(response_path, "response")
+        mock_call.return_value = mock_response
 
     mock_provider.return_value = mock_client
 
@@ -198,6 +203,18 @@ def test_call_google_1_0(mock_google, llm_client):
         response_path="candidates[0].content.parts[0].text",
         provider_key="google",
         model_name="gemini-1.0-pro",
+    )
+
+
+@patch(f"{MODULE_PATH}.replicate.Client")
+def test_call_replicate(mock_replicate, llm_client):
+    _generic_test_call(
+        llm_client=llm_client,
+        mock_provider=mock_replicate,
+        call_path="run",
+        response_path="",
+        provider_key="replicate",
+        model_name="llama3-8b-instruct",
     )
 
 
