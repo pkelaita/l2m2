@@ -343,13 +343,7 @@ class LLMClient:
                 model_params["system_instruction"] = system_prompt
         model = google.GenerativeModel(**model_params)
 
-        config_map = {
-            "temperature": "temperature",
-            "max_tokens": "max_output_tokens",
-        }
-        config = {config_map[k]: v for k, v in params.items() if k in config_map}
-
-        result = model.generate_content(prompt, generation_config=config)
+        result = model.generate_content(prompt, generation_config=params)
         result = result.candidates[0]
 
         # Will sometimes fail due to safety filters

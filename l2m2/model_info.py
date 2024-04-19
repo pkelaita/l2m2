@@ -47,6 +47,7 @@ MODEL_INFO: Dict[str, ModelInfo] = {
                 "max": 2.0,
             },
             "max_tokens": {
+                "custom_key": "max_output_tokens",
                 "default": PROVIDER_DEFAULT,
                 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
                 "max": 8192,
@@ -63,6 +64,7 @@ MODEL_INFO: Dict[str, ModelInfo] = {
                 "max": 2.0,
             },
             "max_tokens": {
+                "custom_key": "max_output_tokens",
                 "default": PROVIDER_DEFAULT,
                 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
                 "max": 8192,
