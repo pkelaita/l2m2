@@ -82,7 +82,6 @@ def test_add_provider_invalid(llm_client):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
-@patch.object(LLMClient, "get_available_providers", return_value={"openai"})
 def test_remove_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
     llm_client.remove_provider("openai")
