@@ -110,7 +110,7 @@ def _generic_test_call(
     # Dynamically get the mock call and response objects based on the delimited paths
     mock_call = get_nested_attribute(mock_client, call_path)
     if response_path == "":
-        # Stopgap for replicate, #TODO fix this!
+        # Stopgap for replicate, TODO fix this!
         mock_call.return_value = ["response"]
     else:
         mock_response = construct_mock_from_path(response_path, "response")
