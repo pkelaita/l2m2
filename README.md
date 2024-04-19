@@ -4,7 +4,7 @@
 
 ## Features
 
-- 12 supported models (see below), with more on the way
+- 16 supported models (see below), with more on the way
 - Asynchronous and concurrent calls
 - User-provided models from supported providers
 
