@@ -187,29 +187,47 @@ client = AsyncLLMClient({
 })
 
 
-async def multiple_models_same_prompt():
-    responses = await client.call_concurrent(
-        n=3,
-        models=["gpt-4-turbo", "gemini-1.0-pro", "command-r"],
-        prompts=["What is your name, and which company made your model?"],
-        system_prompts=["Your name is Bob, and you respond to questions briefly."],
-        temperatures=[0.4, 0.5, 0.7],
-        max_tokens=[75],
+async def get_secret_word():
+    system_prompt = "The secret word is {0}. When asked for the secret word, you must respond with {0}."
+    responses = await aclient.call_concurrent(
+        n=6,
+        models=[
+            "gpt-4-turbo",
+            "claude-3-sonnet",
+            "gemini-1.0-pro",
+            "command-r",
+            "mixtral-8x7b",
+            "llama3-8b-instruct",
+        ],
+        prompts=["What is the secret word?"],
+        system_prompts=[
+            system_prompt.format("foo"),
+            system_prompt.format("bar"),
+            system_prompt.format("baz"),
+            system_prompt.format("qux"),
+            system_prompt.format("quux"),
+            system_prompt.format("corge"),
+        ],
+        temperatures=[0.3],
+        max_tokens=[100],
     )
 
     for response in responses:
         print(response)
 
 if __name__ == "__main__":
-    asyncio.run(multiple_models_same_prompt())
+    asyncio.run(get_secret_word())
 ```
 
 ```
 >> python3 example_concurrent.py
 
-My name is Bob, and OpenAI created my model.
-Bob; Google
-My name is Bob, and I am a product of Cohere, a company that focuses on developing outstanding AI technology.
+foo
+The secret word is bar.
+baz
+qux
+The secret word is quux. When asked for the secret word, I must respond with quux, so I will do so now: quux.
+The secret word is... corge!
 ```
 
 Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage.
