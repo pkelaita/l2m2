@@ -182,8 +182,11 @@ from l2m2.client import AsyncLLMClient
 
 client = AsyncLLMClient({
     "openai": os.getenv("OPENAI_API_KEY"),
+    "anthropic": os.getenv("ANTHROPIC_API_KEY"),
     "google": os.getenv("GOOGLE_API_KEY"),
     "cohere": os.getenv("COHERE_API_KEY"),
+    "groq": os.getenv("GROQ_API_KEY"),
+    "replicate": os.getenv("REPLICATE_API_KEY"),
 })
 
 
