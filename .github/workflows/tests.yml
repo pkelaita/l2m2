@@ -1,0 +1,35 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  release:
+
+env:
+  default-python: "3.12"
+  minimum-supported-python: "3.8"
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: make init
+
+      - name: Run lint
+        run: make lint
+
+      - name: Run typecheck
+        run: make typecheck
+
+      - name: Run tests
+        run: make test
