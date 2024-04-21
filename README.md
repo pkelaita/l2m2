@@ -1,6 +1,8 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-**[L2M2](https://pypi.org/project/l2m2/)** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg)](https://badge.fury.io/py/l2m2)
+
+**L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
 ## Features
 
@@ -42,7 +44,7 @@ You can also call any language model from the above providers that L2M2 doesn't 
 
 ## Requirements
 
-- Python >= 3.12
+- Python >= 3.9
 
 ## Installation
 
