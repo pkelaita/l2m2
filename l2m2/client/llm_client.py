@@ -351,21 +351,21 @@ class LLMClient:
         else:
             return str(result)
 
-    def _call_replicate(
-        self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-    ) -> str:
-        client = replicate.Client(api_token=self.API_KEYS["replicate"])
-        if system_prompt is not None:
-            params["system_prompt"] = system_prompt
-        result = client.run(
-            model_id,
-            input={
-                "prompt": prompt,
-                **params,
-            },
-        )
-        return "".join(result)
+    # def _call_replicate(
+    #     self,
+    #     model_id: str,
+    #     prompt: str,
+    #     system_prompt: Optional[str],
+    #     params: Dict[str, Any],
+    # ) -> str:
+    #     client = replicate.Client(api_token=self.API_KEYS["replicate"])
+    #     if system_prompt is not None:
+    #         params["system_prompt"] = system_prompt
+    #     result = client.run(
+    #         model_id,
+    #         input={
+    #             "prompt": prompt,
+    #             **params,
+    #         },
+    #     )
+    #     return "".join(result)

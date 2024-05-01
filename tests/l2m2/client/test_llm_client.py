@@ -176,7 +176,7 @@ def test_call_groq(mock_groq, llm_client):
         call_path="chat.completions.create",
         response_path="choices[0].message.content",
         provider_key="groq",
-        model_name="llama2-70b",
+        model_name="llama3-70b",
     )
 
 
@@ -205,16 +205,16 @@ def test_call_google_1_0(mock_google, llm_client):
     )
 
 
-@patch(f"{MODULE_PATH}.replicate.Client")
-def test_call_replicate(mock_replicate, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_replicate,
-        call_path="run",
-        response_path="",
-        provider_key="replicate",
-        model_name="llama3-8b-instruct",
-    )
+# @patch(f"{MODULE_PATH}.replicate.Client")
+# def test_call_replicate(mock_replicate, llm_client):
+#     _generic_test_call(
+#         llm_client=llm_client,
+#         mock_provider=mock_replicate,
+#         call_path="run",
+#         response_path="",
+#         provider_key="replicate",
+#         model_name="llama3-8b-instruct",
+#     )
 
 
 def test_call_valid_model_not_active(llm_client):

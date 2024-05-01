@@ -176,14 +176,14 @@ MODEL_INFO: Dict[str, ModelInfo] = {
             },
         },
     },
-    "llama2-70b": {
+    "llama3-8b": {
         "provider": "groq",
-        "model_id": "llama2-70b-4096",
+        "model_id": "llama3-8b-8192",
         "provider_homepage": "https://wow.groq.com/",
         "params": {
             "temperature": {
                 "default": PROVIDER_DEFAULT,
-                "max": 2.0,
+                "max": 2,
             },
             "max_tokens": {
                 "default": PROVIDER_DEFAULT,
@@ -191,66 +191,96 @@ MODEL_INFO: Dict[str, ModelInfo] = {
             },
         },
     },
-    "llama3-8b": {
-        "provider": "replicate",
-        "model_id": "meta/meta-llama-3-8b",
-        "provider_homepage": "https://replicate.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 5.0,
-            },
-            "max_tokens": {
-                "custom_key": "max_new_tokens",
-                "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
-            },
-        },
-    },
-    "llama3-8b-instruct": {
-        "provider": "replicate",
-        "model_id": "meta/meta-llama-3-8b-instruct",
-        "provider_homepage": "https://replicate.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": 5.0,
-            },
-            "max_tokens": {
-                "custom_key": "max_new_tokens",
-                "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
-            },
-        },
-    },
     "llama3-70b": {
-        "provider": "replicate",
-        "model_id": "meta/meta-llama-3-70b",
-        "provider_homepage": "https://replicate.com/",
+        "provider": "groq",
+        "model_id": "llama3-70b-8192",
+        "provider_homepage": "https://wow.groq.com/",
         "params": {
             "temperature": {
                 "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
+                "max": 2,
             },
             "max_tokens": {
                 "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
+                "max": 2**16 - 1,
             },
         },
     },
-    "llama3-70b-instruct": {
-        "provider": "replicate",
-        "model_id": "meta/meta-llama-3-70b-instruct",
-        "provider_homepage": "https://replicate.com/",
-        "params": {
-            "temperature": {
-                "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
-            },
-            "max_tokens": {
-                "default": PROVIDER_DEFAULT,
-                "max": float("inf"),
-            },
-        },
-    },
+    # "llama2-70b": {
+    #     "provider": "groq",
+    #     "model_id": "llama2-70b-4096",
+    #     "provider_homepage": "https://wow.groq.com/",
+    #     "params": {
+    #         "temperature": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": 2.0,
+    #         },
+    #         "max_tokens": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": 2**16 - 1,
+    #         },
+    #     },
+    # },
+    # "llama3-8b": {
+    #     "provider": "replicate",
+    #     "model_id": "meta/meta-llama-3-8b",
+    #     "provider_homepage": "https://replicate.com/",
+    #     "params": {
+    #         "temperature": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": 5.0,
+    #         },
+    #         "max_tokens": {
+    #             "custom_key": "max_new_tokens",
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #     },
+    # },
+    # "llama3-8b-instruct": {
+    #     "provider": "replicate",
+    #     "model_id": "meta/meta-llama-3-8b-instruct",
+    #     "provider_homepage": "https://replicate.com/",
+    #     "params": {
+    #         "temperature": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": 5.0,
+    #         },
+    #         "max_tokens": {
+    #             "custom_key": "max_new_tokens",
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #     },
+    # },
+    # "llama3-70b": {
+    #     "provider": "replicate",
+    #     "model_id": "meta/meta-llama-3-70b",
+    #     "provider_homepage": "https://replicate.com/",
+    #     "params": {
+    #         "temperature": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #         "max_tokens": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #     },
+    # },
+    # "llama3-70b-instruct": {
+    #     "provider": "replicate",
+    #     "model_id": "meta/meta-llama-3-70b-instruct",
+    #     "provider_homepage": "https://replicate.com/",
+    #     "params": {
+    #         "temperature": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #         "max_tokens": {
+    #             "default": PROVIDER_DEFAULT,
+    #             "max": float("inf"),
+    #         },
+    #     },
+    # },
 }
