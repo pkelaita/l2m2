@@ -44,5 +44,7 @@ clean:
 publish: clean build
 	twine upload dist/*
 
-update-models:
-	python scripts/create_model_table.py | pbcopy
+update-readme:
+	cd scripts && ./update_badges.sh
+	cd scripts && python3 create_model_table.py | pbcopy
+	@echo "model table copied to clipboard"
