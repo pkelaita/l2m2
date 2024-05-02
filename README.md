@@ -1,12 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-<!-- <a href="https://github.com/pkelaita/l2m2/actions/workflows/tests.yml">
-    <img src="https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714587761" alt="Tests">
-</a><a href="https://badge.fury.io/py/l2m2">
-    <img src="https://badge.fury.io/py/l2m2.svg?timestamp=1714587761" alt="PyPI version">
-</a> -->
-
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714587761)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714587761)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714634875)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714634875)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -20,28 +14,27 @@
 
 L2M2 currently supports the following models:
 
-| Provider                                     | Model Name         | Model Version              |
-| -------------------------------------------- | ------------------ | -------------------------- |
-| [`openai`](https://openai.com/product)       | `gpt-4-turbo`      | `gpt-4-turbo-2024-04-09`   |
-| [`openai`](https://openai.com/product)       | `gpt-4-turbo-0125` | `gpt-4-0125-preview`       |
-| [`google`](https://ai.google.dev/)           | `gemini-1.5-pro`   | `gemini-1.5-pro-latest`    |
-| [`google`](https://ai.google.dev/)           | `gemini-1.0-pro`   | `gemini-1.0-pro-latest`    |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-opus`    | `claude-3-opus-20240229`   |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-sonnet`  | `claude-3-sonnet-20240229` |
-| [`anthropic`](https://www.anthropic.com/api) | `claude-3-haiku`   | `claude-3-haiku-20240307`  |
-| [`cohere`](https://docs.cohere.com/)         | `command-r`        | `command-r`                |
-| [`cohere`](https://docs.cohere.com/)         | `command-r-plus`   | `command-r-plus`           |
-| [`groq`](https://wow.groq.com/)              | `mixtral-8x7b`     | `mixtral-8x7b-32768`       |
-| [`groq`](https://wow.groq.com/)              | `gemma-7b`         | `gemma-7b-it`              |
-| [`groq`](https://wow.groq.com/)              | `llama3-8b`        | `llama3-8b-8192`           |
-| [`groq`](https://wow.groq.com/)              | `llama3-70b`       | `llama3-70b-8192`          |
+| Model Name         | Provider(s)                                                            | Model Version(s)                                   |
+| ------------------ | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| `gpt-4-turbo`      | [`openai`](https://openai.com/product)                                 | `gpt-4-turbo-2024-04-09`                           |
+| `gpt-4-turbo-0125` | [`openai`](https://openai.com/product)                                 | `gpt-4-0125-preview`                               |
+| `gemini-1.5-pro`   | [`google`](https://ai.google.dev/)                                     | `gemini-1.5-pro-latest`                            |
+| `gemini-1.0-pro`   | [`google`](https://ai.google.dev/)                                     | `gemini-1.0-pro-latest`                            |
+| `claude-3-opus`    | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-opus-20240229`                           |
+| `claude-3-sonnet`  | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-sonnet-20240229`                         |
+| `claude-3-haiku`   | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-haiku-20240307`                          |
+| `command-r`        | [`cohere`](https://docs.cohere.com/)                                   | `command-r`                                        |
+| `command-r-plus`   | [`cohere`](https://docs.cohere.com/)                                   | `command-r-plus`                                   |
+| `mixtral-8x7b`     | [`groq`](https://wow.groq.com/)                                        | `mixtral-8x7b-32768`                               |
+| `gemma-7b`         | [`groq`](https://wow.groq.com/)                                        | `gemma-7b-it`                                      |
+| `llama3-8b`        | [`groq`](https://wow.groq.com/), [`replicate`](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`  |
+| `llama3-70b`       | [`groq`](https://wow.groq.com/), [`replicate`](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-8b-instruct` |
 
 You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
 
 ### Planned Featires
 
 - Support for Huggingface & open-source LLMs
-- Multi-provider / provider-agnostic model setup
 - Chat-specific features (e.g. context, history, etc)
 - Typescript clone
 - ...etc
@@ -52,7 +45,7 @@ You can also call any language model from the above providers that L2M2 doesn't 
 
 ## Installation
 
-```sh
+```
 pip install l2m2
 ```
 
@@ -126,6 +119,39 @@ print(response)
 Arrr, matey! The skies be clear as the Caribbean waters today, with the sun blazin' high 'bove us. A fine day fer settin' sail and huntin' fer treasure, it be. But keep yer eye on the horizon, for the weather can turn quicker than a sloop in a squall. Yarrr!
 ```
 
+### Multi-Provider Models
+
+Some models are available from multiple providers, such as `llama3-70b` from both Groq and Replicate. When multiple of such providers are active, you can use the parameter `prefer_provider` to specify which provider to use for a given inference.
+
+```python
+client.add_provider("groq", os.getenv("GROQ_API_KEY"))
+client.add_provider("replicate", os.getenv("REPLICATE_API_KEY"))
+
+response1 = client.call(
+    model="llama3-70b",
+    prompt="Hello there",
+    prefer_provider="groq",
+) # Uses Groq
+
+response2 = client.call(
+    model="llama3-70b",
+    prompt="General Kenobi!",
+    prefer_provider="replicate",
+) # Uses Replicate
+```
+
+You can also set default preferred providers for the client using `set_preferred_providers`, to avoid having to specify `prefer_provider` for each call.
+
+```python
+client.set_preferred_providers({
+    "llama3-70b": "groq",
+    "llama3-8b": "replicate",
+})
+
+response1 = client.call(model="llama3-70b", prompt="Hello there") # Uses Groq
+response2 = client.call(model="llama3-8b", prompt="General Kenobi!") # Uses Replicate
+```
+
 ### Async Calls
 
 L2M2 utilizes `asyncio` to allow for multiple concurrent calls. This is useful for calling multiple models at with the same prompt, calling the same model with multiple prompts, mixing and matching parameters, etc.
@@ -195,10 +221,12 @@ client = AsyncLLMClient({
     "replicate": os.getenv("REPLICATE_API_KEY"),
 })
 
+# Since llama3-8b is available from both Groq and Replicate
+client.set_preferred_providers({"llama3-8b": "replicate"})
 
 async def get_secret_word():
     system_prompt = "The secret word is {0}. When asked for the secret word, you must respond with {0}."
-    responses = await aclient.call_concurrent(
+    responses = await client.call_concurrent(
         n=6,
         models=[
             "gpt-4-turbo",
@@ -206,7 +234,7 @@ async def get_secret_word():
             "gemini-1.0-pro",
             "command-r",
             "mixtral-8x7b",
-            "llama3-8b-instruct",
+            "llama3-8b",
         ],
         prompts=["What is the secret word?"],
         system_prompts=[

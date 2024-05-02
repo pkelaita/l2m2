@@ -1,5 +1,4 @@
 from typing import Any, Set, Dict, Optional
-import pydash as py_
 
 import google.generativeai as google
 from cohere import Client as CohereClient
@@ -10,8 +9,8 @@ import replicate
 
 from l2m2.model_info import (
     MODEL_INFO,
+    PROVIDER_INFO,
     PROVIDER_DEFAULT,
-    ModelInfo,
 )
 
 
@@ -36,9 +35,10 @@ class LLMClient:
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
         """
-        self.API_KEYS: Dict[str, str] = {}
+        self.api_keys: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
+        self.preferred_providers: Dict[str, str] = {}
 
         if providers is not None:
             for provider, api_key in providers.items():
@@ -53,7 +53,8 @@ class LLMClient:
         Returns:
             Set[str]: A set of available providers.
         """
-        return set([str(info["provider"]) for info in MODEL_INFO.values()])
+        # return set([str(info["provider"]) for info in MODEL_INFO.values()])
+        return set(PROVIDER_INFO.keys())
 
     @staticmethod
     def get_available_models() -> Set[str]:
@@ -64,6 +65,7 @@ class LLMClient:
         Returns:
             Set[str]: A set of available models.
         """
+        # return set(MODEL_INFO.keys())
         return set(MODEL_INFO.keys())
 
     def get_active_providers(self) -> Set[str]:
@@ -99,13 +101,13 @@ class LLMClient:
                 f"Invalid provider: {provider}. Available providers: {providers}"
             )
 
-        self.API_KEYS[provider] = api_key
+        self.api_keys[provider] = api_key
         self.active_providers.add(provider)
         self.active_models.update(
-            model for model, info in MODEL_INFO.items() if info["provider"] == provider
+            model for model in MODEL_INFO.keys() if provider in MODEL_INFO[model].keys()
         )
 
-    def remove_provider(self, provider: str) -> None:
+    def remove_provider(self, provider_to_remove: str) -> None:
         """Remove a provider from the LLMClient, making its models unavailable for use.
 
         Args:
@@ -114,14 +116,51 @@ class LLMClient:
         Raises:
             ValueError: If the given provider is not active.
         """
-        if provider not in self.active_providers:
-            raise ValueError(f"Provider not active: {provider}")
+        if provider_to_remove not in self.active_providers:
+            raise ValueError(f"Provider not active: {provider_to_remove}")
 
-        del self.API_KEYS[provider]
-        self.active_providers.remove(provider)
-        self.active_models.difference_update(
-            model for model, info in MODEL_INFO.items() if info["provider"] == provider
-        )
+        del self.api_keys[provider_to_remove]
+        self.active_providers.remove(provider_to_remove)
+
+        self.active_models = {
+            model
+            for model in self.active_models
+            if not MODEL_INFO[model].keys().isdisjoint(self.active_providers)
+        }
+
+    def set_preferred_providers(self, preferred_providers: Dict[str, str]) -> None:
+        """Set the preferred provider for each model. If a model is available from multiple active
+        providers, the preferred provider will be used.
+
+        Args:
+            preferred_providers (Dict[str, str]): A mapping from model name to preferred provider.
+                For example::
+
+                    {
+                        "llama3-8b": "groq",
+                        "llama3-70b": "replicate",
+                    }
+                If you'd like to remove a preferred provider, set it to `None`, e.g.::
+                    {
+                        "llama3-8b": None,
+                    }
+
+        Raises:
+            ValueError: If an invalid model or provider is specified in `preferred_providers`.
+            ValueError: If the given model does not correlate to the given provider.
+        """
+        for model, provider in preferred_providers.items():
+            if model not in self.get_available_models():
+                raise ValueError(f"Invalid model: {model}")
+            if provider is not None:
+                if provider not in self.get_available_providers():
+                    raise ValueError(f"Invalid provider: {provider}")
+                if provider not in MODEL_INFO[model].keys():
+                    raise ValueError(
+                        f"Model {model} is not available from provider {provider}."
+                    )
+
+        self.preferred_providers.update(preferred_providers)
 
     def call(
         self,
@@ -131,6 +170,7 @@ class LLMClient:
         system_prompt: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        prefer_provider: Optional[str] = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -144,9 +184,14 @@ class LLMClient:
                 the provider's default value for the model is used. Defaults to None.
             max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
                 the provider's default value for the model is used. Defaults to None.
+            prefer_provider (str, optional): The preferred provider to use for the model, if the
+                model is available from multiple active providers. Defaults to None.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
+            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+                nor a default provider is specified.
+            ValueError: If `prefer_provider` is specified but not active.
 
         Returns:
             str: The model's completion for the prompt, or an error message if the model is
@@ -154,17 +199,45 @@ class LLMClient:
         """
         if model not in self.active_models:
             if model in self.get_available_models():
-                provider = MODEL_INFO[model]["provider"]
+                available_providers = ", ".join(MODEL_INFO[model].keys())
                 msg = (
                     f"Model {model} is available, but not active."
-                    + f" Please add provider {provider} to activate it."
+                    + f" Please add any of ({available_providers}) to activate it."
                 )
                 raise ValueError(msg)
             else:
                 raise ValueError(f"Invalid model: {model}")
 
+        if prefer_provider is not None and prefer_provider not in self.active_providers:
+            raise ValueError(
+                "Argument prefer_provider must either be None or an active provider."
+                + f" Active providers are {', '.join(self.active_providers)}"
+            )
+
+        providers = set(MODEL_INFO[model].keys()) & self.active_providers
+        if len(providers) == 1:
+            provider = next(iter(providers))
+
+        elif prefer_provider is not None:
+            provider = prefer_provider
+
+        elif self.preferred_providers.get(model) is not None:
+            provider = self.preferred_providers[model]
+
+        else:
+            raise ValueError(
+                f"Model {model} is available from multiple active providers: {', '.join(providers)}."
+                + " Please specify a preferred provider with the argument prefer_provider, or set a"
+                + " default provider for the model with set_preferred_providers."
+            )
+
         result = self._call_impl(
-            MODEL_INFO[model], prompt, system_prompt, temperature, max_tokens
+            MODEL_INFO[model][provider],
+            provider,
+            prompt,
+            system_prompt,
+            temperature,
+            max_tokens,
         )
         return result
 
@@ -205,25 +278,28 @@ class LLMClient:
         if provider not in self.active_providers:
             raise ValueError(f"Provider not active: {provider}")
 
+        # Get the param info from the first model where the provider matches.
+        # Not ideal, but the best we can do for user-provided models.
         model_info = {
-            "provider": provider,
             "model_id": model_id,
-            # Get the param info from the first model where the provider matches.
-            # Not ideal, but the best we can do for user-provided models.
-            **py_.pick(
-                py_.find(list(MODEL_INFO.values()), {"provider": provider}),
-                "params",
-            ),
+            "params": MODEL_INFO[
+                next(
+                    model
+                    for model in self.get_available_models()
+                    if provider in MODEL_INFO[model].keys()
+                )
+            ][provider]["params"],
         }
 
         result = self._call_impl(
-            model_info, prompt, system_prompt, temperature, max_tokens
+            model_info, provider, prompt, system_prompt, temperature, max_tokens
         )
         return result
 
     def _call_impl(
         self,
-        model_info: ModelInfo,
+        model_info: Dict[str, Any],
+        provider: str,
         prompt: str,
         system_prompt: Optional[str],
         temperature: Optional[float],
@@ -249,9 +325,10 @@ class LLMClient:
         add_param("temperature", temperature)
         add_param("max_tokens", max_tokens)
 
-        call_provider = getattr(self, f"_call_{model_info['provider']}")
-        result = call_provider(model_info["model_id"], prompt, system_prompt, params)
-        assert isinstance(result, str)
+        result = getattr(self, f"_call_{provider}")(
+            model_info["model_id"], prompt, system_prompt, params
+        )
+        assert isinstance(result, str), "This should never happen."
         return result
 
     def _call_openai(
@@ -261,7 +338,7 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        oai = OpenAI(api_key=self.API_KEYS["openai"])
+        oai = OpenAI(api_key=self.api_keys["openai"])
         messages = [{"role": "user", "content": prompt}]
         if system_prompt is not None:
             messages.insert(0, {"role": "system", "content": system_prompt})
@@ -279,7 +356,7 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        anthr = Anthropic(api_key=self.API_KEYS["anthropic"])
+        anthr = Anthropic(api_key=self.api_keys["anthropic"])
         if system_prompt is not None:
             params["system"] = system_prompt
         result = anthr.messages.create(
@@ -296,7 +373,7 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        cohere = CohereClient(api_key=self.API_KEYS["cohere"])
+        cohere = CohereClient(api_key=self.api_keys["cohere"])
         if system_prompt is not None:
             params["preamble"] = system_prompt
         result = cohere.chat(
@@ -313,7 +390,7 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        groq = Groq(api_key=self.API_KEYS["groq"])
+        groq = Groq(api_key=self.api_keys["groq"])
         messages = [{"role": "user", "content": prompt}]
         if system_prompt is not None:
             messages.insert(0, {"role": "system", "content": system_prompt})
@@ -331,7 +408,7 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        google.configure(api_key=self.API_KEYS["google"])
+        google.configure(api_key=self.api_keys["google"])
 
         model_params = {"model_name": model_id}
         if system_prompt is not None:
@@ -351,21 +428,21 @@ class LLMClient:
         else:
             return str(result)
 
-    # def _call_replicate(
-    #     self,
-    #     model_id: str,
-    #     prompt: str,
-    #     system_prompt: Optional[str],
-    #     params: Dict[str, Any],
-    # ) -> str:
-    #     client = replicate.Client(api_token=self.API_KEYS["replicate"])
-    #     if system_prompt is not None:
-    #         params["system_prompt"] = system_prompt
-    #     result = client.run(
-    #         model_id,
-    #         input={
-    #             "prompt": prompt,
-    #             **params,
-    #         },
-    #     )
-    #     return "".join(result)
+    def _call_replicate(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+    ) -> str:
+        client = replicate.Client(api_token=self.api_keys["replicate"])
+        if system_prompt is not None:
+            params["system_prompt"] = system_prompt
+        result = client.run(
+            model_id,
+            input={
+                "prompt": prompt,
+                **params,
+            },
+        )
+        return "".join(result)

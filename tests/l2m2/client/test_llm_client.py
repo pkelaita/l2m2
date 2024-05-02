@@ -30,14 +30,14 @@ def llm_client():
 
 
 def test_init(llm_client):
-    assert llm_client.API_KEYS == {}
+    assert llm_client.api_keys == {}
     assert llm_client.active_providers == set()
     assert llm_client.active_models == set()
 
 
 def test_init_with_providers():
     llm_client = LLMClient({"openai": "test-key-openai", "cohere": "test-key-cohere"})
-    assert llm_client.API_KEYS == {
+    assert llm_client.api_keys == {
         "openai": "test-key-openai",
         "cohere": "test-key-cohere",
     }
@@ -84,14 +84,56 @@ def test_add_provider_invalid(llm_client):
 
 def test_remove_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
+    llm_client.add_provider("anthropic", "test-key-anthropic")
     llm_client.remove_provider("openai")
+
     assert "openai" not in llm_client.active_providers
+    assert "anthropic" in llm_client.active_providers
     assert "gpt-4-turbo" not in llm_client.active_models
+    assert "claude-3-opus" in llm_client.active_models
+
+
+def test_remove_provider_overlapping_model(llm_client):
+    llm_client.add_provider("groq", "test-key-groq")
+    llm_client.add_provider("replicate", "test-key-replicate")
+    assert "llama3-8b" in llm_client.active_models
+
+    llm_client.remove_provider("groq")
+    assert "llama3-8b" in llm_client.active_models
 
 
 def test_remove_provider_not_active(llm_client):
     with pytest.raises(ValueError):
         llm_client.remove_provider("openai")
+
+
+def test_set_preferred_provider(llm_client):
+    llm_client.set_preferred_providers({"llama3-8b": "groq", "llama3-70b": "replicate"})
+    assert llm_client.preferred_providers == {
+        "llama3-8b": "groq",
+        "llama3-70b": "replicate",
+    }
+    llm_client.set_preferred_providers({"llama3-8b": "replicate"})
+    assert llm_client.preferred_providers == {
+        "llama3-8b": "replicate",
+        "llama3-70b": "replicate",
+    }
+    llm_client.set_preferred_providers({"llama3-8b": None})
+    assert llm_client.preferred_providers == {
+        "llama3-70b": "replicate",
+        "llama3-8b": None,
+    }
+
+
+def test_set_preferred_provider_invalid(llm_client):
+    with pytest.raises(ValueError):  # Invalid provider
+        llm_client.set_preferred_providers({"llama3-8b": "invalid_provider"})
+
+    with pytest.raises(ValueError):  # Invalid model
+        llm_client.set_preferred_providers({"invalid_model": "groq"})
+
+    with pytest.raises(ValueError):  # Mismatched model and provider
+        llm_client.set_preferred_providers({"llama3-70b": "openai"})
 
 
 # -- Tests for call -- #
@@ -205,16 +247,16 @@ def test_call_google_1_0(mock_google, llm_client):
     )
 
 
-# @patch(f"{MODULE_PATH}.replicate.Client")
-# def test_call_replicate(mock_replicate, llm_client):
-#     _generic_test_call(
-#         llm_client=llm_client,
-#         mock_provider=mock_replicate,
-#         call_path="run",
-#         response_path="",
-#         provider_key="replicate",
-#         model_name="llama3-8b-instruct",
-#     )
+@patch(f"{MODULE_PATH}.replicate.Client")
+def test_call_replicate(mock_replicate, llm_client):
+    _generic_test_call(
+        llm_client=llm_client,
+        mock_provider=mock_replicate,
+        call_path="run",
+        response_path="",
+        provider_key="replicate",
+        model_name="llama3-8b",
+    )
 
 
 def test_call_valid_model_not_active(llm_client):
@@ -285,3 +327,90 @@ def test_call_custom_not_active(llm_client):
             prompt="Hello",
             model_id="custom-model-xyz",
         )
+
+
+# -- Tests for multi provider -- #
+
+
+@patch(f"{MODULE_PATH}.Groq")
+@patch(f"{MODULE_PATH}.replicate.Client")
+def test_multi_provider(mock_replicate, mock_groq, llm_client):
+    mock_client_groq = Mock()
+    mock_call_groq = mock_client_groq.chat.completions.create
+    mock_call_groq.return_value = construct_mock_from_path(
+        "choices[0].message.content", final_response="hello from groq"
+    )
+    mock_groq.return_value = mock_client_groq
+
+    mock_client_replicate = Mock()
+    mock_call_replicate = mock_client_replicate.run
+    mock_call_replicate.return_value = ["hello from replicate"]
+    mock_replicate.return_value = mock_client_replicate
+
+    llm_client.add_provider("groq", "test-key-groq")
+    llm_client.add_provider("replicate", "test-key-replicate")
+    kwargs = {"prompt": "Hello", "model": "llama3-70b"}
+    response_groq = llm_client.call(**kwargs, prefer_provider="groq")
+    response_replicate = llm_client.call(**kwargs, prefer_provider="replicate")
+
+    assert response_groq == "hello from groq"
+    assert response_replicate == "hello from replicate"
+
+
+@patch(f"{MODULE_PATH}.Groq")
+@patch(f"{MODULE_PATH}.replicate.Client")
+def test_multi_provider_with_defaults(mock_replicate, mock_groq, llm_client):
+    mock_client_groq = Mock()
+    mock_call_groq = mock_client_groq.chat.completions.create
+    mock_call_groq.return_value = construct_mock_from_path(
+        "choices[0].message.content", final_response="hello from groq"
+    )
+    mock_groq.return_value = mock_client_groq
+
+    mock_client_replicate = Mock()
+    mock_call_replicate = mock_client_replicate.run
+    mock_call_replicate.return_value = ["hello from replicate"]
+    mock_replicate.return_value = mock_client_replicate
+
+    llm_client.add_provider("groq", "test-key-groq")
+    llm_client.add_provider("replicate", "test-key-replicate")
+    llm_client.set_preferred_providers({"llama3-70b": "replicate", "llama3-8b": "groq"})
+
+    response_groq = llm_client.call(prompt="Hello", model="llama3-8b")
+    response_replicate = llm_client.call(prompt="Hello", model="llama3-70b")
+
+    assert response_groq == "hello from groq"
+    assert response_replicate == "hello from replicate"
+
+
+@patch(f"{MODULE_PATH}.Groq")
+def test_multi_provider_one_active(mock_groq, llm_client):
+    mock_client_groq = Mock()
+    mock_call_groq = mock_client_groq.chat.completions.create
+    mock_call_groq.return_value = construct_mock_from_path(
+        "choices[0].message.content", final_response="hello from groq"
+    )
+    mock_groq.return_value = mock_client_groq
+
+    llm_client.add_provider("groq", "test-key-groq")
+    response = llm_client.call(prompt="Hello", model="llama3-8b")
+    assert response == "hello from groq"
+
+
+@patch(f"{MODULE_PATH}.Groq")
+def test_multi_provider_pref_missing(_, llm_client):
+    llm_client.add_provider("groq", "test-key-groq")
+    llm_client.add_provider("replicate", "test-key-replicate")
+
+    # Shouldn't raise an error
+    llm_client.call(prompt="Hello", model="mixtral-8x7b")
+
+    with pytest.raises(ValueError):
+        llm_client.call(prompt="Hello", model="llama3-70b")
+
+
+def test_multi_provider_pref_inactive(llm_client):
+    llm_client.add_provider("groq", "test-key-groq")
+    llm_client.add_provider("replicate", "test-key-replicate")
+    with pytest.raises(ValueError):
+        llm_client.call(prompt="Hello", model="llama3-70b", prefer_provider="openai")

@@ -29,14 +29,14 @@ def async_llm_client():
 
 
 def test_init(async_llm_client):
-    assert async_llm_client.API_KEYS == {}
+    assert async_llm_client.api_keys == {}
     assert async_llm_client.active_providers == set()
     assert async_llm_client.active_models == set()
 
 
 def test_init_with_providers():
     async_llm_client = AsyncLLMClient(MOCK_PROVIDER_KEYS)
-    assert async_llm_client.API_KEYS == MOCK_PROVIDER_KEYS
+    assert async_llm_client.api_keys == MOCK_PROVIDER_KEYS
     assert async_llm_client.active_providers == set(MOCK_PROVIDER_KEYS.keys())
     assert "gpt-4-turbo" in async_llm_client.active_models
     assert "command-r" in async_llm_client.active_models
@@ -51,7 +51,7 @@ def test_init_with_providers_invalid():
 def test_init_from_llm_client():
     llm_client = LLMClient(MOCK_PROVIDER_KEYS)
     async_llm_client = AsyncLLMClient.from_client(llm_client)
-    assert async_llm_client.API_KEYS == MOCK_PROVIDER_KEYS
+    assert async_llm_client.api_keys == MOCK_PROVIDER_KEYS
     assert async_llm_client.active_providers == set(MOCK_PROVIDER_KEYS.keys())
     assert "gpt-4-turbo" in async_llm_client.active_models
     assert "command-r" in async_llm_client.active_models

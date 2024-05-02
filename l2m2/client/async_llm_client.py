@@ -17,7 +17,9 @@ class AsyncLLMClient(LLMClient):
         Returns:
             AsyncLLMClient: The new asynchronous client with the same models and providers active.
         """
-        return AsyncLLMClient(client.API_KEYS)
+        aclient = AsyncLLMClient(client.api_keys)
+        aclient.set_preferred_providers(client.preferred_providers)
+        return aclient
 
     async def call_async(
         self,
@@ -27,6 +29,7 @@ class AsyncLLMClient(LLMClient):
         system_prompt: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        prefer_provider: Optional[str] = None,
     ) -> str:
         """Asynchronously performs inference on any active model.
 
@@ -40,9 +43,14 @@ class AsyncLLMClient(LLMClient):
                 the provider's default value for the model is used. Defaults to None.
             max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
                 the provider's default value for the model is used. Defaults to None.
+            prefer_provider (str, optional): The preferred provider to use for the model, if the
+                model is available from multiple active providers. Defaults to None.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
+            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+                nor a default provider is specified.
+            ValueError: If `prefer_provider` is specified but not active.
 
         Returns:
             str: The model's completion for the prompt, or an error message if the model is
@@ -54,6 +62,7 @@ class AsyncLLMClient(LLMClient):
             system_prompt=system_prompt,
             temperature=temperature,
             max_tokens=max_tokens,
+            prefer_provider=prefer_provider,
         )
 
     async def call_custom_async(
@@ -106,6 +115,7 @@ class AsyncLLMClient(LLMClient):
         system_prompts: Optional[List[str]] = None,
         temperatures: Optional[List[float]] = None,
         max_tokens: Optional[List[int]] = None,
+        prefer_providers: Optional[List[str]] = None,
     ) -> List[str]:
         """Makes multiple concurrent calls to a given set of models, with a given set oof
         parameters (e.g. model, prompt, temperature, etc). Each parameter is passed in as a list
@@ -148,12 +158,15 @@ class AsyncLLMClient(LLMClient):
                 temperature to use for all calls. Defaults to None.
             max_tokens ([List[int]], optional): List of max_tokens to use, or a single max_tokens
                 to use for all calls. Defaults to None.
+            prefer_providers ([List[str]], optional): List of preferred providers to use for each
+                model, if the model is available from multiple active providers. Defaults to None.
 
         Raises:
             ValueError: If `n < 1`, or if any of the parameters are not of length `1` or `n`.
-
-        Raises:
             ValueError: If the provided model is not active and/or not available.
+            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+                nor a default provider is specified.
+            ValueError: If `prefer_provider` is specified but not active.
 
         Returns:
             List[str]: The responses from each call, in the same order as the input parameters.
@@ -171,6 +184,7 @@ class AsyncLLMClient(LLMClient):
                 system_prompt=_get_helper(system_prompts, i),
                 temperature=_get_helper(temperatures, i),
                 max_tokens=_get_helper(max_tokens, i),
+                prefer_provider=_get_helper(prefer_providers, i),
             )
             for i in range(n)
         ]
