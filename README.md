@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714637023)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714637023)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714668738)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714668738)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -125,7 +125,7 @@ Some models are available from multiple providers, such as `llama3-70b` from bot
 
 ```python
 client.add_provider("groq", os.getenv("GROQ_API_KEY"))
-client.add_provider("replicate", os.getenv("REPLICATE_API_KEY"))
+client.add_provider("replicate", os.getenv("REPLICATE_API_TOKEN"))
 
 response1 = client.call(
     model="llama3-70b",
@@ -218,7 +218,7 @@ client = AsyncLLMClient({
     "google": os.getenv("GOOGLE_API_KEY"),
     "cohere": os.getenv("COHERE_API_KEY"),
     "groq": os.getenv("GROQ_API_KEY"),
-    "replicate": os.getenv("REPLICATE_API_KEY"),
+    "replicate": os.getenv("REPLICATE_API_TOKEN"),
 })
 
 # Since llama3-8b is available from both Groq and Replicate
