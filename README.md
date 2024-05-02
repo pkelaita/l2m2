@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714634875)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714634875)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714636672)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714636672)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -14,21 +14,21 @@
 
 L2M2 currently supports the following models:
 
-| Model Name         | Provider(s)                                                            | Model Version(s)                                   |
-| ------------------ | ---------------------------------------------------------------------- | -------------------------------------------------- |
-| `gpt-4-turbo`      | [`openai`](https://openai.com/product)                                 | `gpt-4-turbo-2024-04-09`                           |
-| `gpt-4-turbo-0125` | [`openai`](https://openai.com/product)                                 | `gpt-4-0125-preview`                               |
-| `gemini-1.5-pro`   | [`google`](https://ai.google.dev/)                                     | `gemini-1.5-pro-latest`                            |
-| `gemini-1.0-pro`   | [`google`](https://ai.google.dev/)                                     | `gemini-1.0-pro-latest`                            |
-| `claude-3-opus`    | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-opus-20240229`                           |
-| `claude-3-sonnet`  | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-sonnet-20240229`                         |
-| `claude-3-haiku`   | [`anthropic`](https://www.anthropic.com/api)                           | `claude-3-haiku-20240307`                          |
-| `command-r`        | [`cohere`](https://docs.cohere.com/)                                   | `command-r`                                        |
-| `command-r-plus`   | [`cohere`](https://docs.cohere.com/)                                   | `command-r-plus`                                   |
-| `mixtral-8x7b`     | [`groq`](https://wow.groq.com/)                                        | `mixtral-8x7b-32768`                               |
-| `gemma-7b`         | [`groq`](https://wow.groq.com/)                                        | `gemma-7b-it`                                      |
-| `llama3-8b`        | [`groq`](https://wow.groq.com/), [`replicate`](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`  |
-| `llama3-70b`       | [`groq`](https://wow.groq.com/), [`replicate`](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-8b-instruct` |
+| Model Name         | Provider(s)                                                        | Model Version(s)                                   |
+| ------------------ | ------------------------------------------------------------------ | -------------------------------------------------- |
+| `gpt-4-turbo`      | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                           |
+| `gpt-4-turbo-0125` | [OpenAI](https://openai.com/product)                               | `gpt-4-0125-preview`                               |
+| `gemini-1.5-pro`   | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro-latest`                            |
+| `gemini-1.0-pro`   | [Google](https://ai.google.dev/)                                   | `gemini-1.0-pro-latest`                            |
+| `claude-3-opus`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-opus-20240229`                           |
+| `claude-3-sonnet`  | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-sonnet-20240229`                         |
+| `claude-3-haiku`   | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                          |
+| `command-r`        | [Cohere](https://docs.cohere.com/)                                 | `command-r`                                        |
+| `command-r-plus`   | [Cohere](https://docs.cohere.com/)                                 | `command-r-plus`                                   |
+| `mixtral-8x7b`     | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                               |
+| `gemma-7b`         | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                      |
+| `llama3-8b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`  |
+| `llama3-70b`       | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-8b-instruct` |
 
 You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
 

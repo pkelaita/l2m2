@@ -11,9 +11,10 @@ sep = "| --- | --- | --- |\n"
 rows = ""
 
 
-def get_provider_link(provider_name):
-    provider_homepage = PROVIDER_INFO[provider_name]["homepage"]
-    return f"[`{provider_name}`]({provider_homepage})"
+def get_provider_link(provider_key):
+    provider_name = PROVIDER_INFO[provider_key]["name"]
+    provider_homepage = PROVIDER_INFO[provider_key]["homepage"]
+    return f"[{provider_name}]({provider_homepage})"
 
 
 def make_row(model_name):

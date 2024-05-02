@@ -7,21 +7,27 @@ PROVIDER_DEFAULT = "<<PROVIDER_DEFAULT>>"
 
 PROVIDER_INFO = {
     "openai": {
+        "name": "OpenAI",
         "homepage": "https://openai.com/product",
     },
     "google": {
+        "name": "Google",
         "homepage": "https://ai.google.dev/",
     },
     "anthropic": {
+        "name": "Anthropic",
         "homepage": "https://www.anthropic.com/api",
     },
     "cohere": {
+        "name": "Cohere",
         "homepage": "https://docs.cohere.com/",
     },
     "groq": {
+        "name": "Groq",
         "homepage": "https://wow.groq.com/",
     },
     "replicate": {
+        "name": "Replicate",
         "homepage": "https://replicate.com/",
     },
 }
