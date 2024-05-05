@@ -416,3 +416,59 @@ def test_multi_provider_pref_inactive(llm_client):
     llm_client.add_provider("replicate", "test-key-replicate")
     with pytest.raises(ValueError):
         llm_client.call(prompt="Hello", model="llama3-70b", prefer_provider="openai")
+
+
+# -- Tests for memory -- #
+
+
+@patch(f"{MODULE_PATH}.OpenAI")
+def test_memory(mock_openai):
+    mock_client = Mock()
+    mock_call = mock_client.chat.completions.create
+    mock_response = construct_mock_from_path("choices[0].message.content")
+    mock_call.return_value = mock_response
+    mock_openai.return_value = mock_client
+
+    llm_client = LLMClient(enable_memory=True)
+    llm_client.add_provider("openai", "fake-api-key")
+
+    llm_client.get_memory().add_user_message("A")
+    llm_client.get_memory().add_agent_message("B")
+
+    response = llm_client.call(prompt="C", model="gpt-4-turbo")
+    assert response == "response"
+
+    assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "B"},
+        {"role": "user", "content": "C"},
+        {"role": "assistant", "content": "response"},
+    ]
+
+    llm_client.clear_memory()
+
+    assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == []
+
+
+def test_memory_errors(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.get_memory()
+
+    with pytest.raises(ValueError):
+        llm_client.clear_memory()
+
+    llm_client.enable_memory()
+
+    with pytest.raises(ValueError):
+        llm_client.enable_memory()
+
+
+def test_memory_unsupported_provider():
+    unsupported_providers = {
+        "replicate": "llama3-8b",
+    }
+    for provider, model in unsupported_providers.items():
+        llm_client = LLMClient(enable_memory=True)
+        llm_client.add_provider(provider, "fake-api-key")
+        with pytest.raises(ValueError):
+            llm_client.call(prompt="Hello", model=model)

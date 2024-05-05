@@ -53,11 +53,6 @@ class LLMClient:
                 self.add_provider(provider, api_key)
 
         if enable_memory:
-            if memory_window_size is None:
-                memory_window_size = DEFAULT_WINDOW_SIZE
-            if not memory_window_size > 0:
-                raise ValueError("Memory window size must be a positive integer.")
-
             self.memory = ChatMemory(memory_window_size)
 
     @staticmethod
@@ -69,7 +64,6 @@ class LLMClient:
         Returns:
             Set[str]: A set of available providers.
         """
-        # return set([str(info["provider"]) for info in MODEL_INFO.values()])
         return set(PROVIDER_INFO.keys())
 
     @staticmethod
@@ -81,7 +75,6 @@ class LLMClient:
         Returns:
             Set[str]: A set of available models.
         """
-        # return set(MODEL_INFO.keys())
         return set(MODEL_INFO.keys())
 
     def get_active_providers(self) -> Set[str]:
@@ -209,10 +202,19 @@ class LLMClient:
             )
         self.memory.clear()
 
-    def enable_memory(self) -> None:
-        """Enable memory if it is not already enabled."""
-        if self.memory is None:
-            self.memory = ChatMemory()
+    def enable_memory(self, window_size: int = DEFAULT_WINDOW_SIZE) -> None:
+        """Enable memory, with a specified window size.
+
+        Args:
+            window_size (int, optional): The size of the memory window. Defaults to
+                `l2m2.memory.DEFAULT_WINDOW_SIZE`.
+
+        Raises:
+            ValueError: If memory is already enabled.
+        """
+        if self.memory is not None:
+            raise ValueError("Memory is already enabled.")
+        self.memory = ChatMemory(window_size)
 
     def call(
         self,

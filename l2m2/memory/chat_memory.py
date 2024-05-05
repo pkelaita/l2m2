@@ -5,7 +5,9 @@ from enum import Enum
 DEFAULT_WINDOW_SIZE = 40
 
 
-class Message:
+class ChatMemoryEntry:
+    """Represents a message in a conversation memory."""
+
     class Role(Enum):
         USER = "user"
         AGENT = "agent"
@@ -27,9 +29,15 @@ class ChatMemory:
         Args:
             window_size (int, optional): The maximum number of messages to store.
                 Defaults to DEFAULT_WINDOW_SIZE.
+
+        Raises:
+            ValueError: If `window_size` is less than or equal to 0.
         """
+        if not window_size > 0:
+            raise ValueError("window_size must be a positive integer.")
+
         self.window_size: int = window_size
-        self.mem_window: Deque[Message] = deque(maxlen=window_size)
+        self.mem_window: Deque[ChatMemoryEntry] = deque(maxlen=window_size)
 
     def add_user_message(self, text: str) -> None:
         """Adds a user message to the memory.
@@ -37,7 +45,7 @@ class ChatMemory:
         Args:
             text (str): The user message to add.
         """
-        self.mem_window.append(Message(text, Message.Role.USER))
+        self.mem_window.append(ChatMemoryEntry(text, ChatMemoryEntry.Role.USER))
 
     def add_agent_message(self, text: str) -> None:
         """Adds an agent message to the memory.
@@ -45,7 +53,7 @@ class ChatMemory:
         Args:
             text (str): The agent message to add.
         """
-        self.mem_window.append(Message(text, Message.Role.AGENT))
+        self.mem_window.append(ChatMemoryEntry(text, ChatMemoryEntry.Role.AGENT))
 
     def unpack(
         self, role_key: str, message_key: str, user_key: str, agent_key: str
@@ -82,7 +90,9 @@ class ChatMemory:
         """
         res = []
         for message in self.mem_window:
-            role_value = user_key if message.role == Message.Role.USER else agent_key
+            role_value = (
+                user_key if message.role == ChatMemoryEntry.Role.USER else agent_key
+            )
             res.append({role_key: role_value, message_key: message.text})
         return res
 
@@ -93,5 +103,5 @@ class ChatMemory:
     def __len__(self) -> int:
         return len(self.mem_window)
 
-    def __iter__(self) -> Iterator[Message]:
+    def __iter__(self) -> Iterator[ChatMemoryEntry]:
         return iter(self.mem_window)
