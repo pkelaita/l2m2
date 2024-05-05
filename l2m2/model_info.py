@@ -48,9 +48,9 @@ MODEL_INFO: Dict[str, Any] = {
             },
         },
     },
-    "gpt-4-turbo-0125": {
+    "gpt-3.5-turbo": {
         "openai": {
-            "model_id": "gpt-4-0125-preview",
+            "model_id": "gpt-3.5-turbo-0125",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
