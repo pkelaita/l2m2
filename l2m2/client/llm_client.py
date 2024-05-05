@@ -1,4 +1,4 @@
-from typing import Any, Set, Dict, Optional, List
+from typing import Any, Set, Dict, Optional
 
 import google.generativeai as google
 from cohere import Client as CohereClient
@@ -180,6 +180,40 @@ class LLMClient:
 
         self.preferred_providers.update(preferred_providers)
 
+    def get_memory(self) -> ChatMemory:
+        """Get the memory object, if memory is enabled.
+
+        Returns:
+            ChatMemory: The memory object.
+
+        Raises:
+            ValueError: If memory is not enabled.
+        """
+        if self.memory is None:
+            raise ValueError(
+                "Client memory is not enabled. Instantiate the LLM client with enable_memory=True"
+                + " to enable memory."
+            )
+        return self.memory
+
+    def clear_memory(self) -> None:
+        """Clear the memory, if memory is enabled.
+
+        Raises:
+            ValueError: If memory is not enabled.
+        """
+        if self.memory is None:
+            raise ValueError(
+                "Client memory is not enabled. Instantiate the LLM client with enable_memory=True"
+                + " to enable memory."
+            )
+        self.memory.clear()
+
+    def enable_memory(self) -> None:
+        """Enable memory if it is not already enabled."""
+        if self.memory is None:
+            self.memory = ChatMemory()
+
     def call(
         self,
         *,
@@ -249,7 +283,7 @@ class LLMClient:
                 + " default provider for the model with set_preferred_providers."
             )
 
-        result = self._call_impl(
+        return self._call_impl(
             MODEL_INFO[model][provider],
             provider,
             prompt,
@@ -257,7 +291,6 @@ class LLMClient:
             temperature,
             max_tokens,
         )
-        return result
 
     def call_custom(
         self,
@@ -310,7 +343,12 @@ class LLMClient:
         }
 
         return self._call_impl(
-            model_info, provider, prompt, system_prompt, temperature, max_tokens
+            model_info,
+            provider,
+            prompt,
+            system_prompt,
+            temperature,
+            max_tokens,
         )
 
     def _call_impl(
@@ -347,7 +385,8 @@ class LLMClient:
         )
         assert isinstance(result, str), "This should never happen."
         if self.memory is not None:
-            self.memory.add(prompt, result)
+            self.memory.add_user_message(prompt)
+            self.memory.add_agent_message(result)
         return result
 
     def _call_openai(

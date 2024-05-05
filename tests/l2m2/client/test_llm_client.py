@@ -148,6 +148,8 @@ def _generic_test_call(
     model_name,
 ):
     mock_client = Mock()
+    if provider_key != "replicate":
+        llm_client.enable_memory()
 
     # Dynamically get the mock call and response objects based on the delimited paths
     mock_call = get_nested_attribute(mock_client, call_path)
