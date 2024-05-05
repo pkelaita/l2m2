@@ -1,4 +1,4 @@
-from typing import Any, Set, Dict, Optional
+from typing import Any, Set, Dict, Optional, List
 
 import google.generativeai as google
 from cohere import Client as CohereClient
@@ -7,17 +7,19 @@ from anthropic import Anthropic
 from groq import Groq
 import replicate
 
-from l2m2.model_info import (
-    MODEL_INFO,
-    PROVIDER_INFO,
-    PROVIDER_DEFAULT,
-)
+from l2m2.model_info import MODEL_INFO, PROVIDER_INFO, PROVIDER_DEFAULT
+from l2m2.memory import ChatMemory, DEFAULT_WINDOW_SIZE
 
 
 class LLMClient:
     """A high-level interface for interacting with L2M2's supported language models."""
 
-    def __init__(self, providers: Optional[Dict[str, str]] = None) -> None:
+    def __init__(
+        self,
+        providers: Optional[Dict[str, str]] = None,
+        enable_memory: bool = False,
+        memory_window_size: int = DEFAULT_WINDOW_SIZE,
+    ) -> None:
         """Initialize the LLMClient, optionally with active providers.
 
         Args:
@@ -30,19 +32,33 @@ class LLMClient:
                         "google": "google-api-key",
                     }
 
-                Defaults to None.
+                Defaults to `None`.
+            enable_memory (bool, optional): Whether to enable memory. Defaults to `False`.
+            window_size (int, optional): The size of the memory window. Defaults to
+                `l2m2.memory.DEFAULT_WINDOW_SIZE`.
 
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
+            ValueError: If `memory_window_size` is not a positive integer.
         """
         self.api_keys: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
         self.preferred_providers: Dict[str, str] = {}
 
+        self.memory: Optional[ChatMemory] = None
+
         if providers is not None:
             for provider, api_key in providers.items():
                 self.add_provider(provider, api_key)
+
+        if enable_memory:
+            if memory_window_size is None:
+                memory_window_size = DEFAULT_WINDOW_SIZE
+            if not memory_window_size > 0:
+                raise ValueError("Memory window size must be a positive integer.")
+
+            self.memory = ChatMemory(memory_window_size)
 
     @staticmethod
     def get_available_providers() -> Set[str]:
@@ -140,7 +156,9 @@ class LLMClient:
                         "llama3-8b": "groq",
                         "llama3-70b": "replicate",
                     }
+
                 If you'd like to remove a preferred provider, set it to `None`, e.g.::
+
                     {
                         "llama3-8b": None,
                     }
@@ -291,10 +309,9 @@ class LLMClient:
             ][provider]["params"],
         }
 
-        result = self._call_impl(
+        return self._call_impl(
             model_info, provider, prompt, system_prompt, temperature, max_tokens
         )
-        return result
 
     def _call_impl(
         self,
@@ -329,6 +346,8 @@ class LLMClient:
             model_info["model_id"], prompt, system_prompt, params
         )
         assert isinstance(result, str), "This should never happen."
+        if self.memory is not None:
+            self.memory.add(prompt, result)
         return result
 
     def _call_openai(
@@ -339,9 +358,14 @@ class LLMClient:
         params: Dict[str, Any],
     ) -> str:
         oai = OpenAI(api_key=self.api_keys["openai"])
-        messages = [{"role": "user", "content": prompt}]
+        messages: List[Dict[str, str]] = []
         if system_prompt is not None:
             messages.insert(0, {"role": "system", "content": system_prompt})
+        if self.memory is not None:
+            for pair in self.memory:
+                messages.append({"role": "user", "content": pair.user})
+                messages.append({"role": "assistant", "content": pair.agent})
+        messages.append({"role": "user", "content": prompt})
         result = oai.chat.completions.create(
             model=model_id,
             messages=messages,  # type: ignore
@@ -359,9 +383,15 @@ class LLMClient:
         anthr = Anthropic(api_key=self.api_keys["anthropic"])
         if system_prompt is not None:
             params["system"] = system_prompt
+        messages: List[Dict[str, str]] = []
+        if self.memory is not None:
+            for pair in self.memory:
+                messages.append({"role": "user", "content": pair.user})
+                messages.append({"role": "assistant", "content": pair.agent})
+        messages.append({"role": "user", "content": prompt})
         result = anthr.messages.create(
             model=model_id,
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,  # type: ignore
             **params,
         )
         return str(result.content[0].text)
@@ -376,6 +406,12 @@ class LLMClient:
         cohere = CohereClient(api_key=self.api_keys["cohere"])
         if system_prompt is not None:
             params["preamble"] = system_prompt
+        if self.memory is not None:
+            chat_history = []
+            for pair in self.memory:
+                chat_history.append({"role": "USER", "message": pair.user})
+                chat_history.append({"role": "CHATBOT", "message": pair.agent})
+            params["chat_history"] = chat_history
         result = cohere.chat(
             model=model_id,
             message=prompt,
@@ -391,9 +427,14 @@ class LLMClient:
         params: Dict[str, Any],
     ) -> str:
         groq = Groq(api_key=self.api_keys["groq"])
-        messages = [{"role": "user", "content": prompt}]
+        messages = []
         if system_prompt is not None:
-            messages.insert(0, {"role": "system", "content": system_prompt})
+            messages.append({"role": "system", "content": system_prompt})
+        if self.memory is not None:
+            for pair in self.memory:
+                messages.append({"role": "user", "content": pair.user})
+                messages.append({"role": "assistant", "content": pair.agent})
+        messages.append({"role": "user", "content": prompt})
         result = groq.chat.completions.create(
             model=model_id,
             messages=messages,  # type: ignore
@@ -417,9 +458,16 @@ class LLMClient:
                 prompt = f"{system_prompt}\n{prompt}"
             else:
                 model_params["system_instruction"] = system_prompt
-        model = google.GenerativeModel(**model_params)
 
-        result = model.generate_content(prompt, generation_config=params)
+        messages = []
+        if self.memory is not None:
+            for pair in self.memory:
+                messages.append({"role": "user", "parts": [pair.user]})
+                messages.append({"role": "model", "parts": [pair.agent]})
+        messages.append({"role": "user", "parts": [prompt]})
+
+        model = google.GenerativeModel(**model_params)
+        result = model.generate_content(messages, generation_config=params)
         result = result.candidates[0]
 
         # Will sometimes fail due to safety filters
@@ -435,6 +483,8 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
+        if self.memory is not None:
+            raise ValueError("Memory is not supported with Replicate models.")
         client = replicate.Client(api_token=self.api_keys["replicate"])
         if system_prompt is not None:
             params["system_prompt"] = system_prompt
