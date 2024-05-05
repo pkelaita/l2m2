@@ -358,13 +358,11 @@ class LLMClient:
         params: Dict[str, Any],
     ) -> str:
         oai = OpenAI(api_key=self.api_keys["openai"])
-        messages: List[Dict[str, str]] = []
+        messages = []
         if system_prompt is not None:
-            messages.insert(0, {"role": "system", "content": system_prompt})
+            messages.append({"role": "system", "content": system_prompt})
         if self.memory is not None:
-            for pair in self.memory:
-                messages.append({"role": "user", "content": pair.user})
-                messages.append({"role": "assistant", "content": pair.agent})
+            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = oai.chat.completions.create(
             model=model_id,
@@ -383,11 +381,9 @@ class LLMClient:
         anthr = Anthropic(api_key=self.api_keys["anthropic"])
         if system_prompt is not None:
             params["system"] = system_prompt
-        messages: List[Dict[str, str]] = []
+        messages = []
         if self.memory is not None:
-            for pair in self.memory:
-                messages.append({"role": "user", "content": pair.user})
-                messages.append({"role": "assistant", "content": pair.agent})
+            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = anthr.messages.create(
             model=model_id,
@@ -407,11 +403,9 @@ class LLMClient:
         if system_prompt is not None:
             params["preamble"] = system_prompt
         if self.memory is not None:
-            chat_history = []
-            for pair in self.memory:
-                chat_history.append({"role": "USER", "message": pair.user})
-                chat_history.append({"role": "CHATBOT", "message": pair.agent})
-            params["chat_history"] = chat_history
+            params["chat_history"] = self.memory.unpack(
+                "role", "message", "USER", "CHATBOT"
+            )
         result = cohere.chat(
             model=model_id,
             message=prompt,
@@ -431,9 +425,7 @@ class LLMClient:
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
         if self.memory is not None:
-            for pair in self.memory:
-                messages.append({"role": "user", "content": pair.user})
-                messages.append({"role": "assistant", "content": pair.agent})
+            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = groq.chat.completions.create(
             model=model_id,
@@ -458,15 +450,13 @@ class LLMClient:
                 prompt = f"{system_prompt}\n{prompt}"
             else:
                 model_params["system_instruction"] = system_prompt
+        model = google.GenerativeModel(**model_params)
 
         messages = []
         if self.memory is not None:
-            for pair in self.memory:
-                messages.append({"role": "user", "parts": [pair.user]})
-                messages.append({"role": "model", "parts": [pair.agent]})
-        messages.append({"role": "user", "parts": [prompt]})
+            messages.extend(self.memory.unpack("role", "parts", "user", "model"))
+        messages.append({"role": "user", "parts": prompt})
 
-        model = google.GenerativeModel(**model_params)
         result = model.generate_content(messages, generation_config=params)
         result = result.candidates[0]
 

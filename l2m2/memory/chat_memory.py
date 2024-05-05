@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Deque, Iterator
+from typing import Deque, Iterator, List, Dict
 
 DEFAULT_WINDOW_SIZE = 40
 
@@ -20,6 +20,15 @@ class ChatMemory:
 
     def get(self, index: int) -> MessagePair:
         return self.memory[index]
+
+    def unpack(
+        self, role_key: str, message_key: str, user_key: str, agent_key: str
+    ) -> List[Dict[str, str]]:
+        res = []
+        for pair in self.memory:
+            res.append({role_key: user_key, message_key: pair.user})
+            res.append({role_key: agent_key, message_key: pair.agent})
+        return res
 
     def __len__(self) -> int:
         return len(self.memory)
