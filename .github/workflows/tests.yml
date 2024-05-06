@@ -33,3 +33,9 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Run coverage
+        run: coverage lcov
+
+      - name: Upload coverage
+        uses: coverallsapp/github-action@v2
