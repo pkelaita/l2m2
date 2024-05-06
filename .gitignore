@@ -1,6 +1,9 @@
 .DS_Store
 integration_tests/
 
+# Workspace settings
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

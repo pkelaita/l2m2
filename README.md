@@ -6,9 +6,9 @@
 
 ## Features
 
-- 13 supported models (see below), with more on the way
+- 13 supported models (see below) through a unified interface – regularly updated and with more on the way
 - Asynchronous and concurrent calls
-- User-provided models from supported providers
+- Session chat memory – even across multiple models
 
 ### Supported Models
 
@@ -30,13 +30,13 @@ L2M2 currently supports the following models:
 | `llama3-8b`       | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`  |
 | `llama3-70b`      | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-8b-instruct` |
 
-You can also call any language model from the above providers that L2M2 doesn't officially support, without guarantees of well-defined behavior.
+### Planned Features
 
-### Planned Featires
-
-- Support for Huggingface & open-source LLMs
-- Chat-specific features (e.g. context, history, etc)
-- Typescript clone
+- Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
+- Expanded memory capabilities – custom storage and [memory streams](https://arxiv.org/pdf/2304.03442)
+- Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
+- HTTP-based calls instead of SDKs (this bring's L2M2's dependencies from ~50 to <10)
+- Typescript clone (probably not soon)
 - ...etc
 
 ## Requirements
@@ -151,6 +151,55 @@ client.set_preferred_providers({
 response1 = client.call(model="llama3-70b", prompt="Hello there") # Uses Groq
 response2 = client.call(model="llama3-8b", prompt="General Kenobi!") # Uses Replicate
 ```
+
+### Memory
+
+L2M2 provides a simple memory system that allows you to maintain context and history across multiple calls and multiple models. To enable, simply set `enable_memory=True` when instantiating the client, and call it as normal.
+
+```python
+client = LLMClient({
+    "openai": os.getenv("OPENAI_API_KEY"),
+    "anthropic": os.getenv("ANTHROPIC_API_KEY"),
+    "groq": os.getenv("GROQ_API_KEY"),
+}, enable_memory=True)
+
+# Alternatively, you can enable memory after by using client.enable_memory()
+
+print(client.call(model="gpt-4-turbo", prompt="My name is Pierce"))
+print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
+print(client.call(model="llama3-8b", prompt="What's my name?"))
+print(client.call(model="mixtral-8x7b", prompt="What's my job?"))
+```
+
+```
+Hello, Pierce! How can I help you today?
+A software engineer, you say? That's a noble profession.
+Your name is Pierce.
+You are a software engineer.
+```
+
+Memory is stored as a sliding window which defaults to the last 40 messages – this can be configured by passing `memory_window_size` to the client constructor or to `enable_memory()`.
+
+Currently, L2M2's memory implementation is `l2m2.memory.ChatMemory`, which represents a simple conversation between a user and an agent. The client's memory can be accessed via `LLMClient.get_memory()` and modified via `ChatMemory.add_user_message()`, `ChatMemory.add_agent_message()`, and `ChatMemory.clear()`, as shown below:
+
+```python
+client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, enable_memory=True)
+memory = client.get_memory() # ChatMemory object
+memory.add_user_message("My favorite color is red.")
+memory.add_user_message("My least favorite color is green.")
+memory.add_agent_message("Ok, duly noted.")
+
+print(client.call(model="gpt-4-turbo", prompt="What are my favorite and least favorite colors?"))
+memory.clear()
+print(client.call(model="gpt-4-turbo", prompt="What are my favorite and least favorite colors?"))
+```
+
+```
+Your favorite color is red, and your least favorite color is green.
+I'm sorry, I don't have that information.
+```
+
+Memory is currently stored per session, but I'll be adding custom persistence formats and some other cool stuff soon.
 
 ### Async Calls
 
@@ -267,7 +316,7 @@ The secret word is quux. When asked for the secret word, I must respond with quu
 The secret word is... corge!
 ```
 
-Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage.
+Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage. `AsyncLLMClient` also supports memory in the same way as `LLMClient`.
 
 ## Contact
 
