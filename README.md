@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714942588)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714942588)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714977021)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/pkelaita/l2m2/badge.svg?branch=main?timestamp=1714977021)](https://coveralls.io/github/pkelaita/l2m2?branch=main) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714977021)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -89,7 +89,7 @@ response = client.call(
 
 `model` and `prompt` are required, while the remaining fields are optional. When possible, L2M2 uses the provider's default model parameter values when they are not given.
 
-If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-3.5-turbo`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
+If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
 
 ### Example
 
