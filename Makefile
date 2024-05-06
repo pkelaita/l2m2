@@ -38,7 +38,8 @@ clean:
 		.pytest_cache \
 		.mypy_cache \
 		htmlcov \
-		.coverage
+		.coverage \
+		*.lcov
 	@find . -type d -name __pycache__ -exec rm -r {} +
 
 publish: clean build
