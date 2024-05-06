@@ -44,9 +44,9 @@ jobs:
       - name: Install dependencies
         run: make init
 
-      - name: Run coverage
+      - name: Generate coverage
         run: |
-          make coverage
+          make test
           coverage lcov
 
       - name: Upload coverage to Coveralls
