@@ -33,6 +33,21 @@ PROVIDER_INFO = {
 }
 
 MODEL_INFO: Dict[str, Any] = {
+    "gpt-4o": {
+        "openai": {
+            "model_id": "gpt-4o-2024-05-13",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+        },
+    },
     "gpt-4-turbo": {
         "openai": {
             "model_id": "gpt-4-turbo-2024-04-09",
