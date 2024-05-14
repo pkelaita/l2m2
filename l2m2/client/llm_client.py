@@ -7,7 +7,13 @@ from anthropic import Anthropic
 from groq import Groq
 import replicate
 
-from l2m2.model_info import MODEL_INFO, PROVIDER_INFO, PROVIDER_DEFAULT
+from l2m2.model_info import (
+    MODEL_INFO,
+    PROVIDER_INFO,
+    PROVIDER_DEFAULT,
+    ModelEntry,
+    ParamName,
+)
 from l2m2.memory import ChatMemory, DEFAULT_WINDOW_SIZE
 
 
@@ -333,7 +339,7 @@ class LLMClient:
 
         # Get the param info from the first model where the provider matches.
         # Not ideal, but the best we can do for user-provided models.
-        model_info = {
+        model_info: ModelEntry = {
             "model_id": model_id,
             "params": MODEL_INFO[
                 next(
@@ -355,7 +361,7 @@ class LLMClient:
 
     def _call_impl(
         self,
-        model_info: Dict[str, Any],
+        model_info: ModelEntry,
         provider: str,
         prompt: str,
         system_prompt: Optional[str],
@@ -365,14 +371,16 @@ class LLMClient:
         param_info = model_info["params"]
         params = {}
 
-        def add_param(name: str, value: Any) -> None:
+        def add_param(name: ParamName, value: Any) -> None:
             if value is not None and value > (max_val := param_info[name]["max"]):
                 msg = f"Parameter {name} exceeds max value {max_val}"
                 raise ValueError(msg)
 
-            key = name
-            if "custom_key" in param_info[name]:
-                key = param_info[name]["custom_key"]
+            key = (
+                str(name)
+                if (key := param_info[name].get("custom_key")) is None
+                else key
+            )
 
             if value is not None:
                 params[key] = value
@@ -385,11 +393,10 @@ class LLMClient:
         result = getattr(self, f"_call_{provider}")(
             model_info["model_id"], prompt, system_prompt, params
         )
-        assert isinstance(result, str), "This should never happen."
         if self.memory is not None:
             self.memory.add_user_message(prompt)
             self.memory.add_agent_message(result)
-        return result
+        return str(result)
 
     def _call_openai(
         self,

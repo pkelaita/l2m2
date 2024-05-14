@@ -1,6 +1,34 @@
 """Information about models and providers supported by L2M2."""
 
-from typing import Any, Dict
+from typing import Dict, TypedDict, Union
+from typing_extensions import NotRequired, TypeVar, Generic, Literal
+import sys
+
+
+T = TypeVar("T")
+
+
+class Param(TypedDict, Generic[T]):
+    custom_key: NotRequired[str]
+    default: Union[T, str]
+    max: T
+
+
+class ModelParams(TypedDict):
+    temperature: Param[float]
+    max_tokens: Param[int]
+
+
+class ModelEntry(TypedDict):
+    model_id: str
+    params: ModelParams
+
+
+ParamName = Literal["temperature", "max_tokens"]
+
+
+INF: int = sys.maxsize
+
 
 PROVIDER_DEFAULT = "<<PROVIDER_DEFAULT>>"
 
@@ -32,7 +60,7 @@ PROVIDER_INFO = {
     },
 }
 
-MODEL_INFO: Dict[str, Any] = {
+MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     "gpt-4o": {
         "openai": {
             "model_id": "gpt-4o-2024-05-13",
@@ -241,7 +269,7 @@ MODEL_INFO: Dict[str, Any] = {
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": float("inf"),
+                    "max": INF,
                 },
             },
         },
@@ -270,7 +298,7 @@ MODEL_INFO: Dict[str, Any] = {
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": float("inf"),
+                    "max": INF,
                 },
             },
         },
