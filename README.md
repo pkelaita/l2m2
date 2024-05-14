@@ -46,7 +46,7 @@ L2M2 currently supports the following models:
 
 ## Requirements
 
-- Python >= 3.11
+- Python >= 3.9
 
 ## Installation
 
