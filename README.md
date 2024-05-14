@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1714977486)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/pkelaita/l2m2/badge.svg?branch=main)](https://coveralls.io/github/pkelaita/l2m2?branch=main) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1714977486)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715644815)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/pkelaita/l2m2/badge.svg?branch=main)](https://coveralls.io/github/pkelaita/l2m2?branch=main) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715644815)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -16,6 +16,7 @@ L2M2 currently supports the following models:
 
 | Model Name        | Provider(s)                                                        | Model Version(s)                                   |
 | ----------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
+| `gpt-4o`          | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-05-13`                                |
 | `gpt-4-turbo`     | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                           |
 | `gpt-3.5-turbo`   | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                               |
 | `gemini-1.5-pro`  | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro-latest`                            |
