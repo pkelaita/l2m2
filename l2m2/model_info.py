@@ -1,7 +1,7 @@
 """Information about models and providers supported by L2M2."""
 
-from typing import Dict, TypedDict, Union
-from typing_extensions import NotRequired, TypeVar, Generic, Literal
+from typing import Dict, Union
+from typing_extensions import TypedDict, NotRequired, TypeVar, Generic, Literal
 import sys
 
 
