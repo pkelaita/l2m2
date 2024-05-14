@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715644815)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/pkelaita/l2m2/badge.svg?branch=main)](https://coveralls.io/github/pkelaita/l2m2?branch=main) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715644815)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715663614)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/github/pkelaita/l2m2/badge.svg?branch=main)](https://coveralls.io/github/pkelaita/l2m2?branch=main) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715663614)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -13,6 +13,8 @@
 ### Supported Models
 
 L2M2 currently supports the following models:
+
+<!--start-model-table-->
 
 | Model Name        | Provider(s)                                                        | Model Version(s)                                   |
 | ----------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
@@ -30,6 +32,8 @@ L2M2 currently supports the following models:
 | `gemma-7b`        | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                      |
 | `llama3-8b`       | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`  |
 | `llama3-70b`      | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-8b-instruct` |
+
+<!--end-model-table-->
 
 ### Planned Features
 

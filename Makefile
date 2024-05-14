@@ -47,5 +47,4 @@ publish: clean build
 
 update-readme:
 	cd scripts && ./update_badges.sh
-	cd scripts && python3 create_model_table.py | pbcopy
-	@echo "model table copied to clipboard"
+	cd scripts && python3 update_model_table.py

@@ -29,5 +29,19 @@ def make_row(model_name):
 for model_name in MODEL_INFO:
     rows += make_row(model_name)
 
-markdown_table = header + sep + rows
-print(markdown_table)
+markdown_table = "\n\n" + header + sep + rows + "\n"
+
+readme_path = "../README.md"
+start_marker = "<!--start-model-table-->"
+end_marker = "<!--end-model-table-->"
+
+with open(readme_path, "r") as f:
+    readme = f.read()
+    new_readme = readme.replace(
+        readme[readme.index(start_marker) : readme.index(end_marker) + len(end_marker)],
+        start_marker + markdown_table + end_marker,
+    )
+
+with open(readme_path, "w") as f:
+    f.write(new_readme)
+    print(f"Updated {readme_path} with model table")
