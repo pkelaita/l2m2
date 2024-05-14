@@ -32,16 +32,23 @@ for model_name in MODEL_INFO:
 markdown_table = "\n\n" + header + sep + rows + "\n"
 
 readme_path = "../README.md"
-start_marker = "<!--start-model-table-->"
-end_marker = "<!--end-model-table-->"
+table_start = "<!--start-model-table-->"
+table_end = "<!--end-model-table-->"
+count_start = "<!--start-count-->"
+count_end = "<!--end-count-->"
 
 with open(readme_path, "r") as f:
     readme = f.read()
     new_readme = readme.replace(
-        readme[readme.index(start_marker) : readme.index(end_marker) + len(end_marker)],
-        start_marker + markdown_table + end_marker,
+        readme[readme.index(table_start) : readme.index(table_end) + len(table_end)],
+        f"{table_start}{markdown_table}{table_end}",
+    ).replace(
+        readme[readme.index(count_start) : readme.index(count_end) + len(count_end)],
+        f"{count_start}{len(MODEL_INFO)}{count_end}",
     )
+
 
 with open(readme_path, "w") as f:
     f.write(new_readme)
-    print(f"Updated {readme_path} with model table")
+
+print("Updated model table in README.md")
