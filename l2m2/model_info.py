@@ -2,15 +2,24 @@
 
 from typing import Dict, Union
 from typing_extensions import TypedDict, NotRequired, TypeVar, Generic, Literal
+from enum import Enum
 import sys
+
+
+class ProviderEntry(TypedDict):
+    name: str
+    homepage: str
 
 
 T = TypeVar("T")
 
+Marker = Enum("Marker", {"PROVIDER_DEFAULT": "<<PROVIDER_DEFAULT>>"})
+PROVIDER_DEFAULT: Marker = Marker.PROVIDER_DEFAULT
+
 
 class Param(TypedDict, Generic[T]):
     custom_key: NotRequired[str]
-    default: Union[T, str]
+    default: Union[T, Literal[Marker.PROVIDER_DEFAULT]]
     max: T
 
 
@@ -19,21 +28,21 @@ class ModelParams(TypedDict):
     max_tokens: Param[int]
 
 
+ParamName = Literal[
+    "temperature",
+    "max_tokens",
+]
+
+
 class ModelEntry(TypedDict):
     model_id: str
     params: ModelParams
 
 
-ParamName = Literal["temperature", "max_tokens"]
-
-
 INF: int = sys.maxsize
 
 
-PROVIDER_DEFAULT = "<<PROVIDER_DEFAULT>>"
-
-
-PROVIDER_INFO = {
+PROVIDER_INFO: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/product",
