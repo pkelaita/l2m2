@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715664306)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715664306)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715761013)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715761013)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -38,7 +38,6 @@ L2M2 currently supports the following models:
 ### Planned Features
 
 - Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
-- Expanded memory capabilities – custom storage and [memory streams](https://arxiv.org/pdf/2304.03442)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
 - HTTP-based calls instead of SDKs (this bring's L2M2's dependencies from ~50 to <10)
 - Typescript clone (probably not soon)
@@ -108,7 +107,7 @@ client = LLMClient()
 client.add_provider("openai", os.getenv("OPENAI_API_KEY"))
 
 response = client.call(
-    model="gpt-4-turbo",
+    model="gpt-4o",
     prompt="How's the weather today?",
     system_prompt="Respond as if you were a pirate.",
     temperature=0.5,
@@ -159,18 +158,20 @@ response2 = client.call(model="llama3-8b", prompt="General Kenobi!") # Uses Repl
 
 ### Memory
 
-L2M2 provides a simple memory system that allows you to maintain context and history across multiple calls and multiple models. To enable, simply set `enable_memory=True` when instantiating the client, and call it as normal.
+L2M2 provides a simple memory system that allows you to maintain context and history across multiple calls and multiple models. There are two types of memory: **`ChatMemory`**, which natively hooks into models' conversation history, and **`ExternalMemory`**, which allows for custom memory implementations. Let's first take a look at `ChatMemory`.
 
 ```python
+from l2m2.client import LLMClient
+from l2m2.memory import MemoryType
+
+# Use the MemoryType enum to specify the type of memory you want to use
 client = LLMClient({
     "openai": os.getenv("OPENAI_API_KEY"),
     "anthropic": os.getenv("ANTHROPIC_API_KEY"),
     "groq": os.getenv("GROQ_API_KEY"),
-}, enable_memory=True)
+}, memory_type=MemoryType.CHAT)
 
-# Alternatively, you can enable memory after by using client.enable_memory()
-
-print(client.call(model="gpt-4-turbo", prompt="My name is Pierce"))
+print(client.call(model="gpt-4o", prompt="My name is Pierce"))
 print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
 print(client.call(model="llama3-8b", prompt="What's my name?"))
 print(client.call(model="mixtral-8x7b", prompt="What's my job?"))
@@ -183,20 +184,21 @@ Your name is Pierce.
 You are a software engineer.
 ```
 
-Memory is stored as a sliding window which defaults to the last 40 messages – this can be configured by passing `memory_window_size` to the client constructor or to `enable_memory()`.
+Chat memory is stored per session, with a sliding window of messages which defaults to the last 40 – this can be configured by passing `memory_window_size` to the client constructor.
 
-Currently, L2M2's memory implementation is `l2m2.memory.ChatMemory`, which represents a simple conversation between a user and an agent. The client's memory can be accessed via `LLMClient.get_memory()` and modified via `ChatMemory.add_user_message()`, `ChatMemory.add_agent_message()`, and `ChatMemory.clear()`, as shown below:
+You can access the client's memory using `client.get_memory()`. Once accessed, `ChatMemory` lets you add user and agent messages, clear the memory, and access the memory as a list of messages.
 
 ```python
-client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, enable_memory=True)
+client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.CHAT)
+
 memory = client.get_memory() # ChatMemory object
 memory.add_user_message("My favorite color is red.")
 memory.add_user_message("My least favorite color is green.")
 memory.add_agent_message("Ok, duly noted.")
 
-print(client.call(model="gpt-4-turbo", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
 memory.clear()
-print(client.call(model="gpt-4-turbo", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
 ```
 
 ```
@@ -204,7 +206,84 @@ Your favorite color is red, and your least favorite color is green.
 I'm sorry, I don't have that information.
 ```
 
-Memory is currently stored per session, but I'll be adding custom persistence formats and some other cool stuff soon.
+You can also load in a memory object on the fly using `load_memory`, which will enable memory if none is already loaded, and overwrite the existing memory if it is.
+
+```python
+
+client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.CHAT)
+client.call(model="gpt-4o", prompt="My favorite color is red.")
+print(client.call(model="gpt-4o", prompt="What is my favorite color?"))
+
+new_memory = ChatMemory()
+new_memory.add_user_message("My favorite color is blue.")
+new_memory.add_agent_message("Ok, noted.")
+
+client.load_memory(memory)
+print(client.call(model="gpt-4o", prompt="What is my favorite color?"))
+```
+
+```
+Your favorite color is red.
+Your favorite color is blue.
+```
+
+#### External Memory
+
+**`ExternalMemory`** is a simple but powerful memory mode that allows you to define your own memory implementation. This can be useful for more complex memory constructions (e.g., planning, reflecting) or for implementing custom persistence (e.g., saving memory to a database or a file). Its usage is much like `ChatMemory`, but unlike `ChatMemory` you must manage initializing and updating the memory yourself with `get_contents` and `set_contents`.
+
+Here's a simple example of a custom memory implementation that has a description and a list of previous user/model message pairs:
+
+```python
+# example_external_memory.py
+
+from l2m2.client import LLMClient
+from l2m2.memory import MemoryType
+
+client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.EXTERNAL)
+
+messages = [
+    "My name is Pierce",
+    "I am a software engineer",
+    "What is my name?",
+    "What is my profession?",
+]
+
+def update_memory(user_input, model_output):
+    memory = client.get_memory() # ExternalMemory object
+    contents = memory.get_contents()
+    if contents == "":
+        contents = "You are mid-conversation with me. Your memory of it is below:\n\n"
+    contents += f"Me: {user_input}\nYou: {model_output}\n"
+    memory.set_contents(contents)
+
+for message in messages:
+    response = client.call(model="gpt-4o", prompt=message)
+    print(response)
+    update_memory(message, response)
+```
+
+```
+>> python3 example_external_memory.py
+
+Nice to meet you, Pierce!
+Nice! What kind of projects do you work on?
+Your name is Pierce.
+You are a software engineer.
+```
+
+By default, `ExternalMemory` contents are appended to the system prompt, or passed in as the system prompt if one is not given. Generally, models perform best when external memory is stored in the system prompt; however, you can configure the client to append the memory contents to the user prompt instead as follows:
+
+```python
+from l2m2.memory import ExternalMemoryLoadingType
+
+client = LLMClient(
+    {"openai": os.getenv("OPENAI_API_KEY")},
+    memory_type=MemoryType.EXTERNAL,
+    memory_loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND,
+)
+```
+
+Similarly to `ChatMemory`, `ExternalMemory` can be passed into `client.load_memory` to load in new custom memory on the fly, and can be shared across multiple models and providers.
 
 ### Async Calls
 
@@ -228,7 +307,7 @@ client = AsyncLLMClient({
 async def make_two_calls():
     responses = await asyncio.gather(
         client.call_async(
-            model="gpt-4-turbo",
+            model="gpt-4o",
             prompt="How's the weather today?",
             system_prompt="Respond as if you were a pirate.",
             temperature=0.3,
@@ -283,7 +362,7 @@ async def get_secret_word():
     responses = await client.call_concurrent(
         n=6,
         models=[
-            "gpt-4-turbo",
+            "gpt-4o",
             "claude-3-sonnet",
             "gemini-1.0-pro",
             "command-r",
