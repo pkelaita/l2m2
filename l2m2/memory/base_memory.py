@@ -23,5 +23,4 @@ class BaseMemory(ABC):
     @abstractmethod
     def clear(self) -> None:
         """Clears the model's memory."""
-
-        pass
+        pass  # pragma: no cover

@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import patch, Mock
 
-from l2m2.memory import MemoryType
+from l2m2.memory import (
+    MemoryType,
+    ChatMemory,
+    ExternalMemory,
+    ExternalMemoryLoadingType,
+)
 from test_utils.llm_mock import (
     construct_mock_from_path,
     get_nested_attribute,
@@ -149,6 +154,11 @@ def _generic_test_call(
     model_name,
 ):
     mock_client = Mock()
+
+    if provider_key != "replicate":
+        # ChatMemory behaves differently with each provider (except replicate where it's
+        # not supported), so load it here to test each separate implementation.
+        llm_client.load_memory(ChatMemory())
 
     # Dynamically get the mock call and response objects based on the delimited paths
     mock_call = get_nested_attribute(mock_client, call_path)
@@ -431,13 +441,16 @@ def test_chat_memory(mock_openai):
     llm_client = LLMClient(memory_type=MemoryType.CHAT)
     llm_client.add_provider("openai", "fake-api-key")
 
-    llm_client.get_memory().add_user_message("A")
-    llm_client.get_memory().add_agent_message("B")
+    memory = llm_client.get_memory()
+    assert isinstance(memory, ChatMemory)
+
+    memory.add_user_message("A")
+    memory.add_agent_message("B")
 
     response = llm_client.call(prompt="C", model="gpt-4-turbo")
     assert response == "response"
 
-    assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == [
+    assert memory.unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
         {"role": "user", "content": "C"},
@@ -466,3 +479,66 @@ def test_chat_memory_unsupported_provider():
         llm_client.add_provider(provider, "fake-api-key")
         with pytest.raises(ValueError):
             llm_client.call(prompt="Hello", model=model)
+
+
+@patch(f"{MODULE_PATH}.OpenAI")
+def test_external_memory_system_prompt(mock_openai):
+    mock_client = Mock()
+    mock_call = mock_client.chat.completions.create
+    mock_response = construct_mock_from_path("choices[0].message.content")
+    mock_call.return_value = mock_response
+    mock_openai.return_value = mock_client
+
+    llm_client = LLMClient(
+        providers={"openai": "fake-api-key"},
+        memory_type=MemoryType.EXTERNAL,
+        memory_loading_type=ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
+    )
+
+    memory = llm_client.get_memory()
+    assert isinstance(memory, ExternalMemory)
+
+    memory.set_contents("stuff")
+
+    llm_client.call(prompt="Hello", model="gpt-4-turbo")
+    assert mock_call.call_args.kwargs["messages"] == [
+        {"role": "system", "content": "stuff"},
+        {"role": "user", "content": "Hello"},
+    ]
+
+    llm_client.call(system_prompt="system", prompt="Hello", model="gpt-4-turbo")
+    assert mock_call.call_args.kwargs["messages"] == [
+        {"role": "system", "content": "system\nstuff"},
+        {"role": "user", "content": "Hello"},
+    ]
+
+
+@patch(f"{MODULE_PATH}.OpenAI")
+def test_external_memory_user_prompt(mock_openai):
+    mock_client = Mock()
+    mock_call = mock_client.chat.completions.create
+    mock_response = construct_mock_from_path("choices[0].message.content")
+    mock_call.return_value = mock_response
+    mock_openai.return_value = mock_client
+
+    llm_client = LLMClient(
+        providers={"openai": "fake-api-key"},
+        memory_type=MemoryType.EXTERNAL,
+        memory_loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND,
+    )
+
+    memory = llm_client.get_memory()
+    assert isinstance(memory, ExternalMemory)
+
+    memory.set_contents("stuff")
+
+    llm_client.call(prompt="Hello", model="gpt-4-turbo")
+    assert mock_call.call_args.kwargs["messages"] == [
+        {"role": "user", "content": "Hello\nstuff"},
+    ]
+
+    llm_client.call(system_prompt="system", prompt="Hello", model="gpt-4-turbo")
+    assert mock_call.call_args.kwargs["messages"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "Hello\nstuff"},
+    ]

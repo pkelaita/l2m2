@@ -19,9 +19,9 @@ from l2m2.memory import (
     CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
     ExternalMemory,
     ExternalMemoryLoadingType,
+    BaseMemory,
     MemoryType,
 )
-from l2m2.memory.base_memory import BaseMemory
 
 
 class LLMClient:
@@ -551,20 +551,17 @@ class LLMClient:
 
     def _get_external_memory_prompts(
         self, system_prompt: Optional[str], prompt: str
-    ) -> Tuple[str, str]:
-        if not isinstance(self.memory, ExternalMemory):
-            raise ValueError("Memory is not enabled or is not of type ExternalMemory.")
-
-        if system_prompt is None:
-            system_prompt = ""
+    ) -> Tuple[Optional[str], str]:
+        assert isinstance(self.memory, ExternalMemory)
 
         if self.memory.loading_type == ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND:
-            system_prompt += "\n" + self.memory.get_contents()
+            contents = self.memory.get_contents()
+            if system_prompt is not None:
+                system_prompt += "\n" + contents
+            else:
+                system_prompt = contents
+
         elif self.memory.loading_type == ExternalMemoryLoadingType.USER_PROMPT_APPEND:
             prompt += "\n" + self.memory.get_contents()
-        else:
-            raise NotImplementedError(
-                f"Loading type {self.memory.loading_type} is not yet supported."
-            )
 
         return system_prompt, prompt
