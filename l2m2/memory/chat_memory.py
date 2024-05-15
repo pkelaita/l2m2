@@ -2,7 +2,9 @@ from collections import deque
 from typing import Deque, Iterator, List, Dict
 from enum import Enum
 
-DEFAULT_WINDOW_SIZE = 40
+from l2m2.memory.base_memory import BaseMemory, MemoryType
+
+CHAT_MEMORY_DEFAULT_WINDOW_SIZE = 40
 
 
 class ChatMemoryEntry:
@@ -17,13 +19,13 @@ class ChatMemoryEntry:
         self.role = role
 
 
-class ChatMemory:
+class ChatMemory(BaseMemory):
     """Represents a sliding-window conversation memory between a user and an agent. `ChatMemory` is
     the most basic type of memory and is designed to be passed directly to chat-based models such
     as `llama3-70b-instruct`.
     """
 
-    def __init__(self, window_size: int = DEFAULT_WINDOW_SIZE) -> None:
+    def __init__(self, window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE) -> None:
         """Create a new ChatMemory object.
 
         Args:
@@ -33,6 +35,8 @@ class ChatMemory:
         Raises:
             ValueError: If `window_size` is less than or equal to 0.
         """
+        super().__init__(MemoryType.CHAT)
+
         if not window_size > 0:
             raise ValueError("window_size must be a positive integer.")
 

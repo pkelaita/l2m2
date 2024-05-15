@@ -1,10 +1,14 @@
 import pytest
-from l2m2.memory.chat_memory import ChatMemory, DEFAULT_WINDOW_SIZE, ChatMemoryEntry
+from l2m2.memory.chat_memory import (
+    ChatMemory,
+    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
+    ChatMemoryEntry,
+)
 
 
 def test_chat_memory():
     memory = ChatMemory()
-    assert memory.window_size == DEFAULT_WINDOW_SIZE
+    assert memory.window_size == CHAT_MEMORY_DEFAULT_WINDOW_SIZE
     assert len(memory) == 0
 
     memory.add_user_message("A")

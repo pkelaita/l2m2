@@ -1,3 +1,17 @@
-from .chat_memory import ChatMemory, ChatMemoryEntry, DEFAULT_WINDOW_SIZE
+from .chat_memory import (
+    ChatMemory,
+    ChatMemoryEntry,
+    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
+)
+from .external_memory import ExternalMemory, ExternalMemoryLoadingType
 
-__all__ = ["ChatMemory", "ChatMemoryEntry", "DEFAULT_WINDOW_SIZE"]
+from .base_memory import MemoryType
+
+__all__ = [
+    "ChatMemory",
+    "ChatMemoryEntry",
+    "CHAT_MEMORY_DEFAULT_WINDOW_SIZE",
+    "ExternalMemory",
+    "ExternalMemoryLoadingType",
+    "MemoryType",
+]

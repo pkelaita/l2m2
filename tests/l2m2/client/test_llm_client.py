@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, Mock
 
+from l2m2.memory import MemoryType
 from test_utils.llm_mock import (
     construct_mock_from_path,
     get_nested_attribute,
@@ -148,8 +149,6 @@ def _generic_test_call(
     model_name,
 ):
     mock_client = Mock()
-    if provider_key != "replicate":
-        llm_client.enable_memory()
 
     # Dynamically get the mock call and response objects based on the delimited paths
     mock_call = get_nested_attribute(mock_client, call_path)
@@ -422,14 +421,14 @@ def test_multi_provider_pref_inactive(llm_client):
 
 
 @patch(f"{MODULE_PATH}.OpenAI")
-def test_memory(mock_openai):
+def test_chat_memory(mock_openai):
     mock_client = Mock()
     mock_call = mock_client.chat.completions.create
     mock_response = construct_mock_from_path("choices[0].message.content")
     mock_call.return_value = mock_response
     mock_openai.return_value = mock_client
 
-    llm_client = LLMClient(enable_memory=True)
+    llm_client = LLMClient(memory_type=MemoryType.CHAT)
     llm_client.add_provider("openai", "fake-api-key")
 
     llm_client.get_memory().add_user_message("A")
@@ -450,25 +449,20 @@ def test_memory(mock_openai):
     assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == []
 
 
-def test_memory_errors(llm_client):
+def test_chat_memory_errors(llm_client):
     with pytest.raises(ValueError):
         llm_client.get_memory()
 
     with pytest.raises(ValueError):
         llm_client.clear_memory()
 
-    llm_client.enable_memory()
 
-    with pytest.raises(ValueError):
-        llm_client.enable_memory()
-
-
-def test_memory_unsupported_provider():
+def test_chat_memory_unsupported_provider():
     unsupported_providers = {
         "replicate": "llama3-8b",
     }
     for provider, model in unsupported_providers.items():
-        llm_client = LLMClient(enable_memory=True)
+        llm_client = LLMClient(memory_type=MemoryType.CHAT)
         llm_client.add_provider(provider, "fake-api-key")
         with pytest.raises(ValueError):
             llm_client.call(prompt="Hello", model=model)

@@ -1,4 +1,4 @@
-from typing import Any, Set, Dict, Optional
+from typing import Any, Set, Dict, Optional, Tuple
 
 import google.generativeai as google
 from cohere import Client as CohereClient
@@ -14,7 +14,14 @@ from l2m2.model_info import (
     ModelEntry,
     ParamName,
 )
-from l2m2.memory import ChatMemory, DEFAULT_WINDOW_SIZE
+from l2m2.memory import (
+    ChatMemory,
+    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
+    ExternalMemory,
+    ExternalMemoryLoadingType,
+    MemoryType,
+)
+from l2m2.memory.base_memory import BaseMemory
 
 
 class LLMClient:
@@ -23,8 +30,9 @@ class LLMClient:
     def __init__(
         self,
         providers: Optional[Dict[str, str]] = None,
-        enable_memory: bool = False,
-        memory_window_size: int = DEFAULT_WINDOW_SIZE,
+        memory_type: Optional[MemoryType] = None,
+        memory_window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
+        memory_loading_type: ExternalMemoryLoadingType = ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
     ) -> None:
         """Initialize the LLMClient, optionally with active providers.
 
@@ -39,9 +47,13 @@ class LLMClient:
                     }
 
                 Defaults to `None`.
-            enable_memory (bool, optional): Whether to enable memory. Defaults to `False`.
-            window_size (int, optional): The size of the memory window. Defaults to
-                `l2m2.memory.DEFAULT_WINDOW_SIZE`.
+            memory_type (MemoryType, optional): The type of memory to enable. If `None`, memory is
+                not enabled. Defaults to `None`.
+            memory_window_size (int, optional): The size of the memory window. Only applicable if
+                `memory_type` is `MemoryType.CHAT`, otherwise ignored. Defaults to `40`.
+            memory_loading_type (ExternalMemoryLoadingType, optional): How the model should load
+                external memory. Only applicable if `memory_type` is `MemoryType.EXTERNAL`,
+                otherwise ignored. Defaults to `ExternalMemoryLoadingType.SYSTEM_PROMPT`.
 
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
@@ -51,15 +63,17 @@ class LLMClient:
         self.active_providers: Set[str] = set()
         self.active_models: Set[str] = set()
         self.preferred_providers: Dict[str, str] = {}
-
-        self.memory: Optional[ChatMemory] = None
+        self.memory: Optional[BaseMemory] = None
 
         if providers is not None:
             for provider, api_key in providers.items():
                 self.add_provider(provider, api_key)
 
-        if enable_memory:
-            self.memory = ChatMemory(memory_window_size)
+        if memory_type is not None:
+            if memory_type == MemoryType.CHAT:
+                self.memory = ChatMemory(window_size=memory_window_size)
+            elif memory_type == MemoryType.EXTERNAL:
+                self.memory = ExternalMemory(loading_type=memory_loading_type)
 
     @staticmethod
     def get_available_providers() -> Set[str]:
@@ -179,20 +193,18 @@ class LLMClient:
 
         self.preferred_providers.update(preferred_providers)
 
-    def get_memory(self) -> ChatMemory:
+    def get_memory(self) -> BaseMemory:
         """Get the memory object, if memory is enabled.
 
         Returns:
-            ChatMemory: The memory object.
+            BaseMemory: The memory object.
 
         Raises:
             ValueError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError(
-                "Client memory is not enabled. Instantiate the LLM client with enable_memory=True"
-                + " to enable memory."
-            )
+            raise ValueError("Memory is not enabled.")
+
         return self.memory
 
     def clear_memory(self) -> None:
@@ -202,25 +214,19 @@ class LLMClient:
             ValueError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError(
-                "Client memory is not enabled. Instantiate the LLM client with enable_memory=True"
-                + " to enable memory."
-            )
+            raise ValueError("Memory is not enabled.")
+
         self.memory.clear()
 
-    def enable_memory(self, window_size: int = DEFAULT_WINDOW_SIZE) -> None:
-        """Enable memory, with a specified window size.
+    def load_memory(self, memory_object: BaseMemory) -> None:
+        """Loads memory into the LLM client. If the client already has memory enabled, the existing
+        memory is replaced with the new memory.
 
         Args:
-            window_size (int, optional): The size of the memory window. Defaults to
-                `l2m2.memory.DEFAULT_WINDOW_SIZE`.
+            memory_object (BaseMemory): The memory to load.
 
-        Raises:
-            ValueError: If memory is already enabled.
         """
-        if self.memory is not None:
-            raise ValueError("Memory is already enabled.")
-        self.memory = ChatMemory(window_size)
+        self.memory = memory_object
 
     def call(
         self,
@@ -390,12 +396,19 @@ class LLMClient:
         add_param("temperature", temperature)
         add_param("max_tokens", max_tokens)
 
+        if isinstance(self.memory, ExternalMemory):
+            system_prompt, prompt = self._get_external_memory_prompts(
+                system_prompt, prompt
+            )
+
         result = getattr(self, f"_call_{provider}")(
             model_info["model_id"], prompt, system_prompt, params
         )
-        if self.memory is not None:
+
+        if isinstance(self.memory, ChatMemory):
             self.memory.add_user_message(prompt)
             self.memory.add_agent_message(result)
+
         return str(result)
 
     def _call_openai(
@@ -409,7 +422,7 @@ class LLMClient:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
-        if self.memory is not None:
+        if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = oai.chat.completions.create(
@@ -430,7 +443,7 @@ class LLMClient:
         if system_prompt is not None:
             params["system"] = system_prompt
         messages = []
-        if self.memory is not None:
+        if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = anthr.messages.create(
@@ -450,7 +463,7 @@ class LLMClient:
         cohere = CohereClient(api_key=self.api_keys["cohere"])
         if system_prompt is not None:
             params["preamble"] = system_prompt
-        if self.memory is not None:
+        if isinstance(self.memory, ChatMemory):
             params["chat_history"] = self.memory.unpack(
                 "role", "message", "USER", "CHATBOT"
             )
@@ -472,7 +485,7 @@ class LLMClient:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
-        if self.memory is not None:
+        if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = groq.chat.completions.create(
@@ -501,7 +514,7 @@ class LLMClient:
         model = google.GenerativeModel(**model_params)
 
         messages = []
-        if self.memory is not None:
+        if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "parts", "user", "model"))
         messages.append({"role": "user", "parts": prompt})
 
@@ -521,8 +534,9 @@ class LLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
     ) -> str:
-        if self.memory is not None:
-            raise ValueError("Memory is not supported with Replicate models.")
+        if isinstance(self.memory, ChatMemory):
+            raise ValueError("Chat memory is not supported with Replicate models.")
+
         client = replicate.Client(api_token=self.api_keys["replicate"])
         if system_prompt is not None:
             params["system_prompt"] = system_prompt
@@ -534,3 +548,23 @@ class LLMClient:
             },
         )
         return "".join(result)
+
+    def _get_external_memory_prompts(
+        self, system_prompt: Optional[str], prompt: str
+    ) -> Tuple[str, str]:
+        if not isinstance(self.memory, ExternalMemory):
+            raise ValueError("Memory is not enabled or is not of type ExternalMemory.")
+
+        if system_prompt is None:
+            system_prompt = ""
+
+        if self.memory.loading_type == ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND:
+            system_prompt += "\n" + self.memory.get_contents()
+        elif self.memory.loading_type == ExternalMemoryLoadingType.USER_PROMPT_APPEND:
+            prompt += "\n" + self.memory.get_contents()
+        else:
+            raise NotImplementedError(
+                f"Loading type {self.memory.loading_type} is not yet supported."
+            )
+
+        return system_prompt, prompt
