@@ -298,7 +298,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
         },
         "replicate": {
-            "model_id": "meta/meta-llama-3-8b-instruct",
+            "model_id": "meta/meta-llama-3-70b-instruct",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
