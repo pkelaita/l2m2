@@ -402,6 +402,65 @@ The secret word is... corge!
 
 Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage. `AsyncLLMClient` also supports memory in the same way as `LLMClient`.
 
+### Tools: Prompt Loader
+
+L2M2 provides an optional prompt-loading utility that's useful for loading prompts with variables from a file. Usage is simple:
+
+_prompt.txt_
+
+```
+Your name is {{name}} and you are a {{profession}}.
+```
+
+```python
+# example_prompt_loader.py
+
+from l2m2.tools import PromptLoader
+
+loader = PromptLoader()
+prompt = loader.load_prompt(
+    prompt_file="prompt.txt",
+    variables={"name": "Pierce", "profession": "software engineer"},
+)
+print(prompt)
+```
+
+```
+>> python3 example_prompt_loader.py
+
+Your name is Pierce and you are a software engineer.
+```
+
+You can also optionally specify a prompt directory or customize the variable delimiters if needed.
+
+_path/to/prompts/prompt.txt_
+
+```
+Your name is <<name>> and you are a <<profession>>.
+```
+
+```python
+# example_prompt_loader.py
+
+from l2m2.tools import PromptLoader
+
+loader = PromptLoader(
+    prompts_base_dir="path/to/prompts",
+    variable_delimiters=("<<", ">>"),
+)
+prompt = loader.load_prompt(
+    prompt_file="prompt.txt",
+    variables={"name": "Pierce", "profession": "software engineer"},
+)
+print(prompt)
+```
+
+```
+>> python3 example_prompt_loader.py
+
+Your name is Pierce and you are a software engineer.
+```
+
 ## Contact
 
 If you'd like to contribute, have feature requests, or have any other questions about l2m2 please shoot me a note at [pierce@kelaita.com](mailto:pierce@kelaita.com), open an issue on the [Github repo](https://github.com/pkelaita/l2m2/issues), or DM me on the GenAI Collective [Slack Channel](https://join.slack.com/t/genai-collective/shared_invite/zt-285qq7joi-~bqHwFZcNtqntoRmGirAfQ).
