@@ -34,7 +34,7 @@ def test_load_prompt_str_missing_variable():
 
 
 def test_load_prompt_str_custom_var_markers():
-    prompt_loader = PromptLoader(var_open="<%", var_close="%>")
+    prompt_loader = PromptLoader(variable_delimiters=("<%", "%>"))
     prompt = "Hello, <%name%>!"
     variables = {"name": "world"}
     assert prompt_loader.load_prompt_str(prompt, variables) == "Hello, world!"

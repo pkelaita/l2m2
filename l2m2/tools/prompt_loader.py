@@ -5,21 +5,19 @@ class PromptLoader:
     def __init__(
         self,
         prompts_base_dir: str = ".",
-        var_open: str = "{{",
-        var_close: str = "}}",
+        variable_delimiters: tuple[str, str] = ("{{", "}}"),
     ) -> None:
         """Initializes the prompt loader.
 
         Args:
             prompts_base_dir (str, optional): The base directory to load prompts from. Defaults to the current
                 directory.
-            var_open (str, optional): The opening marker for prompt variables. Defaults to "{{".
-            var_close (str, optional): The closing marker for prompt variables. Defaults to "}}".
+            variable_delimiters (tuple[str, str], optional): The delimiters to denote variables in prompts.
+                Defaults to ("{{", "}}").
         """
 
         self.prompts_base_dir = prompts_base_dir
-        self.var_open = var_open
-        self.var_close = var_close
+        self.var_open, self.var_close = variable_delimiters
 
     def load_prompt_str(self, prompt: str, variables: dict[str, str] = {}) -> str:
         """Loads a prompt from a string and replaces variables with values.
