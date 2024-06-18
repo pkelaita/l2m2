@@ -2,6 +2,8 @@ import re
 
 
 class PromptLoader:
+    """A utility class for loading prompts and inserting user-defined variables."""
+
     def __init__(
         self,
         prompts_base_dir: str = ".",
