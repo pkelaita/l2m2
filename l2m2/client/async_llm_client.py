@@ -3,7 +3,7 @@ import inspect
 from typing import Optional, List, Any
 
 from l2m2.client import LLMClient
-from l2m2.tools.json_mode_strategies import JsonModeStrategy
+from l2m2.tools.json_mode_strategies import JsonModeStrategy, DEFAULT_STRATEGY
 
 
 class AsyncLLMClient(LLMClient):
@@ -32,7 +32,7 @@ class AsyncLLMClient(LLMClient):
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
+        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
     ) -> str:
         """Asynchronously performs inference on any active model.
 
@@ -83,7 +83,7 @@ class AsyncLLMClient(LLMClient):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
+        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
     ) -> str:
         """Asynchronously Performs inference on any model from an active provider that is not
         officially supported by L2M2. This method does not guarantee correctness.

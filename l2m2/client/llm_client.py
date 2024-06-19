@@ -23,6 +23,7 @@ from l2m2.memory import (
     MemoryType,
 )
 from l2m2.tools.json_mode_strategies import (
+    DEFAULT_STRATEGY,
     JsonModeStrategy,
     StrategyName,
     get_extra_message,
@@ -244,7 +245,7 @@ class LLMClient:
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
+        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
     ) -> str:
         """Performs inference on any active model.
 
@@ -329,7 +330,7 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
+        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -394,8 +395,8 @@ class LLMClient:
         system_prompt: Optional[str],
         temperature: Optional[float],
         max_tokens: Optional[int],
-        json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
         param_info = model_info["params"]
         params = {}

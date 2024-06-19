@@ -27,6 +27,9 @@ class JsonModeStrategy:
         return cls(StrategyName.PREPEND, custom_prefix)
 
 
+DEFAULT_STRATEGY = JsonModeStrategy.strip()
+
+
 def get_extra_message(strategy: JsonModeStrategy) -> Optional[str]:
     if strategy.strategy_name == StrategyName.PREPEND:
         assert strategy.prefix is not None
