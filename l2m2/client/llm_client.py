@@ -22,6 +22,12 @@ from l2m2.memory import (
     BaseMemory,
     MemoryType,
 )
+from l2m2.tools.json_mode_strategies import (
+    JsonModeStrategy,
+    StrategyName,
+    get_extra_message,
+    run_json_strats_out,
+)
 
 
 class LLMClient:
@@ -237,6 +243,8 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
+        json_mode: bool = False,
+        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
     ) -> str:
         """Performs inference on any active model.
 
@@ -252,6 +260,9 @@ class LLMClient:
                 the provider's default value for the model is used. Defaults to None.
             prefer_provider (str, optional): The preferred provider to use for the model, if the
                 model is available from multiple active providers. Defaults to None.
+            json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
+            json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
+                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -304,6 +315,8 @@ class LLMClient:
             system_prompt,
             temperature,
             max_tokens,
+            json_mode,
+            json_mode_strategy,
         )
 
     def call_custom(
@@ -315,6 +328,8 @@ class LLMClient:
         system_prompt: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        json_mode: bool = False,
+        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -331,6 +346,9 @@ class LLMClient:
                 the provider's default value for the model is used. Defaults to None.
             max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
                 the provider's default value for the model is used. Defaults to None.
+            json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
+            json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
+                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -354,6 +372,7 @@ class LLMClient:
                     if provider in MODEL_INFO[model].keys()
                 )
             ][provider]["params"],
+            "extras": {},
         }
 
         return self._call_impl(
@@ -363,6 +382,8 @@ class LLMClient:
             system_prompt,
             temperature,
             max_tokens,
+            json_mode,
+            json_mode_strategy,
         )
 
     def _call_impl(
@@ -373,6 +394,8 @@ class LLMClient:
         system_prompt: Optional[str],
         temperature: Optional[float],
         max_tokens: Optional[int],
+        json_mode: bool = False,
+        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
     ) -> str:
         param_info = model_info["params"]
         params = {}
@@ -396,15 +419,34 @@ class LLMClient:
         add_param("temperature", temperature)
         add_param("max_tokens", max_tokens)
 
+        # Handle native JSON mode
+        has_native_json_mode = "json_mode_arg" in model_info["extras"]
+        if json_mode and has_native_json_mode:
+            arg = model_info["extras"]["json_mode_arg"]
+            key, value = next(iter(arg.items()))
+            params[key] = value
+
+        # Update prompts if we're using external memory
         if isinstance(self.memory, ExternalMemory):
             system_prompt, prompt = self._get_external_memory_prompts(
                 system_prompt, prompt
             )
 
+        # Run the LLM
         result = getattr(self, f"_call_{provider}")(
-            model_info["model_id"], prompt, system_prompt, params
+            model_info["model_id"],
+            prompt,
+            system_prompt,
+            params,
+            json_mode,
+            json_mode_strategy,
         )
 
+        # Handle JSON mode strategies for the output (but only if we don't have native support)
+        if json_mode and not has_native_json_mode:
+            result = run_json_strats_out(json_mode_strategy, result)
+
+        # Lastly, update chat memory if applicable
         if isinstance(self.memory, ChatMemory):
             self.memory.add_user_message(prompt)
             self.memory.add_agent_message(result)
@@ -417,6 +459,7 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         oai = OpenAI(api_key=self.api_keys["openai"])
         messages = []
@@ -438,6 +481,8 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
         anthr = Anthropic(api_key=self.api_keys["anthropic"])
         if system_prompt is not None:
@@ -446,6 +491,12 @@ class LLMClient:
         if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
+
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                messages.append({"role": "assistant", "content": append_msg})
+
         result = anthr.messages.create(
             model=model_id,
             messages=messages,  # type: ignore
@@ -459,6 +510,8 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
         cohere = CohereClient(api_key=self.api_keys["cohere"])
         if system_prompt is not None:
@@ -467,6 +520,13 @@ class LLMClient:
             params["chat_history"] = self.memory.unpack(
                 "role", "message", "USER", "CHATBOT"
             )
+
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                entry = {"role": "CHATBOT", "message": append_msg}
+                params.setdefault("chat_history", []).append(entry)
+
         result = cohere.chat(
             model=model_id,
             message=prompt,
@@ -480,6 +540,8 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
         groq = Groq(api_key=self.api_keys["groq"])
         messages = []
@@ -488,6 +550,12 @@ class LLMClient:
         if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
+
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                messages.append({"role": "assistant", "content": append_msg})
+
         result = groq.chat.completions.create(
             model=model_id,
             messages=messages,  # type: ignore
@@ -501,6 +569,7 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         google.configure(api_key=self.api_keys["google"])
 
@@ -533,9 +602,18 @@ class LLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        _: bool,  # json_mode is not used here
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
         if isinstance(self.memory, ChatMemory):
-            raise ValueError("Chat memory is not supported with Replicate models.")
+            raise ValueError(
+                "Chat memory is not supported with Replicate. Try using Groq."
+            )
+        if json_mode_strategy.strategy_name == StrategyName.PREPEND:
+            raise ValueError(
+                "JsonModeStrategy.prepend() is not supported with Replicate."
+                + "Try using Groq, or using JsonModeStrategy.strip() instead."
+            )
 
         client = replicate.Client(api_token=self.api_keys["replicate"])
         if system_prompt is not None:

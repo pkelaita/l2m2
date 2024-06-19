@@ -3,6 +3,7 @@ import inspect
 from typing import Optional, List, Any
 
 from l2m2.client import LLMClient
+from l2m2.tools.json_mode_strategies import JsonModeStrategy
 
 
 class AsyncLLMClient(LLMClient):
@@ -30,6 +31,8 @@ class AsyncLLMClient(LLMClient):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
+        json_mode: bool = False,
+        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
     ) -> str:
         """Asynchronously performs inference on any active model.
 
@@ -45,6 +48,9 @@ class AsyncLLMClient(LLMClient):
                 the provider's default value for the model is used. Defaults to None.
             prefer_provider (str, optional): The preferred provider to use for the model, if the
                 model is available from multiple active providers. Defaults to None.
+            json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
+            json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
+                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -63,6 +69,8 @@ class AsyncLLMClient(LLMClient):
             temperature=temperature,
             max_tokens=max_tokens,
             prefer_provider=prefer_provider,
+            json_mode=json_mode,
+            json_mode_strategy=json_mode_strategy,
         )
 
     async def call_custom_async(
@@ -74,6 +82,8 @@ class AsyncLLMClient(LLMClient):
         system_prompt: Optional[str] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        json_mode: bool = False,
+        json_mode_strategy: JsonModeStrategy = JsonModeStrategy.strip(),
     ) -> str:
         """Asynchronously Performs inference on any model from an active provider that is not
         officially supported by L2M2. This method does not guarantee correctness.
@@ -90,6 +100,9 @@ class AsyncLLMClient(LLMClient):
                 the provider's default value for the model is used. Defaults to None.
             max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
                 the provider's default value for the model is used. Defaults to None.
+            json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
+            json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
+                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -104,6 +117,8 @@ class AsyncLLMClient(LLMClient):
             system_prompt=system_prompt,
             temperature=temperature,
             max_tokens=max_tokens,
+            json_mode=json_mode,
+            json_mode_strategy=json_mode_strategy,
         )
 
     async def call_concurrent(
@@ -116,6 +131,8 @@ class AsyncLLMClient(LLMClient):
         temperatures: Optional[List[float]] = None,
         max_tokens: Optional[List[int]] = None,
         prefer_providers: Optional[List[str]] = None,
+        json_modes: Optional[List[bool]] = None,
+        json_mode_strategies: Optional[List[JsonModeStrategy]] = None,
     ) -> List[str]:
         """Makes multiple concurrent calls to a given set of models, with a given set oof
         parameters (e.g. model, prompt, temperature, etc). Each parameter is passed in as a list
@@ -160,6 +177,9 @@ class AsyncLLMClient(LLMClient):
                 to use for all calls. Defaults to None.
             prefer_providers ([List[str]], optional): List of preferred providers to use for each
                 model, if the model is available from multiple active providers. Defaults to None.
+            json_modes ([List[bool]], optional): Whether to use JSON mode for each call. Defaults to None.
+            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce
+                JSON outputs. Defaults to None.
 
         Raises:
             ValueError: If `n < 1`, or if any of the parameters are not of length `1` or `n`.
@@ -173,7 +193,7 @@ class AsyncLLMClient(LLMClient):
         """
         _check_concurrent_params(
             n,
-            [models, prompts, system_prompts, temperatures, max_tokens],
+            [models, prompts, system_prompts, temperatures, max_tokens, json_modes],
             inspect.getfullargspec(self.call_concurrent).kwonlyargs,
         )
 
@@ -185,6 +205,8 @@ class AsyncLLMClient(LLMClient):
                 temperature=_get_helper(temperatures, i),
                 max_tokens=_get_helper(max_tokens, i),
                 prefer_provider=_get_helper(prefer_providers, i),
+                json_mode=_get_helper(json_modes, i),
+                json_mode_strategy=_get_helper(json_mode_strategies, i),
             )
             for i in range(n)
         ]
@@ -200,6 +222,8 @@ class AsyncLLMClient(LLMClient):
         system_prompts: Optional[List[str]] = None,
         temperatures: Optional[List[float]] = None,
         max_tokens: Optional[List[int]] = None,
+        json_modes: Optional[List[bool]] = None,
+        json_mode_strategies: Optional[List[JsonModeStrategy]] = None,
     ) -> List[str]:
         """Makes multiple concurrent calls to a given set of user-given models, with a given set oof
         parameters (e.g. model_d, prompt, temperature, etc). Each parameter is passed in as a list
@@ -250,6 +274,9 @@ class AsyncLLMClient(LLMClient):
                 temperature to use for all calls. Defaults to None.
             max_tokens ([List[int]], optional): List of max_tokens to use, or a single max_tokens
                 to use for all calls. Defaults to None.
+            json_modes ([List[bool]], optional): Whether to use JSON mode for each call. Defaults to None.
+            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce
+                JSON outputs. Defaults to None.
 
         Raises:
             ValueError: If `n < 1`, or if any of the parameters are not of length `1` or `n`.
@@ -262,7 +289,16 @@ class AsyncLLMClient(LLMClient):
         """
         _check_concurrent_params(
             n,
-            [providers, model_ids, prompts, system_prompts, temperatures, max_tokens],
+            [
+                providers,
+                model_ids,
+                prompts,
+                system_prompts,
+                temperatures,
+                max_tokens,
+                json_modes,
+                json_mode_strategies,
+            ],
             inspect.getfullargspec(self.call_custom_concurrent).kwonlyargs,
         )
 
@@ -274,6 +310,8 @@ class AsyncLLMClient(LLMClient):
                 system_prompt=_get_helper(system_prompts, i),
                 temperature=_get_helper(temperatures, i),
                 max_tokens=_get_helper(max_tokens, i),
+                json_mode=_get_helper(json_modes, i),
+                json_mode_strategy=_get_helper(json_mode_strategies, i),
             )
             for i in range(n)
         ]

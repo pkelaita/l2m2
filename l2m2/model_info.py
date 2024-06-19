@@ -1,6 +1,6 @@
 """Information about models and providers supported by L2M2."""
 
-from typing import Dict, Union
+from typing import Dict, Union, Any
 from typing_extensions import TypedDict, NotRequired, TypeVar, Generic, Literal
 from enum import Enum
 import sys
@@ -37,6 +37,7 @@ ParamName = Literal[
 class ModelEntry(TypedDict):
     model_id: str
     params: ModelParams
+    extras: Dict[str, Any]
 
 
 INF: int = sys.maxsize
@@ -83,6 +84,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gpt-4-turbo": {
@@ -98,6 +100,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gpt-3.5-turbo": {
@@ -113,6 +116,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gemini-1.5-pro": {
@@ -130,6 +134,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 8192,
                 },
             },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
     "gemini-1.0-pro": {
@@ -147,6 +152,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 8192,
                 },
             },
+            "extras": {},
         },
     },
     "claude-3-opus": {
@@ -162,6 +168,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {},
         },
     },
     "claude-3-sonnet": {
@@ -177,6 +184,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {},
         },
     },
     "claude-3-haiku": {
@@ -192,6 +200,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
+            "extras": {},
         },
     },
     "command-r": {
@@ -207,6 +216,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4000,
                 },
             },
+            "extras": {},
         },
     },
     "command-r-plus": {
@@ -222,6 +232,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4000,
                 },
             },
+            "extras": {},
         },
     },
     "mixtral-8x7b": {
@@ -237,6 +248,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
+            "extras": {},
         },
     },
     "gemma-7b": {
@@ -252,6 +264,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
+            "extras": {},
         },
     },
     "llama3-8b": {
@@ -267,6 +280,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
+            "extras": {},
         },
         "replicate": {
             "model_id": "meta/meta-llama-3-8b-instruct",
@@ -281,6 +295,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": INF,
                 },
             },
+            "extras": {},
         },
     },
     "llama3-70b": {
@@ -296,6 +311,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
+            "extras": {},
         },
         "replicate": {
             "model_id": "meta/meta-llama-3-70b-instruct",
@@ -310,6 +326,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": INF,
                 },
             },
+            "extras": {},
         },
     },
 }
