@@ -318,9 +318,11 @@ class AsyncLLMClient(LLMClient):
         return await asyncio.gather(*calls)
 
     async def _call_wrapper(self, **kwargs: Any) -> str:
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
         return self.call(**kwargs)
 
     async def _call_custom_wrapper(self, **kwargs: Any) -> str:
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
         return self.call_custom(**kwargs)
 
 

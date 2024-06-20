@@ -2,6 +2,7 @@ import pytest
 import asyncio
 from unittest.mock import patch, Mock
 
+from l2m2.tools.json_mode_strategies import JsonModeStrategy
 from test_utils.llm_mock import (
     construct_mock_from_path,
     get_nested_attribute,
@@ -403,3 +404,155 @@ async def test_call_custom_concurrent(
         "hello from anthropic",
         "hello from cohere",
     ]
+
+
+# -- Tests for JSON mode -- #
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.OpenAI")
+async def test_json_mode_native(mock_openai, async_llm_client):
+    mock_openai.return_value = _get_mock_client(
+        "chat.completions.create",
+        "choices[0].message.content",
+        "response",
+    )
+
+    async_llm_client.add_provider("openai", "fake-api-key")
+    response = await async_llm_client.call_async(
+        prompt="Hello",
+        model="gpt-4-turbo",
+        json_mode=True,
+    )
+
+    assert response == "response"
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.Anthropic")
+async def test_json_mode_strategy_strip(mock_anthropic, async_llm_client):
+    mock_anthropic.return_value = _get_mock_client(
+        "messages.create",
+        "content[0].text",
+        "--{response}--",
+    )
+
+    async_llm_client.add_provider("anthropic", "fake-api-key")
+    response = await async_llm_client.call_async(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.strip(),
+    )
+
+    assert response == "{response}"
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.Anthropic")
+async def test_json_mode_strategy_prepend(mock_anthropic, async_llm_client):
+    mock_anthropic.return_value = _get_mock_client(
+        "messages.create",
+        "content[0].text",
+        "response",
+    )
+
+    async_llm_client.add_provider("anthropic", "fake-api-key")
+    response = await async_llm_client.call_async(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.prepend(),
+    )
+
+    assert response == "{response"
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.Anthropic")
+@patch(f"{BASE_MODULE_PATH}.CohereClient")
+async def test_json_mode_call_concurrent_default_strategy(
+    mock_cohere,
+    mock_anthropic,
+    async_llm_client,
+):
+    _prepare_three_mock_clients(
+        mock_anthropic,
+        mock_anthropic,
+        mock_cohere,
+        ["--{response}--", "--{response}--", "--{response}--"],
+    )
+
+    async_llm_client.add_provider("anthropic", "fake-api-key")
+    async_llm_client.add_provider("cohere", "fake-api-key")
+
+    response = await async_llm_client.call_concurrent(
+        n=3,
+        models=["claude-3-opus", "claude-3-opus", "command-r"],
+        prompts=["Hello"],
+        json_modes=[True, False, True],
+    )
+
+    assert response == ["{response}", "--{response}--", "{response}"]
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.Anthropic")
+@patch(f"{BASE_MODULE_PATH}.CohereClient")
+async def test_json_mode_call_concurrent_prepend_strategy(
+    mock_cohere,
+    mock_anthropic,
+    async_llm_client,
+):
+    _prepare_three_mock_clients(
+        mock_anthropic,
+        mock_anthropic,
+        mock_cohere,
+        ["response", "response", "response"],
+    )
+
+    async_llm_client.add_provider("anthropic", "fake-api-key")
+    async_llm_client.add_provider("cohere", "fake-api-key")
+
+    response = await async_llm_client.call_concurrent(
+        n=3,
+        models=["claude-3-opus", "claude-3-opus", "command-r"],
+        prompts=["Hello", "Hello", "Hello"],
+        json_modes=[True, False, True],
+        json_mode_strategies=[JsonModeStrategy.prepend()],
+    )
+
+    assert response == ["{response", "response", "{response"]
+
+
+@pytest.mark.asyncio
+@patch(f"{BASE_MODULE_PATH}.Anthropic")
+@patch(f"{BASE_MODULE_PATH}.CohereClient")
+async def test_json_mode_call_concurrent_mixed_strategies(
+    mock_cohere,
+    mock_anthropic,
+    async_llm_client,
+):
+    _prepare_three_mock_clients(
+        mock_anthropic,
+        mock_anthropic,
+        mock_cohere,
+        ["--{response}--", "--{response}--", "--{response}--"],
+    )
+
+    async_llm_client.add_provider("anthropic", "fake-api-key")
+    async_llm_client.add_provider("cohere", "fake-api-key")
+
+    response = await async_llm_client.call_concurrent(
+        n=3,
+        models=["claude-3-opus", "claude-3-opus", "command-r"],
+        prompts=["Hello", "Hello", "Hello"],
+        json_modes=[True, True, True],
+        json_mode_strategies=[
+            JsonModeStrategy.strip(),
+            JsonModeStrategy.prepend(),
+            JsonModeStrategy.strip(),
+        ],
+    )
+
+    assert response == ["{response}", "{--{response}--", "{response}"]
