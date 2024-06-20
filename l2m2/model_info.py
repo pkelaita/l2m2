@@ -9,12 +9,17 @@ import sys
 class ProviderEntry(TypedDict):
     name: str
     homepage: str
+    endpoint: str
+    headers: Dict[str, str]
 
 
 T = TypeVar("T")
 
 Marker = Enum("Marker", {"PROVIDER_DEFAULT": "<<PROVIDER_DEFAULT>>"})
 PROVIDER_DEFAULT: Marker = Marker.PROVIDER_DEFAULT
+
+API_KEY = "<<API_KEY>>"
+MODEL_ID = "<<MODEL_ID>>"
 
 
 class Param(TypedDict, Generic[T]):
@@ -47,26 +52,55 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/product",
+        "endpoint": "https://api.openai.com/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
     },
     "google": {
         "name": "Google",
         "homepage": "https://ai.google.dev/",
+        "endpoint": f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_ID}:generateContent?key={API_KEY}",
+        "headers": {"Content-Type": "application/json"},
     },
     "anthropic": {
         "name": "Anthropic",
         "homepage": "https://www.anthropic.com/api",
+        "endpoint": "https://api.anthropic.com/v1/messages",
+        "headers": {
+            "x-api-key": API_KEY,
+            "anthropic-version": "2023-06-01",
+            "Content-Type": "application/json",
+        },
     },
     "cohere": {
         "name": "Cohere",
         "homepage": "https://docs.cohere.com/",
+        "endpoint": "https://api.cohere.com/v1/chat",
+        "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        },
     },
     "groq": {
         "name": "Groq",
         "homepage": "https://wow.groq.com/",
+        "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
     },
     "replicate": {
         "name": "Replicate",
         "homepage": "https://replicate.com/",
+        "endpoint": f"https://api.replicate.com/v1/models/{MODEL_ID}/predictions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
     },
 }
 
@@ -121,7 +155,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-1.5-pro": {
         "google": {
-            "model_id": "gemini-1.5-pro-latest",
+            "model_id": "gemini-1.5-pro",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -139,7 +173,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-1.0-pro": {
         "google": {
-            "model_id": "gemini-1.0-pro-latest",
+            "model_id": "gemini-1.0-pro",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
