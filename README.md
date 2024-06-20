@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1715836447)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1715836447)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1718864754)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1718864754)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
 
@@ -9,6 +9,8 @@
 - <!--start-count-->14<!--end-count--> supported models (see below) through a unified interface – regularly updated and with more on the way
 - Asynchronous and concurrent calls
 - Session chat memory – even across multiple models
+- JSON mode
+- Optional prompt loader
 
 ### Supported Models
 
@@ -43,6 +45,22 @@ L2M2 currently supports the following models:
 - Typescript clone (probably not soon)
 - ...etc
 
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- **Usage**
+  - [Basic Usage](#usage)
+  - [Multi-Provider Models](#multi-provider-models)
+  - **Memory**
+    - [Chat Memory](#memory)
+    - [External Memory](#external-memory)
+  - [Async Calls](#async-calls)
+  - **Tools**
+    - [JSON Mode](#tools-json-mode)
+    - [Prompt Loader](#tools-prompt-loader)
+- [Contact](#contact)
+
 ## Requirements
 
 - Python >= 3.9
@@ -66,15 +84,14 @@ from l2m2.client import LLMClient
 In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to pass in a valid provider as shown in the table above.
 
 ```python
-client = LLMClient()
-client.add_provider("<provider-name>", "<api-key>")
-
-# Alternatively, you can pass in providers via the constructor
 client = LLMClient({
-    "<provider-a>": "<api-key-a>",
-    "<provider-b>": "<api-key-b>",
+    "provider-a": "api-key-a",
+    "provider-b": "api-key-b",
     ...
 })
+
+# Alternatively, you can add providers after initialization
+client.add_provider("provider-c", "api-key-c")
 ```
 
 **Call your LLM 💬👍**
@@ -85,13 +102,20 @@ The `call` API is the same regardless of model or provider.
 response = client.call(
     model="<model name>",
     prompt="<prompt>",
-    system_prompt="<system prompt>",
-    temperature=<temperature>,
-    max_tokens=<max_tokens>
 )
 ```
 
-`model` and `prompt` are required, while the remaining fields are optional. When possible, L2M2 uses the provider's default model parameter values when they are not given.
+`model` and `prompt` are required, while `system_prompt`, `temperature`, and `max_tokens` are optional. When possible, L2M2 uses the provider's default model parameter values when they are not given.
+
+```python
+response = client.call(
+    model="<model name>",
+    prompt="<prompt>",
+    system_prompt="<system prompt>",
+    temperature=<temperature>,
+    max_tokens=<max tokens>,
+)
+```
 
 If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
 
@@ -110,8 +134,6 @@ response = client.call(
     model="gpt-4o",
     prompt="How's the weather today?",
     system_prompt="Respond as if you were a pirate.",
-    temperature=0.5,
-    max_tokens=250,
 )
 
 print(response)
@@ -401,6 +423,111 @@ The secret word is... corge!
 ```
 
 Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage. `AsyncLLMClient` also supports memory in the same way as `LLMClient`.
+
+### Tools: JSON Mode
+
+L2M2 provides an optional `json_mode` flag that enforces JSON formatting on LLM responses. Importantly, this flag is applicable to all models and providers, whether or not they natively support JSON output enforcement. When JSON mode is not natively supported, `json_mode` will apply strategies to maximize the likelihood of valid JSON output.
+
+```python
+# example_json_mode.py
+
+response = client.call(
+    model="gpt-4o",
+    prompt="What are the capitals of each state of Australia?",
+    system_prompt="Respond with the JSON format {'region': 'capital'}",
+    json_mode=True,
+)
+
+print(response)
+```
+
+```
+>> python3 example_json_mode.py
+
+{
+  "New South Wales": "Sydney",
+  "Victoria": "Melbourne",
+  "Queensland": "Brisbane",
+  "South Australia": "Adelaide",
+  "Western Australia": "Perth",
+  "Tasmania": "Hobart",
+  "Northern Territory": "Darwin",
+  "Australian Capital Territory": "Canberra"
+}
+```
+
+> [!IMPORTANT]
+> Regardless of the model and even when `json_mode` is enabled, it's crucial to ensure that either the prompt or the system prompt mentions to return the output in JSON - and ideally, to specify the JSON format, as shown above.
+
+The following models natively support JSON mode:
+
+- `gpt-4o`
+- `gpt-4-turbo`
+- `gpt-3.5-turbo`
+- `gemini-1.5-pro`
+
+#### JSON Mode Non-Native Strategies
+
+For models that do not natively support JSON mode, L2M2 will attempt to enforce JSON formatting by applying one of the following two strategies under the hood:
+
+1. **Strip**: This is the default strategy. It will attempt to extract the JSON from the response by searching for the first instance of `{` and the last instance of `}` in the response, and returning the between substring (inclusive). If no JSON is found, the response will be returned as-is.
+2. **Prepend**: This strategy will attempt to enforce a valid JSON output by inserting a message ending with an opening `{` from the model into the conversation just after the user prompt and just before the model response, and re-prepending the opening `{` to the model response. By default this message is `"Here is the JSON output:"`, but can be customized. More information is available on this strategy [here](https://github.com/anthropics/anthropic-cookbook/blob/main/misc/how_to_enable_json_mode.ipynb). Importantly, the **Prepend** strategy is available whether or not memory is enabled, and will not interfere with memory.
+
+**Strip** is the default strategy, but you can specify a strategy by passing either `JsonModeStrategy.strip()` or `JsonModeStrategy.prepend()` to the `json_mode_strategy` parameter in `call`.
+
+```python
+# example_json_mode.py
+
+from l2m2.client import LLMClient
+from l2m2.tools import JsonModeStrategy
+
+client = LLMClient({"anthropic": os.getenv("ANTHROPIC_API_KEY")})
+
+response = client.call(
+    model="claude-3-sonnet",
+    prompt="What are the capitals of each Canadian province?",
+    system_prompt="Respond with the JSON format {'region': 'capital'}",
+    json_mode=True,
+    json_mode_strategy=JsonModeStrategy.prepend(),
+)
+
+print(response)
+```
+
+```
+>> python3 example_json_mode.py
+
+{
+  "Alberta": "Edmonton",
+  "British Columbia": "Victoria",
+  "Manitoba": "Winnipeg",
+  "New Brunswick": "Fredericton",
+  "Newfoundland and Labrador": "St. John's",
+  "Nova Scotia": "Halifax",
+  "Ontario": "Toronto",
+  "Prince Edward Island": "Charlottetown",
+  "Quebec": "Quebec City",
+  "Saskatchewan": "Regina"
+}
+```
+
+Finally, you can customize the message that gets passed into the prepend strategy by passing `custom_prefix` as follows:
+
+```python
+
+response = client.call(
+    model="claude-3-sonnet",
+    prompt="What are the capitals of each Canadian province?",
+    system_prompt="Respond with the JSON format {'region': 'capital'}",
+    json_mode=True,
+    json_mode_strategy=JsonModeStrategy.prepend(custom_prefix="Here is the JSON with provinces and capitals:"),
+)
+```
+
+Ideally, this wouldn't change anything on the output – just under the hood – but this is useful for working with foreign languages, etc.
+
+> [!TIP]
+> I _highly_ recommend using `prepend()` when calling Anthropic's models, and sticking with the default `strip()` for all other models that don't natively support JSON mode. From my personal testing, valid JSON is almost always produced when using `prepend()` with Anthropic's models and almost never produced with `strip()`, and vice versa for other models. I'll gather rigorous data on this eventually, but if anyone has any insights, please let me know!
 
 ### Tools: Prompt Loader
 
