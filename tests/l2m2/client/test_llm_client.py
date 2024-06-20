@@ -12,6 +12,7 @@ from test_utils.llm_mock import (
     get_nested_attribute,
 )
 from l2m2.client import LLMClient
+from l2m2.tools import JsonModeStrategy
 
 MODULE_PATH = "l2m2.client.llm_client"
 
@@ -179,6 +180,10 @@ def _generic_test_call(
         system_prompt="System prompt",
         temperature=0.5,
         max_tokens=100,
+        json_mode=True,
+        # Just passing this in here to make sure nothing breaks - we'll test the actual
+        # functionality later on
+        json_mode_strategy=JsonModeStrategy.strip(),
     )
 
     assert response_default == "response"
@@ -542,3 +547,154 @@ def test_external_memory_user_prompt(mock_openai):
         {"role": "system", "content": "system"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
+
+
+# -- Tests for non-native JSON mode strategy STRIP -- #
+
+
+@patch(f"{MODULE_PATH}.Anthropic")
+def test_json_mode_strategy_strip(mock_anthropic, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.messages.create
+    mock_response = construct_mock_from_path(
+        "content[0].text", final_response="--{response}--"
+    )
+    mock_call.return_value = mock_response
+    mock_anthropic.return_value = mock_client
+
+    llm_client.add_provider("anthropic", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.strip(),
+    )
+
+    assert response == "{response}"
+
+
+@patch(f"{MODULE_PATH}.Anthropic")
+def test_json_mode_strategy_strip_invalid_aborts(mock_anthropic, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.messages.create
+    mock_response = construct_mock_from_path(
+        "content[0].text", final_response="--}response{--"
+    )
+    mock_call.return_value = mock_response
+    mock_anthropic.return_value = mock_client
+
+    llm_client.add_provider("anthropic", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.strip(),
+    )
+
+    assert response == "--}response{--"
+
+
+# -- Tests for non-native JSON mode strategy PREPEND -- #
+
+# Note: We need to test each applicable provider separately because prepend's
+# implementation is provider-specific
+
+
+@patch(f"{MODULE_PATH}.Anthropic")
+def test_json_mode_strategy_prepend_anthropic(mock_anthropic, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.messages.create
+    mock_response = construct_mock_from_path("content[0].text")
+    mock_call.return_value = mock_response
+    mock_anthropic.return_value = mock_client
+
+    llm_client.add_provider("anthropic", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.prepend(),
+    )
+
+    assert response == "{response"
+    assert (
+        mock_call.call_args.kwargs["messages"][-1]["content"]
+        == "Here is the JSON response: {"
+    )
+
+
+@patch(f"{MODULE_PATH}.CohereClient")
+def test_json_mode_strategy_prepend_cohere(mock_cohere, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.chat
+    mock_response = construct_mock_from_path("text")
+    mock_call.return_value = mock_response
+    mock_cohere.return_value = mock_client
+
+    llm_client.add_provider("cohere", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="command-r",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.prepend(),
+    )
+
+    assert response == "{response"
+    assert (
+        mock_call.call_args.kwargs["chat_history"][-1]["message"]
+        == "Here is the JSON response: {"
+    )
+
+
+@patch(f"{MODULE_PATH}.Groq")
+def test_json_mode_strategy_prepend_groq(mock_groq, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.chat.completions.create
+    mock_response = construct_mock_from_path("choices[0].message.content")
+    mock_call.return_value = mock_response
+    mock_groq.return_value = mock_client
+
+    llm_client.add_provider("groq", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="llama3-70b",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.prepend(),
+    )
+
+    assert response == "{response"
+    assert (
+        mock_call.call_args.kwargs["messages"][-1]["content"]
+        == "Here is the JSON response: {"
+    )
+
+
+def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
+    llm_client.add_provider("replicate", "fake-api-key")
+    with pytest.raises(ValueError):
+        llm_client.call(
+            prompt="Hello",
+            model="llama3-8b",
+            json_mode=True,
+            json_mode_strategy=JsonModeStrategy.prepend(),
+        )
+
+
+@patch(f"{MODULE_PATH}.Anthropic")
+def test_json_mode_strategy_prepend_custom_prefix_anthropic(mock_anthropic, llm_client):
+    mock_client = Mock()
+    mock_call = mock_client.messages.create
+    mock_response = construct_mock_from_path("content[0].text")
+    mock_call.return_value = mock_response
+    mock_anthropic.return_value = mock_client
+
+    llm_client.add_provider("anthropic", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+        json_mode_strategy=JsonModeStrategy.prepend("custom-prefix-123"),
+    )
+
+    assert response == "{response"
+    assert mock_call.call_args.kwargs["messages"][-1]["content"] == "custom-prefix-123{"
