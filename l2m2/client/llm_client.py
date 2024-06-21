@@ -1,11 +1,4 @@
-from typing import Any, Set, Dict, Optional, Tuple
-
-import google.generativeai as google
-from cohere import Client as CohereClient
-from openai import OpenAI
-from anthropic import Anthropic
-from groq import Groq
-import replicate
+from typing import Any, List, Set, Dict, Optional, Tuple
 
 from l2m2.model_info import (
     MODEL_INFO,
@@ -29,6 +22,7 @@ from l2m2.tools.json_mode_strategies import (
     get_extra_message,
     run_json_strats_out,
 )
+from l2m2._internal.http import llm_post
 
 
 class LLMClient:
@@ -131,11 +125,14 @@ class LLMClient:
 
         Raises:
             ValueError: If the provider is not one of the available providers.
+            ValueError: If the API key is not a string.
         """
         if provider not in (providers := self.get_available_providers()):
             raise ValueError(
                 f"Invalid provider: {provider}. Available providers: {providers}"
             )
+        if not isinstance(api_key, str):
+            raise ValueError(f"API key for provider {provider} must be a string.")
 
         self.api_keys[provider] = api_key
         self.active_providers.add(provider)
@@ -462,19 +459,18 @@ class LLMClient:
         params: Dict[str, Any],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
-        oai = OpenAI(api_key=self.api_keys["openai"])
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
         if isinstance(self.memory, ChatMemory):
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
-        result = oai.chat.completions.create(
-            model=model_id,
-            messages=messages,  # type: ignore
-            **params,
+        result = llm_post(
+            "openai",
+            self.api_keys["openai"],
+            {"model": model_id, "messages": messages, **params},
         )
-        return str(result.choices[0].message.content)
+        return str(result["choices"][0]["message"]["content"])
 
     def _call_anthropic(
         self,
@@ -485,7 +481,6 @@ class LLMClient:
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        anthr = Anthropic(api_key=self.api_keys["anthropic"])
         if system_prompt is not None:
             params["system"] = system_prompt
         messages = []
@@ -498,12 +493,12 @@ class LLMClient:
             if append_msg:
                 messages.append({"role": "assistant", "content": append_msg})
 
-        result = anthr.messages.create(
-            model=model_id,
-            messages=messages,  # type: ignore
-            **params,
+        result = llm_post(
+            "anthropic",
+            self.api_keys["anthropic"],
+            {"model": model_id, "messages": messages, **params},
         )
-        return str(result.content[0].text)
+        return str(result["content"][0]["text"])
 
     def _call_cohere(
         self,
@@ -514,7 +509,6 @@ class LLMClient:
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        cohere = CohereClient(api_key=self.api_keys["cohere"])
         if system_prompt is not None:
             params["preamble"] = system_prompt
         if isinstance(self.memory, ChatMemory):
@@ -528,12 +522,12 @@ class LLMClient:
                 entry = {"role": "CHATBOT", "message": append_msg}
                 params.setdefault("chat_history", []).append(entry)
 
-        result = cohere.chat(
-            model=model_id,
-            message=prompt,
-            **params,
+        result = llm_post(
+            "cohere",
+            self.api_keys["cohere"],
+            {"model": model_id, "message": prompt, **params},
         )
-        return str(result.text)
+        return str(result["text"])
 
     def _call_groq(
         self,
@@ -544,7 +538,6 @@ class LLMClient:
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        groq = Groq(api_key=self.api_keys["groq"])
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
@@ -557,12 +550,12 @@ class LLMClient:
             if append_msg:
                 messages.append({"role": "assistant", "content": append_msg})
 
-        result = groq.chat.completions.create(
-            model=model_id,
-            messages=messages,  # type: ignore
-            **params,
+        result = llm_post(
+            "groq",
+            self.api_keys["groq"],
+            {"model": model_id, "messages": messages, **params},
         )
-        return str(result.choices[0].message.content)
+        return str(result["choices"][0]["message"]["content"])
 
     def _call_google(
         self,
@@ -572,28 +565,32 @@ class LLMClient:
         params: Dict[str, Any],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
-        google.configure(api_key=self.api_keys["google"])
+        data: Dict[str, Any] = {}
 
-        model_params = {"model_name": model_id}
         if system_prompt is not None:
-            # Earlier versions don't support system prompts, so prepend it to the prompt
-            if model_id not in ["gemini-1.5-pro-latest"]:
+            # Earlier models don't support system prompts, so prepend it to the prompt
+            if model_id not in ["gemini-1.5-pro"]:
                 prompt = f"{system_prompt}\n{prompt}"
             else:
-                model_params["system_instruction"] = system_prompt
-        model = google.GenerativeModel(**model_params)
+                data["system_instruction"] = {"parts": {"text": system_prompt}}
 
-        messages = []
+        messages: List[Dict[str, Any]] = []
         if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "parts", "user", "model"))
-        messages.append({"role": "user", "parts": prompt})
+            mem_items = self.memory.unpack("role", "parts", "user", "model")
+            # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
+            messages.extend([{**m, "parts": {"text": m["parts"]}} for m in mem_items])
 
-        result = model.generate_content(messages, generation_config=params)
-        result = result.candidates[0]
+        messages.append({"role": "user", "parts": {"text": prompt}})
+
+        data["contents"] = messages
+        data["generation_config"] = params
+
+        result = llm_post("google", self.api_keys["google"], data, model_id=model_id)
+        result = result["candidates"][0]
 
         # Will sometimes fail due to safety filters
-        if result.content:
-            return str(result.content.parts[0].text)
+        if "content" in result:
+            return str(result["content"]["parts"][0]["text"])
         else:
             return str(result)
 
@@ -608,25 +605,25 @@ class LLMClient:
     ) -> str:
         if isinstance(self.memory, ChatMemory):
             raise ValueError(
-                "Chat memory is not supported with Replicate. Try using Groq."
+                "Chat memory is not supported with Replicate."
+                + " Try using Groq, or using ExternalMemory instead."
             )
         if json_mode_strategy.strategy_name == StrategyName.PREPEND:
             raise ValueError(
                 "JsonModeStrategy.prepend() is not supported with Replicate."
-                + "Try using Groq, or using JsonModeStrategy.strip() instead."
+                + " Try using Groq, or using JsonModeStrategy.strip() instead."
             )
 
-        client = replicate.Client(api_token=self.api_keys["replicate"])
         if system_prompt is not None:
             params["system_prompt"] = system_prompt
-        result = client.run(
-            model_id,
-            input={
-                "prompt": prompt,
-                **params,
-            },
+
+        result = llm_post(
+            "replicate",
+            self.api_keys["replicate"],
+            {"input": {"prompt": prompt, **params}},
+            model_id=model_id,
         )
-        return "".join(result)
+        return "".join(result["output"])
 
     def _get_external_memory_prompts(
         self, system_prompt: Optional[str], prompt: str

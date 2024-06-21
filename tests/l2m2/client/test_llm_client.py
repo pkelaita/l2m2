@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from l2m2.memory import (
     MemoryType,
@@ -7,24 +7,11 @@ from l2m2.memory import (
     ExternalMemory,
     ExternalMemoryLoadingType,
 )
-from test_utils.llm_mock import (
-    construct_mock_from_path,
-    get_nested_attribute,
-)
 from l2m2.client import LLMClient
 from l2m2.tools import JsonModeStrategy
 
-MODULE_PATH = "l2m2.client.llm_client"
-
-
-# Make sure all the providers are available
-def test_provider_imports():
-    from openai import OpenAI  # noqa: F401
-    from cohere import Client as CohereClient  # noqa: F401
-    from anthropic import Anthropic  # noqa: F401
-    from groq import Groq  # noqa: F401
-    import google.generativeai as google  # noqa: F401
-    import replicate  # noqa: F401
+LLM_POST_PATH = "l2m2.client.llm_client.llm_post"
+CALL_BASE_PATH = "l2m2.client.llm_client.LLMClient._call_"
 
 
 @pytest.fixture
@@ -89,6 +76,13 @@ def test_add_provider_invalid(llm_client):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
+def test_add_provider_bad_key(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.add_provider("openai", None)
+    with pytest.raises(ValueError):
+        llm_client.add_provider("openai", 123)
+
+
 def test_remove_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
     llm_client.add_provider("anthropic", "test-key-anthropic")
@@ -148,29 +142,14 @@ def test_set_preferred_provider_invalid(llm_client):
 
 def _generic_test_call(
     llm_client,
-    mock_provider,
-    call_path,
-    response_path,
     provider_key,
     model_name,
+    response="response",
 ):
-    mock_client = Mock()
-
     if provider_key != "replicate":
         # ChatMemory behaves differently with each provider (except replicate where it's
         # not supported), so load it here to test each separate implementation.
         llm_client.load_memory(ChatMemory())
-
-    # Dynamically get the mock call and response objects based on the delimited paths
-    mock_call = get_nested_attribute(mock_client, call_path)
-    if response_path == "":
-        # Stopgap for replicate, TODO fix this!
-        mock_call.return_value = ["response"]
-    else:
-        mock_response = construct_mock_from_path(response_path, "response")
-        mock_call.return_value = mock_response
-
-    mock_provider.return_value = mock_client
 
     llm_client.add_provider(provider_key, "fake-api-key")
     response_default = llm_client.call(prompt="Hello", model=model_name)
@@ -186,93 +165,58 @@ def _generic_test_call(
         json_mode_strategy=JsonModeStrategy.strip(),
     )
 
-    assert response_default == "response"
-    assert response_custom == "response"
+    assert response_default == response
+    assert response_custom == response
 
 
-@patch(f"{MODULE_PATH}.OpenAI")
-def test_call_openai(mock_openai, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_openai,
-        call_path="chat.completions.create",
-        response_path="choices[0].message.content",
-        provider_key="openai",
-        model_name="gpt-4-turbo",
-    )
+@patch(LLM_POST_PATH)
+def test_call_openai(mock_llm_post, llm_client):
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "openai", "gpt-4-turbo")
 
 
-@patch(f"{MODULE_PATH}.Anthropic")
-def test_call_anthropic(mock_anthropic, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_anthropic,
-        call_path="messages.create",
-        response_path="content[0].text",
-        provider_key="anthropic",
-        model_name="claude-3-opus",
-    )
+@patch(LLM_POST_PATH)
+def test_call_anthropic(mock_llm_post, llm_client):
+    mock_return_value = {"content": [{"text": "response"}]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "anthropic", "claude-3-opus")
 
 
-@patch(f"{MODULE_PATH}.CohereClient")
-def test_call_cohere(mock_cohere, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_cohere,
-        call_path="chat",
-        response_path="text",
-        provider_key="cohere",
-        model_name="command-r",
-    )
+@patch(LLM_POST_PATH)
+def test_call_cohere(mock_llm_post, llm_client):
+    mock_return_value = {"text": "response"}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "cohere", "command-r")
 
 
-@patch(f"{MODULE_PATH}.Groq")
-def test_call_groq(mock_groq, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_groq,
-        call_path="chat.completions.create",
-        response_path="choices[0].message.content",
-        provider_key="groq",
-        model_name="llama3-70b",
-    )
+@patch(LLM_POST_PATH)
+def test_call_groq(mock_llm_post, llm_client):
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "groq", "llama3-70b")
 
 
-# Need to test gemini 1.0 and 1.5 separately because 1.0 doesn't support system prompts
-@patch(f"{MODULE_PATH}.google.GenerativeModel")
-def test_call_google_1_5(mock_google, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_google,
-        call_path="generate_content",
-        response_path="candidates[0].content.parts[0].text",
-        provider_key="google",
-        model_name="gemini-1.5-pro",
-    )
+# Need to test gemini 1.0 and 1.5 separately because of different system prompt handling
+@patch(LLM_POST_PATH)
+def test_call_google_1_5(mock_llm_post, llm_client):
+    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "google", "gemini-1.5-pro")
 
 
-@patch(f"{MODULE_PATH}.google.GenerativeModel")
-def test_call_google_1_0(mock_google, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_google,
-        call_path="generate_content",
-        response_path="candidates[0].content.parts[0].text",
-        provider_key="google",
-        model_name="gemini-1.0-pro",
-    )
+@patch(LLM_POST_PATH)
+def test_call_google_1_0(mock_llm_post, llm_client):
+    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "google", "gemini-1.0-pro")
 
 
-@patch(f"{MODULE_PATH}.replicate.Client")
-def test_call_replicate(mock_replicate, llm_client):
-    _generic_test_call(
-        llm_client=llm_client,
-        mock_provider=mock_replicate,
-        call_path="run",
-        response_path="",
-        provider_key="replicate",
-        model_name="llama3-8b",
-    )
+@patch(LLM_POST_PATH)
+def test_call_replicate(mock_llm_post, llm_client):
+    mock_return_value = {"output": ["response"]}
+    mock_llm_post.return_value = mock_return_value
+    _generic_test_call(llm_client, "replicate", "llama3-8b")
 
 
 def test_call_valid_model_not_active(llm_client):
@@ -300,14 +244,9 @@ def test_call_temperature_too_high(llm_client):
 # -- Tests for call_custom -- #
 
 
-@patch(f"{MODULE_PATH}.OpenAI")
-def test_call_custom(mock_openai, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.chat.completions.create
-    mock_response = construct_mock_from_path("choices[0].message.content")
-    mock_call.return_value = mock_response
-    mock_openai.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_call_custom(mock_call_openai, llm_client):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
     llm_client.add_provider("openai", "fake-api-key")
     response_default = llm_client.call_custom(
         provider="openai",
@@ -348,72 +287,48 @@ def test_call_custom_not_active(llm_client):
 # -- Tests for multi provider -- #
 
 
-@patch(f"{MODULE_PATH}.Groq")
-@patch(f"{MODULE_PATH}.replicate.Client")
-def test_multi_provider(mock_replicate, mock_groq, llm_client):
-    mock_client_groq = Mock()
-    mock_call_groq = mock_client_groq.chat.completions.create
-    mock_call_groq.return_value = construct_mock_from_path(
-        "choices[0].message.content", final_response="hello from groq"
-    )
-    mock_groq.return_value = mock_client_groq
-
-    mock_client_replicate = Mock()
-    mock_call_replicate = mock_client_replicate.run
-    mock_call_replicate.return_value = ["hello from replicate"]
-    mock_replicate.return_value = mock_client_replicate
+@patch(f"{CALL_BASE_PATH}groq")
+@patch(f"{CALL_BASE_PATH}replicate")
+def test_multi_provider(mock_call_replicate, mock_call_groq, llm_client):
+    mock_call_groq.return_value = "hello from groq"
+    mock_call_replicate.return_value = "hello from replicate"
 
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
+
     kwargs = {"prompt": "Hello", "model": "llama3-70b"}
     response_groq = llm_client.call(**kwargs, prefer_provider="groq")
     response_replicate = llm_client.call(**kwargs, prefer_provider="replicate")
-
     assert response_groq == "hello from groq"
     assert response_replicate == "hello from replicate"
 
 
-@patch(f"{MODULE_PATH}.Groq")
-@patch(f"{MODULE_PATH}.replicate.Client")
-def test_multi_provider_with_defaults(mock_replicate, mock_groq, llm_client):
-    mock_client_groq = Mock()
-    mock_call_groq = mock_client_groq.chat.completions.create
-    mock_call_groq.return_value = construct_mock_from_path(
-        "choices[0].message.content", final_response="hello from groq"
-    )
-    mock_groq.return_value = mock_client_groq
-
-    mock_client_replicate = Mock()
-    mock_call_replicate = mock_client_replicate.run
-    mock_call_replicate.return_value = ["hello from replicate"]
-    mock_replicate.return_value = mock_client_replicate
+@patch(f"{CALL_BASE_PATH}groq")
+@patch(f"{CALL_BASE_PATH}replicate")
+def test_multi_provider_with_defaults(mock_call_replicate, mock_call_groq, llm_client):
+    mock_call_groq.return_value = "hello from groq"
+    mock_call_replicate.return_value = "hello from replicate"
 
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
-    llm_client.set_preferred_providers({"llama3-70b": "replicate", "llama3-8b": "groq"})
+    llm_client.set_preferred_providers({"llama3-8b": "groq"})
+    llm_client.set_preferred_providers({"llama3-70b": "replicate"})
 
     response_groq = llm_client.call(prompt="Hello", model="llama3-8b")
     response_replicate = llm_client.call(prompt="Hello", model="llama3-70b")
-
     assert response_groq == "hello from groq"
     assert response_replicate == "hello from replicate"
 
 
-@patch(f"{MODULE_PATH}.Groq")
-def test_multi_provider_one_active(mock_groq, llm_client):
-    mock_client_groq = Mock()
-    mock_call_groq = mock_client_groq.chat.completions.create
-    mock_call_groq.return_value = construct_mock_from_path(
-        "choices[0].message.content", final_response="hello from groq"
-    )
-    mock_groq.return_value = mock_client_groq
-
+@patch(f"{CALL_BASE_PATH}groq")
+def test_multi_provider_one_active(mock_call_groq, llm_client):
+    mock_call_groq.return_value = "hello from groq"
     llm_client.add_provider("groq", "test-key-groq")
     response = llm_client.call(prompt="Hello", model="llama3-8b")
     assert response == "hello from groq"
 
 
-@patch(f"{MODULE_PATH}.Groq")
+@patch(f"{CALL_BASE_PATH}groq")
 def test_multi_provider_pref_missing(_, llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
@@ -435,13 +350,9 @@ def test_multi_provider_pref_inactive(llm_client):
 # -- Tests for memory -- #
 
 
-@patch(f"{MODULE_PATH}.OpenAI")
-def test_chat_memory(mock_openai):
-    mock_client = Mock()
-    mock_call = mock_client.chat.completions.create
-    mock_response = construct_mock_from_path("choices[0].message.content")
-    mock_call.return_value = mock_response
-    mock_openai.return_value = mock_client
+@patch(LLM_POST_PATH)
+def test_chat_memory(mock_call_openai):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
 
     llm_client = LLMClient(memory_type=MemoryType.CHAT)
     llm_client.add_provider("openai", "fake-api-key")
@@ -454,7 +365,6 @@ def test_chat_memory(mock_openai):
 
     response = llm_client.call(prompt="C", model="gpt-4-turbo")
     assert response == "response"
-
     assert memory.unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
@@ -463,7 +373,6 @@ def test_chat_memory(mock_openai):
     ]
 
     llm_client.clear_memory()
-
     assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == []
 
 
@@ -486,13 +395,9 @@ def test_chat_memory_unsupported_provider():
             llm_client.call(prompt="Hello", model=model)
 
 
-@patch(f"{MODULE_PATH}.OpenAI")
-def test_external_memory_system_prompt(mock_openai):
-    mock_client = Mock()
-    mock_call = mock_client.chat.completions.create
-    mock_response = construct_mock_from_path("choices[0].message.content")
-    mock_call.return_value = mock_response
-    mock_openai.return_value = mock_client
+@patch(LLM_POST_PATH)
+def test_external_memory_system_prompt(mock_call_openai):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
 
     llm_client = LLMClient(
         providers={"openai": "fake-api-key"},
@@ -506,25 +411,21 @@ def test_external_memory_system_prompt(mock_openai):
     memory.set_contents("stuff")
 
     llm_client.call(prompt="Hello", model="gpt-4-turbo")
-    assert mock_call.call_args.kwargs["messages"] == [
+    assert mock_call_openai.call_args.args[2]["messages"] == [
         {"role": "system", "content": "stuff"},
         {"role": "user", "content": "Hello"},
     ]
 
-    llm_client.call(system_prompt="system", prompt="Hello", model="gpt-4-turbo")
-    assert mock_call.call_args.kwargs["messages"] == [
-        {"role": "system", "content": "system\nstuff"},
+    llm_client.call(system_prompt="system-123", prompt="Hello", model="gpt-4-turbo")
+    assert mock_call_openai.call_args.args[2]["messages"] == [
+        {"role": "system", "content": "system-123\nstuff"},
         {"role": "user", "content": "Hello"},
     ]
 
 
-@patch(f"{MODULE_PATH}.OpenAI")
-def test_external_memory_user_prompt(mock_openai):
-    mock_client = Mock()
-    mock_call = mock_client.chat.completions.create
-    mock_response = construct_mock_from_path("choices[0].message.content")
-    mock_call.return_value = mock_response
-    mock_openai.return_value = mock_client
+@patch(LLM_POST_PATH)
+def test_external_memory_user_prompt(mock_call_openai):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
 
     llm_client = LLMClient(
         providers={"openai": "fake-api-key"},
@@ -538,13 +439,13 @@ def test_external_memory_user_prompt(mock_openai):
     memory.set_contents("stuff")
 
     llm_client.call(prompt="Hello", model="gpt-4-turbo")
-    assert mock_call.call_args.kwargs["messages"] == [
+    assert mock_call_openai.call_args.args[2]["messages"] == [
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
-    llm_client.call(system_prompt="system", prompt="Hello", model="gpt-4-turbo")
-    assert mock_call.call_args.kwargs["messages"] == [
-        {"role": "system", "content": "system"},
+    llm_client.call(system_prompt="system-123", prompt="Hello", model="gpt-4-turbo")
+    assert mock_call_openai.call_args.args[2]["messages"] == [
+        {"role": "system", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
@@ -552,16 +453,9 @@ def test_external_memory_user_prompt(mock_openai):
 # -- Tests for non-native JSON mode strategy STRIP -- #
 
 
-@patch(f"{MODULE_PATH}.Anthropic")
-def test_json_mode_strategy_strip(mock_anthropic, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.messages.create
-    mock_response = construct_mock_from_path(
-        "content[0].text", final_response="--{response}--"
-    )
-    mock_call.return_value = mock_response
-    mock_anthropic.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_strip(mock_call_anthropic, llm_client):
+    mock_call_anthropic.return_value = {"content": [{"text": "--{response}--"}]}
     llm_client.add_provider("anthropic", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -573,16 +467,9 @@ def test_json_mode_strategy_strip(mock_anthropic, llm_client):
     assert response == "{response}"
 
 
-@patch(f"{MODULE_PATH}.Anthropic")
-def test_json_mode_strategy_strip_invalid_aborts(mock_anthropic, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.messages.create
-    mock_response = construct_mock_from_path(
-        "content[0].text", final_response="--}response{--"
-    )
-    mock_call.return_value = mock_response
-    mock_anthropic.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_strip_invalid_aborts(mock_call_anthropic, llm_client):
+    mock_call_anthropic.return_value = {"content": [{"text": "--}response{--"}]}
     llm_client.add_provider("anthropic", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -600,14 +487,9 @@ def test_json_mode_strategy_strip_invalid_aborts(mock_anthropic, llm_client):
 # implementation is provider-specific
 
 
-@patch(f"{MODULE_PATH}.Anthropic")
-def test_json_mode_strategy_prepend_anthropic(mock_anthropic, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.messages.create
-    mock_response = construct_mock_from_path("content[0].text")
-    mock_call.return_value = mock_response
-    mock_anthropic.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_prepend_anthropic(mock_call_anthropic, llm_client):
+    mock_call_anthropic.return_value = {"content": [{"text": "response"}]}
     llm_client.add_provider("anthropic", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -618,19 +500,14 @@ def test_json_mode_strategy_prepend_anthropic(mock_anthropic, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call.call_args.kwargs["messages"][-1]["content"]
+        mock_call_anthropic.call_args.args[2]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 
 
-@patch(f"{MODULE_PATH}.CohereClient")
-def test_json_mode_strategy_prepend_cohere(mock_cohere, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.chat
-    mock_response = construct_mock_from_path("text")
-    mock_call.return_value = mock_response
-    mock_cohere.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
+    mock_call_cohere.return_value = {"text": "response"}
     llm_client.add_provider("cohere", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -641,19 +518,14 @@ def test_json_mode_strategy_prepend_cohere(mock_cohere, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call.call_args.kwargs["chat_history"][-1]["message"]
+        mock_call_cohere.call_args.args[2]["chat_history"][-1]["message"]
         == "Here is the JSON response: {"
     )
 
 
-@patch(f"{MODULE_PATH}.Groq")
-def test_json_mode_strategy_prepend_groq(mock_groq, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.chat.completions.create
-    mock_response = construct_mock_from_path("choices[0].message.content")
-    mock_call.return_value = mock_response
-    mock_groq.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
+    mock_call_groq.return_value = {"choices": [{"message": {"content": "response"}}]}
     llm_client.add_provider("groq", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -664,7 +536,7 @@ def test_json_mode_strategy_prepend_groq(mock_groq, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call.call_args.kwargs["messages"][-1]["content"]
+        mock_call_groq.call_args.args[2]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 
@@ -680,14 +552,11 @@ def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
         )
 
 
-@patch(f"{MODULE_PATH}.Anthropic")
-def test_json_mode_strategy_prepend_custom_prefix_anthropic(mock_anthropic, llm_client):
-    mock_client = Mock()
-    mock_call = mock_client.messages.create
-    mock_response = construct_mock_from_path("content[0].text")
-    mock_call.return_value = mock_response
-    mock_anthropic.return_value = mock_client
-
+@patch(LLM_POST_PATH)
+def test_json_mode_strategy_prepend_custom_prefix_anthropic(
+    mock_call_anthropic, llm_client
+):
+    mock_call_anthropic.return_value = {"content": [{"text": "response"}]}
     llm_client.add_provider("anthropic", "fake-api-key")
     response = llm_client.call(
         prompt="Hello",
@@ -697,4 +566,7 @@ def test_json_mode_strategy_prepend_custom_prefix_anthropic(mock_anthropic, llm_
     )
 
     assert response == "{response"
-    assert mock_call.call_args.kwargs["messages"][-1]["content"] == "custom-prefix-123{"
+    assert (
+        mock_call_anthropic.call_args.args[2]["messages"][-1]["content"]
+        == "custom-prefix-123{"
+    )

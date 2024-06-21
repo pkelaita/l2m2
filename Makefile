@@ -8,7 +8,6 @@ default: lint typecheck test
 init:
 	pip install --upgrade pip
 	pip install -r requirements-dev.txt
-	pip install -r requirements.txt
 
 test:
 	pytest -v --cov=l2m2 --cov=test_utils --cov-report=term-missing --failed-first --durations=0
