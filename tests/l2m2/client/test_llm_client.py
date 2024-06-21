@@ -450,6 +450,45 @@ def test_external_memory_user_prompt(mock_call_openai):
     ]
 
 
+# -- Test for non-native JSON mode default strategy (strip for all but Anthropic) -- #
+
+
+@patch(LLM_POST_PATH)
+def test_json_mode_default_strategy_strip(mock_call, llm_client):
+
+    # Cohere
+    mock_call.return_value = {"text": "--{response}--"}
+    llm_client.add_provider("cohere", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="command-r",
+        json_mode=True,
+    )
+    assert response == "{response}"
+
+    # Groq
+    mock_call.return_value = {"choices": [{"message": {"content": "--{response}--"}}]}
+    llm_client.add_provider("groq", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="llama3-70b",
+        json_mode=True,
+    )
+    assert response == "{response}"
+
+
+@patch(LLM_POST_PATH)
+def test_json_mode_default_strategy_prepend(mock_call_anthropic, llm_client):
+    mock_call_anthropic.return_value = {"content": [{"text": "response"}]}
+    llm_client.add_provider("anthropic", "fake-api-key")
+    response = llm_client.call(
+        prompt="Hello",
+        model="claude-3-opus",
+        json_mode=True,
+    )
+    assert response == "{response"
+
+
 # -- Tests for non-native JSON mode strategy STRIP -- #
 
 

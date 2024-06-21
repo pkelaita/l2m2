@@ -389,6 +389,8 @@ async def test_json_mode_call_concurrent_default_strategy(
     async_llm_client.add_provider("anthropic", "fake-api-key")
     async_llm_client.add_provider("cohere", "fake-api-key")
 
+    # Anthropic's default strategy is prepend, while Cohere's (and all others) is strip
+
     response = await async_llm_client.call_concurrent(
         n=3,
         models=["claude-3-opus", "claude-3-opus", "command-r"],
@@ -396,7 +398,7 @@ async def test_json_mode_call_concurrent_default_strategy(
         json_modes=[True, False, True],
     )
 
-    assert response == ["{response}", "--{response}--", "{response}"]
+    assert response == ["{--{response}--", "--{response}--", "{response}"]
 
 
 @pytest.mark.asyncio

@@ -16,7 +16,6 @@ from l2m2.memory import (
     MemoryType,
 )
 from l2m2.tools.json_mode_strategies import (
-    DEFAULT_STRATEGY,
     JsonModeStrategy,
     StrategyName,
     get_extra_message,
@@ -242,7 +241,7 @@ class LLMClient:
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -260,7 +259,9 @@ class LLMClient:
                 model is available from multiple active providers. Defaults to None.
             json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
             json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
-                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
+                when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -327,7 +328,7 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -346,7 +347,9 @@ class LLMClient:
                 the provider's default value for the model is used. Defaults to None.
             json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
             json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
-                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
+                when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -393,8 +396,15 @@ class LLMClient:
         temperature: Optional[float],
         max_tokens: Optional[int],
         json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
     ) -> str:
+        if json_mode_strategy is None:
+            json_mode_strategy = (
+                JsonModeStrategy.strip()
+                if provider != "anthropic"
+                else JsonModeStrategy.prepend()
+            )
+
         param_info = model_info["params"]
         params = {}
 

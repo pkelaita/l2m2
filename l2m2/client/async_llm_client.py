@@ -3,7 +3,7 @@ import inspect
 from typing import Optional, List, Any
 
 from l2m2.client import LLMClient
-from l2m2.tools.json_mode_strategies import JsonModeStrategy, DEFAULT_STRATEGY
+from l2m2.tools.json_mode_strategies import JsonModeStrategy
 
 
 class AsyncLLMClient(LLMClient):
@@ -32,7 +32,7 @@ class AsyncLLMClient(LLMClient):
         max_tokens: Optional[int] = None,
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
     ) -> str:
         """Asynchronously performs inference on any active model.
 
@@ -50,7 +50,9 @@ class AsyncLLMClient(LLMClient):
                 model is available from multiple active providers. Defaults to None.
             json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
             json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
-                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
+                when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -83,7 +85,7 @@ class AsyncLLMClient(LLMClient):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
-        json_mode_strategy: JsonModeStrategy = DEFAULT_STRATEGY,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
     ) -> str:
         """Asynchronously Performs inference on any model from an active provider that is not
         officially supported by L2M2. This method does not guarantee correctness.
@@ -102,7 +104,9 @@ class AsyncLLMClient(LLMClient):
                 the provider's default value for the model is used. Defaults to None.
             json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
             json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
-                when `json_mode` is True. Defaults to `JsonModeStrategy.strip()`.
+                when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -178,8 +182,10 @@ class AsyncLLMClient(LLMClient):
             prefer_providers ([List[str]], optional): List of preferred providers to use for each
                 model, if the model is available from multiple active providers. Defaults to None.
             json_modes ([List[bool]], optional): Whether to use JSON mode for each call. Defaults to None.
-            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce
-                JSON outputs. Defaults to None.
+            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce JSON
+                outputs when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If `n < 1`, or if any of the parameters are not of length `1` or `n`.
@@ -275,8 +281,10 @@ class AsyncLLMClient(LLMClient):
             max_tokens ([List[int]], optional): List of max_tokens to use, or a single max_tokens
                 to use for all calls. Defaults to None.
             json_modes ([List[bool]], optional): Whether to use JSON mode for each call. Defaults to None.
-            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce
-                JSON outputs. Defaults to None.
+            json_mode_strategies ([List[JsonModeStrategy]], optional): The strategies to use to enforce JSON
+                outputs when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
 
         Raises:
             ValueError: If `n < 1`, or if any of the parameters are not of length `1` or `n`.
