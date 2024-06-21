@@ -1,16 +1,17 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1718865437)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1718865437)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1718943416)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1718943416)](https://badge.fury.io/py/l2m2)
 
-**L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, and other apps that need to easily be model-agnostic.
+**L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ## Features
 
-- <!--start-count-->14<!--end-count--> supported models (see below) through a unified interface – regularly updated and with more on the way
-- Asynchronous and concurrent calls
+- <!--start-count-->15<!--end-count--> supported models (see below) through a unified interface – regularly updated and with more on the way
+- Fully HTTP-based and **zero** dependencies (🎉)
 - Session chat memory – even across multiple models
+- Asynchronous and concurrent calls
 - JSON mode
-- Optional prompt loader
+- Prompt loading tools
 
 ### Supported Models
 
@@ -18,22 +19,23 @@ L2M2 currently supports the following models:
 
 <!--start-model-table-->
 
-| Model Name | Provider(s) | Model Version(s) |
-| --- | --- | --- |
-| `gpt-4o` | [OpenAI](https://openai.com/product) | `gpt-4o-2024-05-13` |
-| `gpt-4-turbo` | [OpenAI](https://openai.com/product) | `gpt-4-turbo-2024-04-09` |
-| `gpt-3.5-turbo` | [OpenAI](https://openai.com/product) | `gpt-3.5-turbo-0125` |
-| `gemini-1.5-pro` | [Google](https://ai.google.dev/) | `gemini-1.5-pro-latest` |
-| `gemini-1.0-pro` | [Google](https://ai.google.dev/) | `gemini-1.0-pro-latest` |
-| `claude-3-opus` | [Anthropic](https://www.anthropic.com/api) | `claude-3-opus-20240229` |
-| `claude-3-sonnet` | [Anthropic](https://www.anthropic.com/api) | `claude-3-sonnet-20240229` |
-| `claude-3-haiku` | [Anthropic](https://www.anthropic.com/api) | `claude-3-haiku-20240307` |
-| `command-r` | [Cohere](https://docs.cohere.com/) | `command-r` |
-| `command-r-plus` | [Cohere](https://docs.cohere.com/) | `command-r-plus` |
-| `mixtral-8x7b` | [Groq](https://wow.groq.com/) | `mixtral-8x7b-32768` |
-| `gemma-7b` | [Groq](https://wow.groq.com/) | `gemma-7b-it` |
-| `llama3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
-| `llama3-70b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
+| Model Name          | Provider(s)                                                        | Model Version(s)                                    |
+| ------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
+| `gpt-4o`            | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-05-13`                                 |
+| `gpt-4-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
+| `gpt-3.5-turbo`     | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
+| `gemini-1.5-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro`                                    |
+| `gemini-1.0-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.0-pro`                                    |
+| `claude-3.5-sonnet` | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-sonnet-20240620`                        |
+| `claude-3-opus`     | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-opus-20240229`                            |
+| `claude-3-sonnet`   | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-sonnet-20240229`                          |
+| `claude-3-haiku`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                           |
+| `command-r`         | [Cohere](https://docs.cohere.com/)                                 | `command-r`                                         |
+| `command-r-plus`    | [Cohere](https://docs.cohere.com/)                                 | `command-r-plus`                                    |
+| `mixtral-8x7b`      | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                                |
+| `gemma-7b`          | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                       |
+| `llama3-8b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
+| `llama3-70b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 
 <!--end-model-table-->
 
@@ -41,9 +43,8 @@ L2M2 currently supports the following models:
 
 - Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
-- HTTP-based calls instead of SDKs (this bring's L2M2's dependencies from ~50 to <10)
-- Typescript clone (probably not soon)
-- ...etc
+- Tools for common application workflows: RAG, prompt management, search, etc.
+- ...etc.
 
 ## Table of Contents
 
@@ -90,7 +91,7 @@ client = LLMClient({
     ...
 })
 
-# Alternatively, you can add providers after initialization
+# Alternatively,
 client.add_provider("provider-c", "api-key-c")
 ```
 
@@ -473,7 +474,7 @@ For models that do not natively support JSON mode, L2M2 will attempt to enforce 
 1. **Strip**: This is the default strategy. It will attempt to extract the JSON from the response by searching for the first instance of `{` and the last instance of `}` in the response, and returning the between substring (inclusive). If no JSON is found, the response will be returned as-is.
 2. **Prepend**: This strategy will attempt to enforce a valid JSON output by inserting a message ending with an opening `{` from the model into the conversation just after the user prompt and just before the model response, and re-prepending the opening `{` to the model response. By default this message is `"Here is the JSON output:"`, but can be customized. More information is available on this strategy [here](https://github.com/anthropics/anthropic-cookbook/blob/main/misc/how_to_enable_json_mode.ipynb). Importantly, the **Prepend** strategy is available whether or not memory is enabled, and will not interfere with memory.
 
-**Strip** is the default strategy, but you can specify a strategy by passing either `JsonModeStrategy.strip()` or `JsonModeStrategy.prepend()` to the `json_mode_strategy` parameter in `call`.
+If you'd like, you can specify a strategy by passing either `JsonModeStrategy.strip()` or `JsonModeStrategy.prepend()` to the `json_mode_strategy` parameter in `call`. If no strategy is given, L2M2 defaults to **Strip** for all models except for Anthropic's models, which will default to **Prepend** (more on this below).
 
 ```python
 # example_json_mode.py
@@ -511,7 +512,7 @@ print(response)
 }
 ```
 
-Finally, you can customize the message that gets passed into the prepend strategy by passing `custom_prefix` as follows:
+If using prepend, you can customize the message that gets prepended to the opening `{` by passing `custom_prefix` as follows:
 
 ```python
 
@@ -527,7 +528,7 @@ response = client.call(
 Ideally, this wouldn't change anything on the output – just under the hood – but this is useful for working with foreign languages, etc.
 
 > [!TIP]
-> I _highly_ recommend using `prepend()` when calling Anthropic's models, and sticking with the default `strip()` for all other models that don't natively support JSON mode. From my personal testing, valid JSON is almost always produced when using `prepend()` with Anthropic's models and almost never produced with `strip()`, and vice versa for other models. I'll gather rigorous data on this eventually, but if anyone has any insights, please let me know!
+> As mentioned above, L2M2 defaults to **prepend** for Anthropic models and **strip** for all others. I _highly_ recommend sticking with these defaults, especially with Anthropic's models. From my personal testing, valid JSON is almost always produced when using prepend with Anthropic's models and almost never produced with strip, and vice versa for other models. I'll gather rigorous data on this eventually, but if anyone has any insights, please let me know!
 
 ### Tools: Prompt Loader
 
