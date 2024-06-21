@@ -576,7 +576,10 @@ class LLMClient:
 
         messages: List[Dict[str, Any]] = []
         if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "parts", "user", "model"))
+            mem_items = self.memory.unpack("role", "parts", "user", "model")
+            # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
+            messages.extend([{**m, "parts": {"text": m["parts"]}} for m in mem_items])
+
         messages.append({"role": "user", "parts": {"text": prompt}})
 
         data["contents"] = messages
