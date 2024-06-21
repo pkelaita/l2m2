@@ -189,6 +189,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "claude-3.5-sonnet": {
+        "anthropic": {
+            "model_id": "claude-3-5-sonnet-20240620",
+            "params": {
+                "temperature": {
+                    "default": 0.0,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 1000,  # L2M2 default, field is required
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-3-opus": {
         "anthropic": {
             "model_id": "claude-3-opus-20240229",
