@@ -1,12 +1,8 @@
 import pytest
 import asyncio
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from l2m2.tools.json_mode_strategies import JsonModeStrategy
-from test_utils.llm_mock import (
-    construct_mock_from_path,
-    get_nested_attribute,
-)
 from l2m2.client import AsyncLLMClient, LLMClient
 
 LLM_POST_PATH = "l2m2.client.llm_client.llm_post"
@@ -82,14 +78,6 @@ def test_getters(async_llm_client):
 
 
 # -- Tests for call_async -- #
-
-
-def _get_mock_client(call_path, response_path, response_value="response"):
-    mock_client = Mock()
-    mock_call = get_nested_attribute(mock_client, call_path)
-    mock_response = construct_mock_from_path(response_path, response_value)
-    mock_call.return_value = mock_response
-    return mock_client
 
 
 @pytest.mark.asyncio
