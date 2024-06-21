@@ -9,7 +9,8 @@ from test_utils.llm_mock import (
 )
 from l2m2.client import AsyncLLMClient, LLMClient
 
-BASE_MODULE_PATH = "l2m2.client.llm_client"
+LLM_POST_PATH = "l2m2.client.llm_client.llm_post"
+CALL_BASE_PATH = "l2m2.client.llm_client.LLMClient._call_"
 
 MOCK_PROVIDER_KEYS = {
     "openai": "test-key-openai",
@@ -91,35 +92,10 @@ def _get_mock_client(call_path, response_path, response_value="response"):
     return mock_client
 
 
-def _prepare_three_mock_clients(mock_openai, mock_anthropic, mock_cohere, responses):
-    mock_openai_client = _get_mock_client(
-        "chat.completions.create",
-        "choices[0].message.content",
-        responses[0],
-    )
-    mock_anthropic_client = _get_mock_client(
-        "messages.create",
-        "content[0].text",
-        responses[1],
-    )
-    mock_cohere_client = _get_mock_client(
-        "chat",
-        "text",
-        responses[2],
-    )
-    mock_openai.return_value = mock_openai_client
-    mock_anthropic.return_value = mock_anthropic_client
-    mock_cohere.return_value = mock_cohere_client
-
-
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-async def test_call_async(mock_openai, async_llm_client):
-    mock_openai.return_value = _get_mock_client(
-        "chat.completions.create",
-        "choices[0].message.content",
-        "response",
-    )
+@patch(LLM_POST_PATH)
+async def test_call_async(mock_call_openai, async_llm_client):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
 
     async_llm_client.add_provider("openai", "fake-api-key")
     response_default = await async_llm_client.call_async(
@@ -138,21 +114,15 @@ async def test_call_async(mock_openai, async_llm_client):
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_async_gather(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -169,25 +139,19 @@ async def test_call_async_gather(
     assert response3 == "hello from cohere"
 
 
-# -- Tests for call_concurrent -- #
+# # -- Tests for call_concurrent -- #
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_concurrent(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -207,21 +171,15 @@ async def test_call_concurrent(
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_concurrent_1_to_3(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -237,21 +195,15 @@ async def test_call_concurrent_1_to_3(
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_concurrent_3_to_1(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -271,21 +223,15 @@ async def test_call_concurrent_3_to_1(
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_concurrent_custom_params(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -337,17 +283,13 @@ async def test_call_concurrent_array_mismatch(async_llm_client):
         )
 
 
-# -- Tests for call_custom_async and call_custon_concurrent -- #
+# # -- Tests for call_custom_async and call_custon_concurrent -- #
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-async def test_call_custom_async(mock_openai, async_llm_client):
-    mock_openai.return_value = _get_mock_client(
-        "chat.completions.create",
-        "choices[0].message.content",
-        "response",
-    )
+@patch(f"{CALL_BASE_PATH}openai")
+async def test_call_custom_async(mock_call_openai, async_llm_client):
+    mock_call_openai.return_value = "response"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     response_default = await async_llm_client.call_custom_async(
@@ -369,21 +311,15 @@ async def test_call_custom_async(mock_openai, async_llm_client):
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}cohere")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}openai")
 async def test_call_custom_concurrent(
-    mock_cohere,
-    mock_anthropic,
-    mock_openai,
-    async_llm_client,
+    mock_call_openai, mock_call_anthropic, mock_call_cohere, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_openai,
-        mock_anthropic,
-        mock_cohere,
-        ["hello from openai", "hello from anthropic", "hello from cohere"],
-    )
+    mock_call_openai.return_value = "hello from openai"
+    mock_call_anthropic.return_value = "hello from anthropic"
+    mock_call_cohere.return_value = "hello from cohere"
 
     async_llm_client.add_provider("openai", "fake-api-key")
     async_llm_client.add_provider("anthropic", "fake-api-key")
@@ -406,18 +342,13 @@ async def test_call_custom_concurrent(
     ]
 
 
-# -- Tests for JSON mode -- #
+# # -- Tests for JSON mode -- #
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.OpenAI")
-async def test_json_mode_native(mock_openai, async_llm_client):
-    mock_openai.return_value = _get_mock_client(
-        "chat.completions.create",
-        "choices[0].message.content",
-        "response",
-    )
-
+@patch(f"{CALL_BASE_PATH}openai")
+async def test_json_mode_native(mock_call_openai, async_llm_client):
+    mock_call_openai.return_value = "response"
     async_llm_client.add_provider("openai", "fake-api-key")
     response = await async_llm_client.call_async(
         prompt="Hello",
@@ -429,14 +360,9 @@ async def test_json_mode_native(mock_openai, async_llm_client):
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-async def test_json_mode_strategy_strip(mock_anthropic, async_llm_client):
-    mock_anthropic.return_value = _get_mock_client(
-        "messages.create",
-        "content[0].text",
-        "--{response}--",
-    )
-
+@patch(f"{CALL_BASE_PATH}anthropic")
+async def test_json_mode_strategy_strip(mock_call_anthropic, async_llm_client):
+    mock_call_anthropic.return_value = "--{response}--"
     async_llm_client.add_provider("anthropic", "fake-api-key")
     response = await async_llm_client.call_async(
         prompt="Hello",
@@ -449,14 +375,9 @@ async def test_json_mode_strategy_strip(mock_anthropic, async_llm_client):
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-async def test_json_mode_strategy_prepend(mock_anthropic, async_llm_client):
-    mock_anthropic.return_value = _get_mock_client(
-        "messages.create",
-        "content[0].text",
-        "response",
-    )
-
+@patch(f"{CALL_BASE_PATH}anthropic")
+async def test_json_mode_strategy_prepend(mock_call_anthropic, async_llm_client):
+    mock_call_anthropic.return_value = "response"
     async_llm_client.add_provider("anthropic", "fake-api-key")
     response = await async_llm_client.call_async(
         prompt="Hello",
@@ -469,19 +390,13 @@ async def test_json_mode_strategy_prepend(mock_anthropic, async_llm_client):
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}cohere")
 async def test_json_mode_call_concurrent_default_strategy(
-    mock_cohere,
-    mock_anthropic,
-    async_llm_client,
+    mock_call_cohere, mock_call_anthropic, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_anthropic,
-        mock_anthropic,
-        mock_cohere,
-        ["--{response}--", "--{response}--", "--{response}--"],
-    )
+    mock_call_anthropic.return_value = "--{response}--"
+    mock_call_cohere.return_value = "--{response}--"
 
     async_llm_client.add_provider("anthropic", "fake-api-key")
     async_llm_client.add_provider("cohere", "fake-api-key")
@@ -497,19 +412,13 @@ async def test_json_mode_call_concurrent_default_strategy(
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}cohere")
 async def test_json_mode_call_concurrent_prepend_strategy(
-    mock_cohere,
-    mock_anthropic,
-    async_llm_client,
+    mock_call_cohere, mock_call_anthropic, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_anthropic,
-        mock_anthropic,
-        mock_cohere,
-        ["response", "response", "response"],
-    )
+    mock_call_anthropic.return_value = "response"
+    mock_call_cohere.return_value = "response"
 
     async_llm_client.add_provider("anthropic", "fake-api-key")
     async_llm_client.add_provider("cohere", "fake-api-key")
@@ -526,19 +435,13 @@ async def test_json_mode_call_concurrent_prepend_strategy(
 
 
 @pytest.mark.asyncio
-@patch(f"{BASE_MODULE_PATH}.Anthropic")
-@patch(f"{BASE_MODULE_PATH}.CohereClient")
+@patch(f"{CALL_BASE_PATH}anthropic")
+@patch(f"{CALL_BASE_PATH}cohere")
 async def test_json_mode_call_concurrent_mixed_strategies(
-    mock_cohere,
-    mock_anthropic,
-    async_llm_client,
+    mock_call_cohere, mock_call_anthropic, async_llm_client
 ):
-    _prepare_three_mock_clients(
-        mock_anthropic,
-        mock_anthropic,
-        mock_cohere,
-        ["--{response}--", "--{response}--", "--{response}--"],
-    )
+    mock_call_anthropic.return_value = "--{response}--"
+    mock_call_cohere.return_value = "--{response}--"
 
     async_llm_client.add_provider("anthropic", "fake-api-key")
     async_llm_client.add_provider("cohere", "fake-api-key")

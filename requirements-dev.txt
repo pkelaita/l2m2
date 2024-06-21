@@ -8,3 +8,4 @@ flake8>=7.0.0
 python-dotenv>=1.0.1
 build>=1.2.1
 mypy>=1.9.0
+requests-mock==1.12.1
