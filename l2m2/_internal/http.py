@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Any
-import requests
+import httpx
 
 from l2m2.model_info import API_KEY, MODEL_ID, PROVIDER_INFO
 
@@ -10,50 +10,52 @@ def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
     return {key: value.replace(API_KEY, api_key) for key, value in headers.items()}
 
 
-def _handle_replicate_201(response: requests.Response, api_key: str) -> Any:
-    # See https://replicate.com/docs/reference/http#models.versions.get
+async def _handle_replicate_201(
+    client: httpx.AsyncClient,
+    response: httpx.Response,
+    api_key: str,
+) -> Any:
     resource = response.json()
     if "status" in resource and "urls" in resource and "get" in resource["urls"]:
-
         while resource["status"] != "succeeded":
             if resource["status"] == "failed" or resource["status"] == "cancelled":
                 raise Exception(resource)
 
-            next_response = requests.get(
+            next_response = await client.get(
                 resource["urls"]["get"],
                 headers=_get_headers("replicate", api_key),
             )
 
             if next_response.status_code != 200:
                 raise Exception(next_response.text)
-
             resource = next_response.json()
 
         return resource
-
     else:
         raise Exception(resource)
 
 
-def llm_post(
+async def llm_post(
+    client: httpx.AsyncClient,
     provider: str,
     api_key: str,
     data: Dict[str, Any],
     model_id: Optional[str] = None,
 ) -> Any:
     endpoint = PROVIDER_INFO[provider]["endpoint"]
-    endpoint = endpoint.replace(API_KEY, api_key)
-    if model_id is not None:
+    if API_KEY in endpoint:
+        endpoint = endpoint.replace(API_KEY, api_key)
+    if MODEL_ID in endpoint and model_id is not None:
         endpoint = endpoint.replace(MODEL_ID, model_id)
 
-    response = requests.post(
+    response = await client.post(
         endpoint,
         headers=_get_headers(provider, api_key),
         json=data,
     )
 
     if provider == "replicate" and response.status_code == 201:
-        return _handle_replicate_201(response, api_key)
+        return await _handle_replicate_201(client, response, api_key)
 
     if response.status_code != 200:
         raise Exception(response.text)

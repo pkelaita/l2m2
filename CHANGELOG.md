@@ -4,6 +4,21 @@ _Current version: 0.0.21_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
+### [0.0.22] - June 22, 2024
+
+#### Fixed
+
+- In 0.0.21, async calls were blocking due to the use of `requests`. 0.0.22 replaces `requests` with `httpx` to allow for fully asynchoronous behavior.
+
+#### Changed
+
+- `AsyncLLMClient` should now be instantiated with a context manager (`async with AsyncLLMClient() as client:`) to ensure proper cleanup of the `httpx` client.
+- `AsyncLLMClient` `call_async` and `call_custom_async` are now `call` and `call_custom` respectively, with asynchronous behavior.
+
+#### Removed
+
+- `call_concurrent` and `call_custom_concurrent` have been removed due to unnecessary complexity and lack of use.
+
 ### [0.0.21] - June 20, 2024
 
 #### Added

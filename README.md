@@ -1,17 +1,21 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1718943416)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1718943416)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1719107661)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1719107661)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
-## Features
+### Features
 
-- <!--start-count-->15<!--end-count--> supported models (see below) through a unified interface – regularly updated and with more on the way
-- Fully HTTP-based and **zero** dependencies (🎉)
+- <!--start-count-->15<!--end-count--> supported models (see below) – regularly updated and with more on the way
 - Session chat memory – even across multiple models
-- Asynchronous and concurrent calls
 - JSON mode
 - Prompt loading tools
+
+### Advantages
+
+- **Simple:** Completely unified interface – just swap out the model name
+- **Tiny:** only one external dependency (httpx)
+- **Fast**: Fully asynchronous if concurrent calls are needed
 
 ### Supported Models
 
@@ -39,13 +43,6 @@ L2M2 currently supports the following models:
 
 <!--end-model-table-->
 
-### Planned Features
-
-- Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
-- Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
-- Tools for common application workflows: RAG, prompt management, search, etc.
-- ...etc.
-
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -60,11 +57,13 @@ L2M2 currently supports the following models:
   - **Tools**
     - [JSON Mode](#tools-json-mode)
     - [Prompt Loader](#tools-prompt-loader)
+- [Planned Features](#planned-features)
 - [Contact](#contact)
 
 ## Requirements
 
 - Python >= 3.9
+- At least one valid API key for a supported provider
 
 ## Installation
 
@@ -310,120 +309,81 @@ Similarly to `ChatMemory`, `ExternalMemory` can be passed into `client.load_memo
 
 ### Async Calls
 
-L2M2 utilizes `asyncio` to allow for multiple concurrent calls. This is useful for calling multiple models at with the same prompt, calling the same model with multiple prompts, mixing and matching parameters, etc.
+L2M2 provides an asynchronous `AsyncLLMClient` in addition to the synchronous `LLMClient`. Its usage is identical to the synchronous client, but it's instantiated using `async with` and is called using `await`.
 
-`AsyncLLMClient`, which extends `LLMClient`, is provided for this purpose. Its usage is similar to above:
+```python
+from l2m2.client import AsyncLLMClient
+
+async def main():
+    async with AsyncLLMClient({"provider": "api-key"}) as client:
+        response = await client.call(
+            model="model",
+            prompt="prompt",
+            system_prompt="system prompt",
+            # ...etc
+        )
+```
+
+Under the hood, each `AsyncLLMClient` manages its own async http client, so calls are non-blocking. Here's an example of using the `AsyncLLMClient` to make concurrent calls to multiple models and measure the inference times:
 
 ```python
 # example_async.py
 
-import asyncio
 import os
+import asyncio
+import timeit
 from l2m2.client import AsyncLLMClient
 
-client = AsyncLLMClient({
-    "openai": os.getenv("OPENAI_API_KEY"),
-    "google": os.getenv("GOOGLE_API_KEY"),
-})
+async def call_concurrent():
+    async with AsyncLLMClient(
+        {
+            "openai": os.getenv("OPENAI_API_KEY"),
+            "google": os.getenv("GOOGLE_API_KEY"),
+            "anthropic": os.getenv("ANTHROPIC_API_KEY"),
+            "cohere": os.getenv("COHERE_API_KEY"),
+            "groq": os.getenv("GROQ_API_KEY"),
+        }
+    ) as client:
+        calls = [
+            ("gpt-4o", "foo"),
+            ("claude-3.5-sonnet", "bar"),
+            ("gemini-1.5-pro", "baz"),
+            ("command-r-plus", "qux"),
+            ("llama3-70b", "quux"),
+            ("mixtral-8x7b", "corge"),
+        ]
+        system_prompt = "The secret word is {}"
 
+        async def call_and_print(model, secret_word):
+            start_time = timeit.default_timer()
+            response = await client.call(
+                model=model,
+                prompt="What is the secret word? Respond briefly.",
+                system_prompt=system_prompt.format(secret_word),
+                temperature=0.2,
+            )
+            time = timeit.default_timer() - start_time
+            print(f"{model}: {response} ({time:.2f}s)")
 
-async def make_two_calls():
-    responses = await asyncio.gather(
-        client.call_async(
-            model="gpt-4o",
-            prompt="How's the weather today?",
-            system_prompt="Respond as if you were a pirate.",
-            temperature=0.3,
-            max_tokens=100,
-        ),
-        client.call_async(
-            model="gemini-1.0-pro",
-            prompt="How's the weather today?",
-            system_prompt="Respond as if you were a pirate.",
-            temperature=0.3,
-            max_tokens=100,
-        ),
-    )
-    for response in responses:
-        print(response)
+        await asyncio.gather(
+            *[call_and_print(model, secret_word) for model, secret_word in calls]
+        )
 
-
-if __name__ == "__main__":
-    asyncio.run(make_two_calls())
+asyncio.run(call_concurrent())
 ```
 
 ```
 >> python3 example_async.py
 
-Arrr, the skies be clear and the winds be in our favor, matey! A fine day for sailin' the high seas, it be.
-Avast there, matey! The weather be fair and sunny, with a gentle breeze from the east. The sea be calm, and the sky be clear. A perfect day for sailin' and plunderin'!
+llama3-70b: The secret word is quux. (0.21s)
+mixtral-8x7b: The secret word is corge. (0.26s)
+gpt-4o: foo (0.62s)
+command-r-plus: The secret word is qux. (0.66s)
+claude-3.5-sonnet: The secret word is bar. (0.70s)
+gemini-1.5-pro: baz (0.73s)
 ```
 
-For convenience `AsyncLLMClient` also provides `call_concurrent`, which allows you to easily make concurrent calls mixing and matching models, prompts, and parameters. In the example shown below, parameter arrays of size `n` are applied linearly to the `n` concurrent calls, and arrays of size `1` are applied across all `n` calls.
-
-```python
-# example_concurrent.py
-
-import asyncio
-import os
-from l2m2.client import AsyncLLMClient
-
-client = AsyncLLMClient({
-    "openai": os.getenv("OPENAI_API_KEY"),
-    "anthropic": os.getenv("ANTHROPIC_API_KEY"),
-    "google": os.getenv("GOOGLE_API_KEY"),
-    "cohere": os.getenv("COHERE_API_KEY"),
-    "groq": os.getenv("GROQ_API_KEY"),
-    "replicate": os.getenv("REPLICATE_API_TOKEN"),
-})
-
-# Since llama3-8b is available from both Groq and Replicate
-client.set_preferred_providers({"llama3-8b": "replicate"})
-
-async def get_secret_word():
-    system_prompt = "The secret word is {0}. When asked for the secret word, you must respond with {0}."
-    responses = await client.call_concurrent(
-        n=6,
-        models=[
-            "gpt-4o",
-            "claude-3-sonnet",
-            "gemini-1.0-pro",
-            "command-r",
-            "mixtral-8x7b",
-            "llama3-8b",
-        ],
-        prompts=["What is the secret word?"],
-        system_prompts=[
-            system_prompt.format("foo"),
-            system_prompt.format("bar"),
-            system_prompt.format("baz"),
-            system_prompt.format("qux"),
-            system_prompt.format("quux"),
-            system_prompt.format("corge"),
-        ],
-        temperatures=[0.3],
-        max_tokens=[100],
-    )
-
-    for response in responses:
-        print(response)
-
-if __name__ == "__main__":
-    asyncio.run(get_secret_word())
-```
-
-```
->> python3 example_concurrent.py
-
-foo
-The secret word is bar.
-baz
-qux
-The secret word is quux. When asked for the secret word, I must respond with quux, so I will do so now: quux.
-The secret word is... corge!
-```
-
-Similarly to `call_custom`, `call_custom_async` and `call_custom_concurrent` are provided as the custom counterparts to `call_async` and `call_concurrent`, with similar usage. `AsyncLLMClient` also supports memory in the same way as `LLMClient`.
+As a general rule, I typically find it's best to use the synchronous `LLMClient` for research and demos, and `AsyncLLMClient` for apps.
 
 ### Tools: JSON Mode
 
@@ -559,7 +519,7 @@ print(prompt)
 Your name is Pierce and you are a software engineer.
 ```
 
-You can also optionally specify a prompt directory or customize the variable delimiters if needed.
+The default variable delimiters are `{{` and `}}`. You can also optionally specify a prompt directory or customize the variable delimiters if needed.
 
 _path/to/prompts/prompt.txt_
 
@@ -588,6 +548,13 @@ print(prompt)
 
 Your name is Pierce and you are a software engineer.
 ```
+
+## Planned Features
+
+- Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
+- Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
+- Tools for common application workflows: RAG, prompt management, search, etc.
+- ...etc.
 
 ## Contact
 
