@@ -6,6 +6,8 @@ from unittest.mock import patch
 from l2m2.model_info import API_KEY, MODEL_ID
 from l2m2._internal.http import _get_headers, _handle_replicate_201, llm_post
 
+PROVIDER_INFO_PATH = "l2m2._internal.http.PROVIDER_INFO"
+
 
 MOCK_PROVIDER_INFO = {
     "test_provider": {
@@ -32,13 +34,8 @@ MOCK_PROVIDER_INFO = {
 }
 
 
-@pytest.fixture
-def _mock_provider_info():
-    with patch("l2m2._internal.http.PROVIDER_INFO", MOCK_PROVIDER_INFO):
-        yield
-
-
-def test_get_headers(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+def test_get_headers():
     provider = "test_provider"
     api_key = "test_api_key"
     expected_headers = {"Authorization": "Bearer test_api_key"}
@@ -48,7 +45,8 @@ def test_get_headers(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_handle_replicate_201_success(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_handle_replicate_201_success():
     api_key = "test_api_key"
     resource_url = "https://api.replicate.com/v1/predictions/get"
     mock_resource = {
@@ -72,7 +70,8 @@ async def test_handle_replicate_201_success(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_handle_replicate_201_failure(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_handle_replicate_201_failure():
     api_key = "test_api_key"
     resource_url = "https://api.replicate.com/v1/predictions/get"
     mock_resource = {
@@ -96,7 +95,8 @@ async def test_handle_replicate_201_failure(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_llm_post_success(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_llm_post_success():
     async def _test_generic_llm_post(provider):
         api_key = "test_api_key"
         data = {"input": "test input"}
@@ -124,7 +124,8 @@ async def test_llm_post_success(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_llm_post_replicate(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_llm_post_replicate():
     provider = "replicate"
     api_key = "test_api_key"
     data = {"input": "test input"}
@@ -152,7 +153,8 @@ async def test_llm_post_replicate(_mock_provider_info):
 
 
 @pytest.mark.asyncio
-async def test_handle_replicate_201_missing_keys(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_handle_replicate_201_missing_keys():
     api_key = "test_api_key"
     invalid_resource = {"some_other_key": "some_value"}
 
@@ -165,7 +167,8 @@ async def test_handle_replicate_201_missing_keys(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_handle_replicate_201_status_failed(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_handle_replicate_201_status_failed():
     api_key = "test_api_key"
     resource_url = "https://api.replicate.com/v1/predictions/get"
     failed_resource = {
@@ -189,7 +192,8 @@ async def test_handle_replicate_201_status_failed(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_handle_replicate_201_status_code_not_200(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_handle_replicate_201_status_code_not_200():
     api_key = "test_api_key"
     resource_url = "https://api.replicate.com/v1/predictions/get"
 
@@ -211,7 +215,8 @@ async def test_handle_replicate_201_status_code_not_200(_mock_provider_info):
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_llm_post_failure(_mock_provider_info):
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_llm_post_failure():
     provider = "test_provider"
     api_key = "test_api_key"
     data = {"input": "test input"}

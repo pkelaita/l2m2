@@ -258,6 +258,16 @@ async def test_call_replicate(mock_llm_post, llm_client):
 
 
 @pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_call_google_gemini_fails(mock_llm_post, llm_client):
+    llm_client.add_provider("google", "fake-api-key")
+    mock_return_value = {"candidates": [{"error": "123"}]}
+    mock_llm_post.return_value = mock_return_value
+    response = await llm_client.call(prompt="Hello", model="gemini-1.5-pro")
+    assert response == "{'error': '123'}"
+
+
+@pytest.mark.asyncio
 async def test_call_valid_model_not_active(llm_client):
     with pytest.raises(ValueError):
         await llm_client.call(prompt="Hello", model="gpt-4-turbo")
