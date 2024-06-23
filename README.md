@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1719107661)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1719107661)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1719186865)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1719186865)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -422,10 +422,14 @@ print(response)
 
 The following models natively support JSON mode:
 
-- `gpt-4o`
-- `gpt-4-turbo`
-- `gpt-3.5-turbo`
-- `gemini-1.5-pro`
+<!--start-json-native-->
+
+- `gpt-4o` (Openai)
+- `gpt-4-turbo` (Openai)
+- `gpt-3.5-turbo` (Openai)
+- `gemini-1.5-pro` (Google)
+
+<!--end-json-native-->
 
 #### JSON Mode Non-Native Strategies
 

@@ -29,26 +29,43 @@ def make_row(model_name):
 for model_name in MODEL_INFO:
     rows += make_row(model_name)
 
-markdown_table = "\n\n" + header + sep + rows + "\n"
+model_table = "\n\n" + header + sep + rows + "\n"
+
+json_native = "\n"
+for model_name in MODEL_INFO:
+    for provider in MODEL_INFO[model_name]:
+        extras = MODEL_INFO[model_name][provider].get("extras", {})
+        if extras.get("json_mode_arg", None) is not None:
+            json_native += f"\n- `{model_name}` ({provider.capitalize()})"
+json_native += "\n\n"
 
 readme_path = "../README.md"
-table_start = "<!--start-model-table-->"
-table_end = "<!--end-model-table-->"
 count_start = "<!--start-count-->"
 count_end = "<!--end-count-->"
+table_start = "<!--start-model-table-->"
+table_end = "<!--end-model-table-->"
+json_native_start = "<!--start-json-native-->"
+json_native_end = "<!--end-json-native-->"
+
+
+def replace_between(full_string, start, end, replacement):
+    try:
+        start_idx = full_string.index(start) + len(start)
+        end_idx = full_string.index(end)
+        return full_string[:start_idx] + replacement + full_string[end_idx:]
+    except ValueError:
+        print(f"Could not find {start} or {end} in the string)")
+        return full_string
+
 
 with open(readme_path, "r") as f:
-    readme = f.read()
-    new_readme = readme.replace(
-        readme[readme.index(table_start) : readme.index(table_end) + len(table_end)],
-        f"{table_start}{markdown_table}{table_end}",
-    ).replace(
-        readme[readme.index(count_start) : readme.index(count_end) + len(count_end)],
-        f"{count_start}{len(MODEL_INFO)}{count_end}",
-    )
+    out = f.read()
 
+out = replace_between(out, count_start, count_end, str(len(MODEL_INFO)))
+out = replace_between(out, table_start, table_end, model_table)
+out = replace_between(out, json_native_start, json_native_end, json_native)
 
 with open(readme_path, "w") as f:
-    f.write(new_readme)
+    f.write(out)
 
 print("Updated model table in README.md")
