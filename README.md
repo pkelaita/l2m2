@@ -58,6 +58,7 @@ L2M2 currently supports the following models:
     - [JSON Mode](#tools-json-mode)
     - [Prompt Loader](#tools-prompt-loader)
 - [Planned Features](#planned-features)
+- [Contributing](#contributing)
 - [Contact](#contact)
 
 ## Requirements
@@ -561,6 +562,29 @@ Your name is Pierce and you are a software engineer.
 - Support for streaming responses
 - ...etc.
 
+## Contributing
+
+Contributions are welcome! Contributing requires Python >= 3.9 and [GNU Make](https://www.gnu.org/software/make/).
+
+- **Setup**
+  - Clone this repository and create a Python virtual environment.
+  - Install dependencies: `make init`.
+  - Create a feature branch and an [issue](https://github.com/pkelaita/l2m2/issues) with a description of the feature or bug fix.
+- **Develop**
+  - Run lint, typecheck and tests: `make` (`make lint`, `make typecheck`, and `make test` can also be run individually).
+  - Generate test coverage: `make coverage`.
+  - If you've updated the supported models, run `make update-readme` to reflect those changes in the README.
+- **Integration Test**
+  - `cd` into `integration_tests`.
+  - Create a `.env` file with your API keys, and copy `itests.example.py` to `itests.py`.
+  - Write your integration tests in `itests.py`.
+  - Run locally with `python itests.py -l`.
+    - Make sure to pass the `-l` flag or else it will look for an L2M2 distribution. Additionally, make sure l2m2 is not installed with pip when running the integration tests locally.
+  - Once your changes are ready, from the top-level directory run `make build` to create the distribution and `make itest` to run your integration tests against the distribution.
+- **Contribute**
+  - Create a PR and ping me for a review.
+  - Merge!
+
 ## Contact
 
-If you'd like to contribute, have feature requests, or have any other questions about l2m2 please shoot me a note at [pierce@kelaita.com](mailto:pierce@kelaita.com), open an issue on the [Github repo](https://github.com/pkelaita/l2m2/issues), or DM me on the GenAI Collective [Slack Channel](https://join.slack.com/t/genai-collective/shared_invite/zt-285qq7joi-~bqHwFZcNtqntoRmGirAfQ).
+If you have requests, suggestions, or any other questions about l2m2 please shoot me a note at [pierce@kelaita.com](mailto:pierce@kelaita.com), open an issue on the [Github repo](https://github.com/pkelaita/l2m2/issues), or DM me on the GenAI Collective [Slack Channel](https://join.slack.com/t/genai-collective/shared_invite/zt-285qq7joi-~bqHwFZcNtqntoRmGirAfQ).
