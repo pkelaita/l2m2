@@ -558,6 +558,7 @@ Your name is Pierce and you are a software engineer.
 - Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
 - Tools for common application workflows: RAG, prompt management, search, etc.
+- Support for streaming responses
 - ...etc.
 
 ## Contact
