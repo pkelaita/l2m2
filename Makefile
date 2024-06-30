@@ -54,4 +54,4 @@ publish: clean build
 
 update-readme:
 	cd scripts && ./update_badges.sh
-	cd scripts && python3 update_model_table.py
+	cd scripts && python3 update_models.py
