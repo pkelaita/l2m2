@@ -1,8 +1,18 @@
 # Changelog
 
-_Current version: 0.0.22_
+_Current version: 0.0.23_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.23 - June 30, 2024
+
+#### Fixed
+
+- Major bug where l2m2 would cause environments without `typing_extensions` installed to crash due to it not being listed as an external dependency. This has been fixed by adding `typing_extensions` as an external dependency.
+
+#### Changed
+
+- This bug wasn't caught becuase integration tests were not running in a clean environment – (i.e., `typing_extensions` was already installed from one of the dev dependencies). To prevent this from happening again, I made `make itest` uninstall all Python dependencies before running.
 
 ### 0.0.22 - June 22, 2024
 

@@ -13,10 +13,17 @@ init:
 test:
 	pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
 
-itest:
+clear-deps:
+	@pip uninstall -y l2m2 > /dev/null 2>&1
+	@pip freeze | xargs pip uninstall -y > /dev/null
+
+itest-run:
 	@pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
+	@pip install python-dotenv > /dev/null
 	python integration_tests/itests.py
-	@pip uninstall -y l2m2 > /dev/null
+
+itest: clear-deps itest-run clear-deps
+
 
 coverage:
 	pytest --cov=l2m2 --cov-report=html

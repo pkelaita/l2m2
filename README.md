@@ -14,7 +14,7 @@
 ### Advantages
 
 - **Simple:** Completely unified interface – just swap out the model name
-- **Tiny:** only one external dependency (httpx)
+- **Tiny:** only two external dependencies (httpx and typing_extensions)
 - **Fast**: Fully asynchronous if concurrent calls are needed
 
 ### Supported Models
@@ -579,8 +579,9 @@ Contributions are welcome! Contributing requires Python >= 3.9 and [GNU Make](ht
   - Create a `.env` file with your API keys, and copy `itests.example.py` to `itests.py`.
   - Write your integration tests in `itests.py`.
   - Run locally with `python itests.py -l`.
-    - Make sure to pass the `-l` flag or else it will look for an L2M2 distribution. Additionally, make sure l2m2 is not installed with pip when running the integration tests locally.
+    - _Note: make sure to pass the `-l` flag or else it will look for an L2M2 distribution. Additionally, make sure l2m2 is not installed with pip when running the integration tests locally._
   - Once your changes are ready, from the top-level directory run `make build` to create the distribution and `make itest` to run your integration tests against the distribution.
+    - _Note: in order to ensure a clean test environment, `make itest` uninstalls all third-party Python packages before running the tests, so make sure to run `make init` when you're done working on integration tests._
 - **Contribute**
   - Create a PR and ping me for a review.
   - Merge!
