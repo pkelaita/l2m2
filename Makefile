@@ -19,7 +19,7 @@ clear-deps:
 
 itest-run:
 	@pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
-	@pip install python-dotenv > /dev/null
+	@pip install -r integration_tests/requirements-itest.txt > /dev/null
 	python integration_tests/itests.py
 
 itest: clear-deps itest-run clear-deps
