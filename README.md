@@ -564,8 +564,11 @@ Your name is Pierce and you are a software engineer.
 
 ## Contributing
 
-Contributions are welcome! Contributing requires Python >= 3.9 and [GNU Make](https://www.gnu.org/software/make/).
+Contributions are welcome! Please see the below contribution guide.
 
+- **Requirements**
+  - Python >= 3.12
+  - [GNU Make](https://www.gnu.org/software/make/)
 - **Setup**
   - Clone this repository and create a Python virtual environment.
   - Install dependencies: `make init`.
