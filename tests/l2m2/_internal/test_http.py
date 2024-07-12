@@ -240,13 +240,14 @@ async def test_llm_post_failure():
 
 
 @pytest.mark.asyncio
+@respx.mock
 @patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
 async def test_llm_post_timeout():
     provider = "test_provider"
     api_key = "test_api_key"
     data = {"input": "test input"}
     model_id = "test_model_id"
-    timeout = 5  # Set a small timeout for the test
+    timeout = 5
 
     endpoint = (
         MOCK_PROVIDER_INFO[provider]["endpoint"]
@@ -254,10 +255,30 @@ async def test_llm_post_timeout():
         .replace(MODEL_ID, model_id)
     )
 
-    with respx.mock:
-        respx.post(endpoint).mock(side_effect=httpx.ReadTimeout)
-        async with httpx.AsyncClient() as client:
-            with pytest.raises(LLMTimeoutError) as exc_info:
-                await llm_post(client, provider, api_key, data, timeout, model_id)
+    respx.post(endpoint).mock(side_effect=httpx.ReadTimeout)
+    async with httpx.AsyncClient() as client:
+        with pytest.raises(LLMTimeoutError):
+            await llm_post(client, provider, api_key, data, timeout, model_id)
 
-            assert "Request timed out after" in str(exc_info.value)
+
+@pytest.mark.asyncio
+@respx.mock
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_llm_post_rate_limit_error():
+    provider = "test_provider"
+    api_key = "test_api_key"
+    data = {"input": "test input"}
+    model_id = "test_model_id"
+
+    endpoint = (
+        MOCK_PROVIDER_INFO[provider]["endpoint"]
+        .replace(API_KEY, api_key)
+        .replace(MODEL_ID, model_id)
+    )
+
+    respx.post(endpoint).mock(
+        return_value=httpx.Response(429, text="Rate Limit Exceeded")
+    )
+    async with httpx.AsyncClient() as client:
+        with pytest.raises(Exception):
+            await llm_post(client, provider, api_key, data, model_id)

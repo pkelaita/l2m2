@@ -4,7 +4,13 @@ _Current version: 0.0.24_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
-### 0.0.24 - July 12, 2024
+### 0.0.25 - July 12, 2024
+
+#### Added
+
+- Custom exception `LLMRateLimitError`, raised when an LLM call returns a 429 status code.
+
+### 0.0.24 - July 11, 2024
 
 #### Added
 

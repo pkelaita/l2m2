@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any
 import httpx
 
-from l2m2.exceptions import LLMTimeoutError
+from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
 from l2m2.model_info import API_KEY, MODEL_ID, PROVIDER_INFO
 
 
@@ -66,7 +66,12 @@ async def llm_post(
     if provider == "replicate" and response.status_code == 201:
         return await _handle_replicate_201(client, response, api_key)
 
-    if response.status_code != 200:
+    if response.status_code == 429:
+        raise LLMRateLimitError(
+            f"Reached rate limit for provider {provider} with model {model_id}."
+        )
+
+    elif response.status_code != 200:
         raise Exception(response.text)
 
     return response.json()
