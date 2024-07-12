@@ -3,8 +3,13 @@ import httpx
 import respx
 from unittest.mock import patch
 
+from l2m2.exceptions import LLMTimeoutError
 from l2m2.model_info import API_KEY, MODEL_ID
-from l2m2._internal.http import _get_headers, _handle_replicate_201, llm_post
+from l2m2._internal.http import (
+    _get_headers,
+    _handle_replicate_201,
+    llm_post,
+)
 
 PROVIDER_INFO_PATH = "l2m2._internal.http.PROVIDER_INFO"
 
@@ -113,7 +118,7 @@ async def test_llm_post_success():
             return_value=httpx.Response(200, json=expected_response)
         )
         async with httpx.AsyncClient() as client:
-            result = await llm_post(client, provider, api_key, data, model_id)
+            result = await llm_post(client, provider, api_key, data, 10, model_id)
             assert result == expected_response
 
     await _test_generic_llm_post("test_provider")
@@ -148,7 +153,7 @@ async def test_llm_post_replicate():
     )
 
     async with httpx.AsyncClient() as client:
-        result = await llm_post(client, provider, api_key, data)
+        result = await llm_post(client, provider, api_key, data, 10)
         assert result == mock_success_response
 
 
@@ -232,3 +237,27 @@ async def test_llm_post_failure():
     async with httpx.AsyncClient() as client:
         with pytest.raises(Exception):
             await llm_post(client, provider, api_key, data, model_id)
+
+
+@pytest.mark.asyncio
+@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
+async def test_llm_post_timeout():
+    provider = "test_provider"
+    api_key = "test_api_key"
+    data = {"input": "test input"}
+    model_id = "test_model_id"
+    timeout = 5  # Set a small timeout for the test
+
+    endpoint = (
+        MOCK_PROVIDER_INFO[provider]["endpoint"]
+        .replace(API_KEY, api_key)
+        .replace(MODEL_ID, model_id)
+    )
+
+    with respx.mock:
+        respx.post(endpoint).mock(side_effect=httpx.ReadTimeout)
+        async with httpx.AsyncClient() as client:
+            with pytest.raises(LLMTimeoutError) as exc_info:
+                await llm_post(client, provider, api_key, data, timeout, model_id)
+
+            assert "Request timed out after" in str(exc_info.value)

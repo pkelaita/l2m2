@@ -25,6 +25,9 @@ from l2m2.tools.json_mode_strategies import (
 from l2m2._internal.http import llm_post
 
 
+DEFAULT_TIMEOUT_SECONDS = 10
+
+
 class BaseLLMClient:
     def __init__(
         self,
@@ -250,6 +253,7 @@ class BaseLLMClient:
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
     ) -> str:
         """Performs inference on any active model.
 
@@ -270,6 +274,8 @@ class BaseLLMClient:
                 when `json_mode` is True. If `None`, the default strategy will be used:
                 `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
                 providers. Defaults to `None`.
+            timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
+                in which case the request will be allowed to run indefinitely. Defaults to `10`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -324,6 +330,7 @@ class BaseLLMClient:
             max_tokens,
             json_mode,
             json_mode_strategy,
+            timeout,
         )
 
     async def call_custom(
@@ -337,6 +344,7 @@ class BaseLLMClient:
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -358,6 +366,8 @@ class BaseLLMClient:
                 when `json_mode` is True. If `None`, the default strategy will be used:
                 `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
                 providers. Defaults to `None`.
+            timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
+                in which case the request will be allowed to run indefinitely. Defaults to `10`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -393,6 +403,7 @@ class BaseLLMClient:
             max_tokens,
             json_mode,
             json_mode_strategy,
+            timeout,
         )
 
     async def _call_impl(
@@ -404,7 +415,8 @@ class BaseLLMClient:
         temperature: Optional[float],
         max_tokens: Optional[int],
         json_mode: bool,
-        json_mode_strategy: Optional[JsonModeStrategy] = None,
+        json_mode_strategy: Optional[JsonModeStrategy],
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
     ) -> str:
         if json_mode_strategy is None:
             json_mode_strategy = (
@@ -455,6 +467,7 @@ class BaseLLMClient:
             prompt,
             system_prompt,
             params,
+            timeout,
             json_mode,
             json_mode_strategy,
         )
@@ -476,6 +489,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         messages = []
@@ -485,10 +499,11 @@ class BaseLLMClient:
             messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = await llm_post(
-            self.httpx_client,
-            "openai",
-            self.api_keys["openai"],
-            {"model": model_id, "messages": messages, **params},
+            client=self.httpx_client,
+            provider="openai",
+            api_key=self.api_keys["openai"],
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
         )
         return str(result["choices"][0]["message"]["content"])
 
@@ -498,6 +513,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
@@ -514,10 +530,11 @@ class BaseLLMClient:
                 messages.append({"role": "assistant", "content": append_msg})
 
         result = await llm_post(
-            self.httpx_client,
-            "anthropic",
-            self.api_keys["anthropic"],
-            {"model": model_id, "messages": messages, **params},
+            client=self.httpx_client,
+            provider="anthropic",
+            api_key=self.api_keys["anthropic"],
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
         )
         return str(result["content"][0]["text"])
 
@@ -527,6 +544,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
@@ -544,10 +562,11 @@ class BaseLLMClient:
                 params.setdefault("chat_history", []).append(entry)
 
         result = await llm_post(
-            self.httpx_client,
-            "cohere",
-            self.api_keys["cohere"],
-            {"model": model_id, "message": prompt, **params},
+            client=self.httpx_client,
+            provider="cohere",
+            api_key=self.api_keys["cohere"],
+            data={"model": model_id, "message": prompt, **params},
+            timeout=timeout,
         )
         return str(result["text"])
 
@@ -557,6 +576,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
@@ -573,10 +593,11 @@ class BaseLLMClient:
                 messages.append({"role": "assistant", "content": append_msg})
 
         result = await llm_post(
-            self.httpx_client,
-            "groq",
-            self.api_keys["groq"],
-            {"model": model_id, "messages": messages, **params},
+            client=self.httpx_client,
+            provider="groq",
+            api_key=self.api_keys["groq"],
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
         )
         return str(result["choices"][0]["message"]["content"])
 
@@ -586,6 +607,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         data: Dict[str, Any] = {}
@@ -609,10 +631,11 @@ class BaseLLMClient:
         data["generation_config"] = params
 
         result = await llm_post(
-            self.httpx_client,
-            "google",
-            self.api_keys["google"],
-            data,
+            client=self.httpx_client,
+            provider="google",
+            api_key=self.api_keys["google"],
+            data=data,
+            timeout=timeout,
             model_id=model_id,
         )
         result = result["candidates"][0]
@@ -629,6 +652,7 @@ class BaseLLMClient:
         prompt: str,
         system_prompt: Optional[str],
         params: Dict[str, Any],
+        timeout: Optional[int],
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
@@ -647,10 +671,11 @@ class BaseLLMClient:
             params["system_prompt"] = system_prompt
 
         result = await llm_post(
-            self.httpx_client,
-            "replicate",
-            self.api_keys["replicate"],
-            {"input": {"prompt": prompt, **params}},
+            client=self.httpx_client,
+            provider="replicate",
+            api_key=self.api_keys["replicate"],
+            data={"input": {"prompt": prompt, **params}},
+            timeout=timeout,
             model_id=model_id,
         )
         return "".join(result["output"])

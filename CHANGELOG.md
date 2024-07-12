@@ -1,8 +1,19 @@
 # Changelog
 
-_Current version: 0.0.23_
+_Current version: 0.0.24_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.24 - July 12, 2024
+
+#### Added
+
+- The ability to specify a custom timeout for LLM calls by passing a `timeout` argument to `call` or `call_custom` (defaults to 10 seconds).
+- A custom exception `LLMTimeoutError` which is raised when an LLM call times out, along with a more helpful message than httpx's default timeout error.
+
+#### Fixed
+
+- Calls to Anthropic with large context windows were sometimes timing out, prompting this change.
 
 ### 0.0.23 - June 30, 2024
 

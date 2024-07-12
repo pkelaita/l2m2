@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 import asyncio
 import httpx
 
-from l2m2.client.base_llm_client import BaseLLMClient
+from l2m2.client.base_llm_client import BaseLLMClient, DEFAULT_TIMEOUT_SECONDS
 from l2m2.memory import (
     MemoryType,
     ExternalMemoryLoadingType,
@@ -46,6 +46,7 @@ class LLMClient(BaseLLMClient):
         prefer_provider: Optional[str] = None,
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -58,6 +59,7 @@ class LLMClient(BaseLLMClient):
                 prefer_provider=prefer_provider,
                 json_mode=json_mode,
                 json_mode_strategy=json_mode_strategy,
+                timeout=timeout,
             )
         )
         return str(result)
@@ -73,6 +75,7 @@ class LLMClient(BaseLLMClient):
         max_tokens: Optional[int] = None,
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -85,6 +88,7 @@ class LLMClient(BaseLLMClient):
                 max_tokens=max_tokens,
                 json_mode=json_mode,
                 json_mode_strategy=json_mode_strategy,
+                timeout=timeout,
             )
         )
         return str(result)

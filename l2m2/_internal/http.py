@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Any
 import httpx
 
+from l2m2.exceptions import LLMTimeoutError
 from l2m2.model_info import API_KEY, MODEL_ID, PROVIDER_INFO
 
 
@@ -40,6 +41,7 @@ async def llm_post(
     provider: str,
     api_key: str,
     data: Dict[str, Any],
+    timeout: Optional[int],
     model_id: Optional[str] = None,
 ) -> Any:
     endpoint = PROVIDER_INFO[provider]["endpoint"]
@@ -47,12 +49,19 @@ async def llm_post(
         endpoint = endpoint.replace(API_KEY, api_key)
     if MODEL_ID in endpoint and model_id is not None:
         endpoint = endpoint.replace(MODEL_ID, model_id)
-
-    response = await client.post(
-        endpoint,
-        headers=_get_headers(provider, api_key),
-        json=data,
-    )
+    try:
+        response = await client.post(
+            endpoint,
+            headers=_get_headers(provider, api_key),
+            json=data,
+            timeout=timeout,
+        )
+    except httpx.ReadTimeout:
+        msg = (
+            f"Request timed out after {timeout} seconds. Try increasing the timeout"
+            + ", or reducing the size of the input."
+        )
+        raise LLMTimeoutError(msg)
 
     if provider == "replicate" and response.status_code == 201:
         return await _handle_replicate_201(client, response, api_key)

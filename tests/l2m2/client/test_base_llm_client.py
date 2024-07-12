@@ -476,7 +476,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
     memory.set_contents("stuff")
 
     await llm_client_mem_ext_sys.call(prompt="Hello", model="gpt-4-turbo")
-    assert mock_call_openai.call_args.args[3]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
         {"role": "system", "content": "stuff"},
         {"role": "user", "content": "Hello"},
     ]
@@ -484,7 +484,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
     await llm_client_mem_ext_sys.call(
         system_prompt="system-123", prompt="Hello", model="gpt-4-turbo"
     )
-    assert mock_call_openai.call_args.args[3]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
         {"role": "system", "content": "system-123\nstuff"},
         {"role": "user", "content": "Hello"},
     ]
@@ -502,14 +502,14 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
     memory.set_contents("stuff")
 
     await llm_client_mem_ext_usr.call(prompt="Hello", model="gpt-4-turbo")
-    assert mock_call_openai.call_args.args[3]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
     await llm_client_mem_ext_usr.call(
         system_prompt="system-123", prompt="Hello", model="gpt-4-turbo"
     )
-    assert mock_call_openai.call_args.args[3]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
         {"role": "system", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
@@ -609,7 +609,7 @@ async def test_json_mode_strategy_prepend_anthropic(mock_call_anthropic, llm_cli
 
     assert response == "{response"
     assert (
-        mock_call_anthropic.call_args.args[3]["messages"][-1]["content"]
+        mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 
@@ -628,7 +628,7 @@ async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call_cohere.call_args.args[3]["chat_history"][-1]["message"]
+        mock_call_cohere.call_args.kwargs["data"]["chat_history"][-1]["message"]
         == "Here is the JSON response: {"
     )
 
@@ -647,7 +647,7 @@ async def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call_groq.call_args.args[3]["messages"][-1]["content"]
+        mock_call_groq.call_args.kwargs["data"]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 
@@ -680,6 +680,6 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
 
     assert response == "{response"
     assert (
-        mock_call_anthropic.call_args.args[3]["messages"][-1]["content"]
+        mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "custom-prefix-123{"
     )
