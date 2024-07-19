@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.24_
+_Current version: 0.0.26_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.26 - July 19, 2024
+
+#### Added
+
+- [GPT-4o-mini](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/) availibility.
 
 ### 0.0.25 - July 12, 2024
 
