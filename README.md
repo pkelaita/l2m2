@@ -1,12 +1,12 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1720807924)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1720807924)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1721419447)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1721419447)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ### Features
 
-- <!--start-count-->15<!--end-count--> supported models (see below) – regularly updated and with more on the way
+- <!--start-count-->16<!--end-count--> supported models (see below) – regularly updated and with more on the way
 - Session chat memory – even across multiple models
 - JSON mode
 - Prompt loading tools
@@ -26,6 +26,7 @@ L2M2 currently supports the following models:
 | Model Name          | Provider(s)                                                        | Model Version(s)                                    |
 | ------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
 | `gpt-4o`            | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-05-13`                                 |
+| `gpt-4o-mini`       | [OpenAI](https://openai.com/product)                               | `gpt-4o-mini-2024-07-18`                            |
 | `gpt-4-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
 | `gpt-3.5-turbo`     | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
 | `gemini-1.5-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro`                                    |
@@ -426,6 +427,7 @@ The following models natively support JSON mode:
 <!--start-json-native-->
 
 - `gpt-4o` (Openai)
+- `gpt-4o-mini` (Openai)
 - `gpt-4-turbo` (Openai)
 - `gpt-3.5-turbo` (Openai)
 - `gemini-1.5-pro` (Google)
