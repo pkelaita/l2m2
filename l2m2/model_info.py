@@ -395,4 +395,21 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "llama3.1-405b": {
+        "replicate": {
+            "model_id": "meta/meta-llama-3.1-405b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+                "max_tokens": {
+                    "custom_key": "max_new_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
 }
