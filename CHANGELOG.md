@@ -1,8 +1,21 @@
 # Changelog
 
-_Current version: 0.0.26_
+_Current version: 0.0.27_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.27 - July 24, 2024
+
+#### Added
+
+- [OctoAI](https://octoai.cloud/) provider support.
+- [Llama 3.1](https://ai.meta.com/blog/meta-llama-3-1/) availibility, in sizes 8B (via OctoAI), 70B (via OctoAI), and 405B (via both OctoAI and Replicate).
+- [Mistral 7B](https://mistral.ai/news/announcing-mistral-7b/) and [Mixtral 8x22B](https://mistral.ai/news/mixtral-8x22b/) via OctoAI.
+- `LLMOperationError` exception, raised when a feature or mode is not supported by a particular model.
+
+#### Fixed
+
+- Rate limit errors would sometimes give the model id as `None` in the error message. This has been fixed.
 
 ### 0.0.26 - July 19, 2024
 
