@@ -10,9 +10,17 @@ from l2m2.memory import (
 )
 from l2m2.client.base_llm_client import BaseLLMClient
 from l2m2.tools import JsonModeStrategy
+from l2m2.exceptions import LLMOperationError
 
 LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
+GET_EXTRA_MESSAGE_PATH = "l2m2.client.base_llm_client.get_extra_message"
 CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
+
+# All of the model/provider pairs which don't support ChatMemory
+CHAT_MEMORY_UNSUPPORTED_MODELS = {
+    "octoai": "mixtral-8x22b",
+    "replicate": "llama3-8b",  # Applies to all models via Replicate
+}
 
 
 # -- Fixtures -- #
@@ -202,7 +210,9 @@ async def _generic_test_call(
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_openai(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "openai", "gpt-4-turbo")
@@ -210,7 +220,9 @@ async def test_call_openai(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_anthropic(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_anthropic(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"content": [{"text": "response"}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "anthropic", "claude-3-opus")
@@ -218,7 +230,9 @@ async def test_call_anthropic(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_cohere(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cohere(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"text": "response"}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cohere", "command-r")
@@ -226,7 +240,9 @@ async def test_call_cohere(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_groq(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_groq(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "groq", "llama3-70b")
@@ -235,7 +251,9 @@ async def test_call_groq(mock_llm_post, llm_client):
 # Need to test gemini 1.0 and 1.5 separately because of different system prompt handling
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_google_1_5(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_google_1_5(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "google", "gemini-1.5-pro")
@@ -243,7 +261,9 @@ async def test_call_google_1_5(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_google_1_0(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_google_1_0(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "google", "gemini-1.0-pro")
@@ -251,10 +271,22 @@ async def test_call_google_1_0(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_replicate(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_replicate(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"output": ["response"]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "replicate", "llama3-8b")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_octoai(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "octoai", "llama3.1-405b")
 
 
 @pytest.mark.asyncio
@@ -455,12 +487,9 @@ def test_chat_memory_errors(llm_client):
 
 @pytest.mark.asyncio
 async def test_chat_memory_unsupported_provider(llm_client_mem_chat):
-    unsupported_providers = {
-        "replicate": "llama3-8b",
-    }
-    for provider, model in unsupported_providers.items():
+    for provider, model in CHAT_MEMORY_UNSUPPORTED_MODELS.items():
         llm_client_mem_chat.add_provider(provider, "fake-api-key")
-        with pytest.raises(ValueError):
+        with pytest.raises(LLMOperationError):
             await llm_client_mem_chat.call(prompt="Hello", model=model)
 
 
@@ -655,7 +684,7 @@ async def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
 @pytest.mark.asyncio
 async def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
     llm_client.add_provider("replicate", "fake-api-key")
-    with pytest.raises(ValueError):
+    with pytest.raises(LLMOperationError):
         await llm_client.call(
             prompt="Hello",
             model="llama3-8b",

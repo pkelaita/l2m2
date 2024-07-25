@@ -1,12 +1,12 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1721619755)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1721619755)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1721885410)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1721885410)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ### Features
 
-- <!--start-count-->16<!--end-count--> supported models (see below) – regularly updated and with more on the way
+- <!--start-count-->21<!--end-count--> supported models (see below) – regularly updated and with more on the way
 - Session chat memory – even across multiple models
 - JSON mode
 - Prompt loading tools
@@ -23,24 +23,29 @@ L2M2 currently supports the following models:
 
 <!--start-model-table-->
 
-| Model Name          | Provider(s)                                                        | Model Version(s)                                    |
-| ------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
-| `gpt-4o`            | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-05-13`                                 |
-| `gpt-4o-mini`       | [OpenAI](https://openai.com/product)                               | `gpt-4o-mini-2024-07-18`                            |
-| `gpt-4-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
-| `gpt-3.5-turbo`     | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
-| `gemini-1.5-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro`                                    |
-| `gemini-1.0-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.0-pro`                                    |
-| `claude-3.5-sonnet` | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-sonnet-20240620`                        |
-| `claude-3-opus`     | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-opus-20240229`                            |
-| `claude-3-sonnet`   | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-sonnet-20240229`                          |
-| `claude-3-haiku`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                           |
-| `command-r`         | [Cohere](https://docs.cohere.com/)                                 | `command-r`                                         |
-| `command-r-plus`    | [Cohere](https://docs.cohere.com/)                                 | `command-r-plus`                                    |
-| `mixtral-8x7b`      | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                                |
-| `gemma-7b`          | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                       |
-| `llama3-8b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
-| `llama3-70b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
+| Model Name          | Provider(s)                                                                                         | Model Version(s)                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `gpt-4o`            | [OpenAI](https://openai.com/product)                                                                | `gpt-4o-2024-05-13`                                                              |
+| `gpt-4o-mini`       | [OpenAI](https://openai.com/product)                                                                | `gpt-4o-mini-2024-07-18`                                                         |
+| `gpt-4-turbo`       | [OpenAI](https://openai.com/product)                                                                | `gpt-4-turbo-2024-04-09`                                                         |
+| `gpt-3.5-turbo`     | [OpenAI](https://openai.com/product)                                                                | `gpt-3.5-turbo-0125`                                                             |
+| `gemini-1.5-pro`    | [Google](https://ai.google.dev/)                                                                    | `gemini-1.5-pro`                                                                 |
+| `gemini-1.0-pro`    | [Google](https://ai.google.dev/)                                                                    | `gemini-1.0-pro`                                                                 |
+| `claude-3.5-sonnet` | [Anthropic](https://www.anthropic.com/api)                                                          | `claude-3-5-sonnet-20240620`                                                     |
+| `claude-3-opus`     | [Anthropic](https://www.anthropic.com/api)                                                          | `claude-3-opus-20240229`                                                         |
+| `claude-3-sonnet`   | [Anthropic](https://www.anthropic.com/api)                                                          | `claude-3-sonnet-20240229`                                                       |
+| `claude-3-haiku`    | [Anthropic](https://www.anthropic.com/api)                                                          | `claude-3-haiku-20240307`                                                        |
+| `command-r`         | [Cohere](https://docs.cohere.com/)                                                                  | `command-r`                                                                      |
+| `command-r-plus`    | [Cohere](https://docs.cohere.com/)                                                                  | `command-r-plus`                                                                 |
+| `mistral-7b`        | [OctoAI](https://octoai.cloud/)                                                                     | `mistral-7b-instruct`                                                            |
+| `mixtral-8x7b`      | [Groq](https://wow.groq.com/), [OctoAI](https://octoai.cloud/)                                      | `mixtral-8x7b-32768`, `mixtral-8x7b-instruct`                                    |
+| `mixtral-8x22b`     | [OctoAI](https://octoai.cloud/)                                                                     | `mixtral-8x22b-instruct`                                                         |
+| `gemma-7b`          | [Groq](https://wow.groq.com/)                                                                       | `gemma-7b-it`                                                                    |
+| `llama3-8b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/)                                  | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`                                |
+| `llama3-70b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), [OctoAI](https://octoai.cloud/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct`, `meta-llama-3-70b-instruct` |
+| `llama3.1-8b`       | [OctoAI](https://octoai.cloud/)                                                                     | `meta-llama-3.1-8b-instruct`                                                     |
+| `llama3.1-70b`      | [OctoAI](https://octoai.cloud/)                                                                     | `meta-llama-3.1-70b-instruct`                                                    |
+| `llama3.1-405b`     | [Replicate](https://replicate.com/), [OctoAI](https://octoai.cloud/)                                | `meta/meta-llama-3.1-405b-instruct`, `meta-llama-3.1-405b-instruct`              |
 
 <!--end-model-table-->
 

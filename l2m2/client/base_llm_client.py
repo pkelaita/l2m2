@@ -22,6 +22,7 @@ from l2m2.tools.json_mode_strategies import (
     get_extra_message,
     run_json_strats_out,
 )
+from l2m2.exceptions import LLMOperationError
 from l2m2._internal.http import llm_post
 
 
@@ -501,6 +502,7 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="openai",
+            model_id=model_id,
             api_key=self.api_keys["openai"],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
@@ -532,6 +534,7 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="anthropic",
+            model_id=model_id,
             api_key=self.api_keys["anthropic"],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
@@ -564,6 +567,7 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="cohere",
+            model_id=model_id,
             api_key=self.api_keys["cohere"],
             data={"model": model_id, "message": prompt, **params},
             timeout=timeout,
@@ -595,6 +599,7 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="groq",
+            model_id=model_id,
             api_key=self.api_keys["groq"],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
@@ -633,10 +638,10 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="google",
+            model_id=model_id,
             api_key=self.api_keys["google"],
             data=data,
             timeout=timeout,
-            model_id=model_id,
         )
         result = result["candidates"][0]
 
@@ -657,12 +662,12 @@ class BaseLLMClient:
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
         if isinstance(self.memory, ChatMemory):
-            raise ValueError(
+            raise LLMOperationError(
                 "Chat memory is not supported with Replicate."
                 + " Try using Groq, or using ExternalMemory instead."
             )
         if json_mode_strategy.strategy_name == StrategyName.PREPEND:
-            raise ValueError(
+            raise LLMOperationError(
                 "JsonModeStrategy.prepend() is not supported with Replicate."
                 + " Try using Groq, or using JsonModeStrategy.strip() instead."
             )
@@ -673,12 +678,50 @@ class BaseLLMClient:
         result = await llm_post(
             client=self.httpx_client,
             provider="replicate",
+            model_id=model_id,
             api_key=self.api_keys["replicate"],
             data={"input": {"prompt": prompt, **params}},
             timeout=timeout,
-            model_id=model_id,
         )
         return "".join(result["output"])
+
+    async def _call_octoai(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+        timeout: Optional[int],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
+    ) -> str:
+        if isinstance(self.memory, ChatMemory) and model_id == "mixtral-8x22b-instruct":
+            raise LLMOperationError(
+                "Chat memory is not supported with mixtral-8x22b via OctoAI. Try using"
+                + " ExternalMemory instead, or ChatMemory with a different model/provider."
+            )
+
+        messages = []
+        if system_prompt is not None:
+            messages.append({"role": "system", "content": system_prompt})
+        if isinstance(self.memory, ChatMemory):
+            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        messages.append({"role": "user", "content": prompt})
+
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                messages.append({"role": "assistant", "content": append_msg})
+
+        result = await llm_post(
+            client=self.httpx_client,
+            provider="octoai",
+            model_id=model_id,
+            api_key=self.api_keys["octoai"],
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
+        )
+        return str(result["choices"][0]["message"]["content"])
 
     def _get_external_memory_prompts(
         self, system_prompt: Optional[str], prompt: str

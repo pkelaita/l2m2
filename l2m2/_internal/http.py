@@ -39,10 +39,10 @@ async def _handle_replicate_201(
 async def llm_post(
     client: httpx.AsyncClient,
     provider: str,
+    model_id: str,
     api_key: str,
     data: Dict[str, Any],
     timeout: Optional[int],
-    model_id: Optional[str] = None,
 ) -> Any:
     endpoint = PROVIDER_INFO[provider]["endpoint"]
     if API_KEY in endpoint:
@@ -58,8 +58,8 @@ async def llm_post(
         )
     except httpx.ReadTimeout:
         msg = (
-            f"Request timed out after {timeout} seconds. Try increasing the timeout"
-            + ", or reducing the size of the input."
+            f"Request timed out after {timeout} seconds. Try increasing the timeout by passing "
+            + "the timeout parameter into call, or reducing the expected size of the output."
         )
         raise LLMTimeoutError(msg)
 
