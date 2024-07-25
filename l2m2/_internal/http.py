@@ -39,10 +39,10 @@ async def _handle_replicate_201(
 async def llm_post(
     client: httpx.AsyncClient,
     provider: str,
+    model_id: str,
     api_key: str,
     data: Dict[str, Any],
     timeout: Optional[int],
-    model_id: Optional[str] = None,
 ) -> Any:
     endpoint = PROVIDER_INFO[provider]["endpoint"]
     if API_KEY in endpoint:

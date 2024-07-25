@@ -310,6 +310,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "mistral-7b": {
+        "octoai": {
+            "model_id": "mistral-7b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
     "mixtral-8x7b": {
         "groq": {
             "model_id": "mixtral-8x7b-32768",
@@ -321,6 +337,36 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+        "octoai": {
+            "model_id": "mixtral-8x7b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "mixtral-8x22b": {
+        "octoai": {
+            "model_id": "mixtral-8x22b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
                 },
             },
             "extras": {},
@@ -348,7 +394,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2,
+                    "max": 2.0,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -379,7 +425,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2,
+                    "max": 2.0,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -397,6 +443,52 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+        "octoai": {
+            "model_id": "meta-llama-3-70b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "llama3.1-8b": {
+        "octoai": {
+            "model_id": "meta-llama-3.1-8b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "llama3.1-70b": {
+        "octoai": {
+            "model_id": "meta-llama-3.1-70b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": INF,
                 },

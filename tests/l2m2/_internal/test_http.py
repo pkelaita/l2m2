@@ -3,7 +3,7 @@ import httpx
 import respx
 from unittest.mock import patch
 
-from l2m2.exceptions import LLMTimeoutError
+from l2m2.exceptions import LLMRateLimitError, LLMTimeoutError
 from l2m2.model_info import API_KEY, MODEL_ID
 from l2m2._internal.http import (
     _get_headers,
@@ -118,7 +118,14 @@ async def test_llm_post_success():
             return_value=httpx.Response(200, json=expected_response)
         )
         async with httpx.AsyncClient() as client:
-            result = await llm_post(client, provider, api_key, data, 10, model_id)
+            result = await llm_post(
+                client=client,
+                provider=provider,
+                model_id=model_id,
+                api_key=api_key,
+                data=data,
+                timeout=10,
+            )
             assert result == expected_response
 
     await _test_generic_llm_post("test_provider")
@@ -153,7 +160,14 @@ async def test_llm_post_replicate():
     )
 
     async with httpx.AsyncClient() as client:
-        result = await llm_post(client, provider, api_key, data, 10)
+        result = await llm_post(
+            client=client,
+            provider=provider,
+            model_id="fake_model_id",
+            api_key=api_key,
+            data=data,
+            timeout=10,
+        )
         assert result == mock_success_response
 
 
@@ -236,7 +250,14 @@ async def test_llm_post_failure():
     respx.post(endpoint).mock(return_value=httpx.Response(400, text="Bad Request"))
     async with httpx.AsyncClient() as client:
         with pytest.raises(Exception):
-            await llm_post(client, provider, api_key, data, model_id)
+            await llm_post(
+                client=client,
+                provider=provider,
+                model_id=model_id,
+                api_key=api_key,
+                data=data,
+                timeout=10,
+            )
 
 
 @pytest.mark.asyncio
@@ -258,7 +279,14 @@ async def test_llm_post_timeout():
     respx.post(endpoint).mock(side_effect=httpx.ReadTimeout)
     async with httpx.AsyncClient() as client:
         with pytest.raises(LLMTimeoutError):
-            await llm_post(client, provider, api_key, data, timeout, model_id)
+            await llm_post(
+                client=client,
+                provider=provider,
+                model_id=model_id,
+                api_key=api_key,
+                data=data,
+                timeout=timeout,
+            )
 
 
 @pytest.mark.asyncio
@@ -280,5 +308,12 @@ async def test_llm_post_rate_limit_error():
         return_value=httpx.Response(429, text="Rate Limit Exceeded")
     )
     async with httpx.AsyncClient() as client:
-        with pytest.raises(Exception):
-            await llm_post(client, provider, api_key, data, model_id)
+        with pytest.raises(LLMRateLimitError):
+            await llm_post(
+                client=client,
+                provider=provider,
+                model_id=model_id,
+                api_key=api_key,
+                data=data,
+                timeout=10,
+            )

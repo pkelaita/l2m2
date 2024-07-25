@@ -10,10 +10,17 @@ from l2m2.memory import (
 )
 from l2m2.client.base_llm_client import BaseLLMClient
 from l2m2.tools import JsonModeStrategy
+from l2m2.exceptions import LLMOperationError
 
 LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
 GET_EXTRA_MESSAGE_PATH = "l2m2.client.base_llm_client.get_extra_message"
 CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
+
+# All of the model/provider pairs which don't support ChatMemory
+CHAT_MEMORY_UNSUPPORTED_MODELS = {
+    "octoai": "mixtral-8x22b",
+    "replicate": "llama3-8b",  # Applies to all models via Replicate
+}
 
 
 # -- Fixtures -- #
@@ -480,12 +487,9 @@ def test_chat_memory_errors(llm_client):
 
 @pytest.mark.asyncio
 async def test_chat_memory_unsupported_provider(llm_client_mem_chat):
-    unsupported_providers = {
-        "replicate": "llama3-8b",
-    }
-    for provider, model in unsupported_providers.items():
+    for provider, model in CHAT_MEMORY_UNSUPPORTED_MODELS.items():
         llm_client_mem_chat.add_provider(provider, "fake-api-key")
-        with pytest.raises(ValueError):
+        with pytest.raises(LLMOperationError):
             await llm_client_mem_chat.call(prompt="Hello", model=model)
 
 
@@ -680,7 +684,7 @@ async def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
 @pytest.mark.asyncio
 async def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
     llm_client.add_provider("replicate", "fake-api-key")
-    with pytest.raises(ValueError):
+    with pytest.raises(LLMOperationError):
         await llm_client.call(
             prompt="Hello",
             model="llama3-8b",
