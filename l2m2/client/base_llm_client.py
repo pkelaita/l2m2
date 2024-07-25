@@ -680,6 +680,37 @@ class BaseLLMClient:
         )
         return "".join(result["output"])
 
+    async def _call_octoai(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+        timeout: Optional[int],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
+    ) -> str:
+        messages = []
+        if system_prompt is not None:
+            messages.append({"role": "system", "content": system_prompt})
+        if isinstance(self.memory, ChatMemory):
+            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        messages.append({"role": "user", "content": prompt})
+
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                messages.append({"role": "assistant", "content": append_msg})
+
+        result = await llm_post(
+            client=self.httpx_client,
+            provider="octoai",
+            api_key=self.api_keys["octoai"],
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
+        )
+        return str(result["choices"][0]["message"]["content"])
+
     def _get_external_memory_prompts(
         self, system_prompt: Optional[str], prompt: str
     ) -> Tuple[Optional[str], str]:
