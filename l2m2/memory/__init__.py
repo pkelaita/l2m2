@@ -4,7 +4,7 @@ from .chat_memory import (
     CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
 )
 from .external_memory import ExternalMemory, ExternalMemoryLoadingType
-from .base_memory import BaseMemory, MemoryType
+from .base_memory import BaseMemory
 
 __all__ = [
     "ChatMemory",
@@ -13,5 +13,4 @@ __all__ = [
     "ExternalMemory",
     "ExternalMemoryLoadingType",
     "BaseMemory",
-    "MemoryType",
 ]

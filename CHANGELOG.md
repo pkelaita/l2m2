@@ -4,6 +4,16 @@ _Current version: 0.0.28_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
+### 0.0.29 - IN PROGRESS
+
+#### Changed
+
+- LLM client is now instantiated with a memory object rather than `MemoryType`.
+
+#### Removed
+
+- `MemoryType` enum has been removed.
+
 ### 0.0.28 - August 3, 2024
 
 #### Added

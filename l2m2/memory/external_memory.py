@@ -1,6 +1,6 @@
 from enum import Enum
 
-from l2m2.memory.base_memory import BaseMemory, MemoryType
+from l2m2.memory.base_memory import BaseMemory
 
 
 class ExternalMemoryLoadingType(Enum):
@@ -27,7 +27,7 @@ class ExternalMemory(BaseMemory):
             most recent user prompt. Defaults to LoadingType.SYSTEM_PROMPT.
         """
 
-        super().__init__(MemoryType.EXTERNAL)
+        super().__init__()
         self.contents: str = contents
         self.loading_type: ExternalMemoryLoadingType = loading_type
 

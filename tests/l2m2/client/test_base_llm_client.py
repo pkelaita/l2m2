@@ -3,7 +3,6 @@ import pytest_asyncio
 from unittest.mock import patch
 
 from l2m2.memory import (
-    MemoryType,
     ChatMemory,
     ExternalMemory,
     ExternalMemoryLoadingType,
@@ -34,15 +33,14 @@ async def llm_client():
 
 @pytest_asyncio.fixture
 async def llm_client_mem_chat():
-    async with BaseLLMClient(memory_type=MemoryType.CHAT) as b:
+    async with BaseLLMClient(memory=ChatMemory()) as b:
         yield b
 
 
 @pytest_asyncio.fixture
 async def llm_client_mem_ext_sys():
     async with BaseLLMClient(
-        memory_type=MemoryType.EXTERNAL,
-        memory_loading_type=ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
+        memory=ExternalMemory(),  # Default is SYSTEM_PROMPT_APPEND
     ) as b:
         yield b
 
@@ -50,8 +48,9 @@ async def llm_client_mem_ext_sys():
 @pytest_asyncio.fixture
 async def llm_client_mem_ext_usr():
     async with BaseLLMClient(
-        memory_type=MemoryType.EXTERNAL,
-        memory_loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND,
+        memory=ExternalMemory(
+            loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND
+        ),
     ) as b:
         yield b
 

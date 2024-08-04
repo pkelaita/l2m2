@@ -3,11 +3,7 @@ import asyncio
 import httpx
 
 from l2m2.client.base_llm_client import BaseLLMClient, DEFAULT_TIMEOUT_SECONDS
-from l2m2.memory import (
-    MemoryType,
-    ExternalMemoryLoadingType,
-    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
-)
+from l2m2.memory.base_memory import BaseMemory
 from l2m2.tools.json_mode_strategies import JsonModeStrategy
 
 
@@ -15,16 +11,9 @@ class LLMClient(BaseLLMClient):
     def __init__(
         self,
         providers: Optional[Dict[str, str]] = None,
-        memory_type: Optional[MemoryType] = None,
-        memory_window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
-        memory_loading_type: ExternalMemoryLoadingType = ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
+        memory: Optional[BaseMemory] = None,
     ) -> None:
-        super(LLMClient, self).__init__(
-            providers=providers,
-            memory_type=memory_type,
-            memory_window_size=memory_window_size,
-            memory_loading_type=memory_loading_type,
-        )
+        super(LLMClient, self).__init__(providers=providers, memory=memory)
 
     async def _sync_fn_wrapper(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
         async with httpx.AsyncClient() as temp_client:

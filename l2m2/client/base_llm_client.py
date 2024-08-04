@@ -11,11 +11,9 @@ from l2m2.model_info import (
 )
 from l2m2.memory import (
     ChatMemory,
-    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
     ExternalMemory,
     ExternalMemoryLoadingType,
     BaseMemory,
-    MemoryType,
 )
 from l2m2.tools.json_mode_strategies import (
     JsonModeStrategy,
@@ -44,9 +42,7 @@ class BaseLLMClient:
     def __init__(
         self,
         providers: Optional[Dict[str, str]] = None,
-        memory_type: Optional[MemoryType] = None,
-        memory_window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
-        memory_loading_type: ExternalMemoryLoadingType = ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
+        memory: Optional[BaseMemory] = None,
     ) -> None:
         """Initializes the LLM Client.
 
@@ -61,17 +57,11 @@ class BaseLLMClient:
                     }
 
                 Defaults to `None`.
-            memory_type (MemoryType, optional): The type of memory to enable. If `None`, memory is
-                not enabled. Defaults to `None`.
-            memory_window_size (int, optional): The size of the memory window. Only applicable if
-                `memory_type` is `MemoryType.CHAT`, otherwise ignored. Defaults to `40`.
-            memory_loading_type (ExternalMemoryLoadingType, optional): How the model should load
-                external memory. Only applicable if `memory_type` is `MemoryType.EXTERNAL`,
-                otherwise ignored. Defaults to `ExternalMemoryLoadingType.SYSTEM_PROMPT`.
+            memory (BaseMemory, optional): The memory object to use. Defaults to `None`, in which
+                case memory is not enabled.
 
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
-            ValueError: If `memory_window_size` is not a positive integer.
         """
         self.api_keys: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
@@ -90,12 +80,7 @@ class BaseLLMClient:
             ):
                 self.add_provider(provider, default_api_key)
 
-        if memory_type is not None:
-            if memory_type == MemoryType.CHAT:
-                self.memory = ChatMemory(window_size=memory_window_size)
-            elif memory_type == MemoryType.EXTERNAL:
-                self.memory = ExternalMemory(loading_type=memory_loading_type)
-
+        self.memory = memory
         self.httpx_client = httpx.AsyncClient()
 
     async def __aenter__(self) -> "BaseLLMClient":
@@ -387,6 +372,9 @@ class BaseLLMClient:
                 providers. Defaults to `None`.
             timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
                 in which case the request will be allowed to run indefinitely. Defaults to `10`.
+            bypass_memory (bool, optional): Whether to bypass memory when calling the model. If `True`, the
+                model will not read from or write to memory during the call if memory is enabled. Defaults
+                to `False`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
