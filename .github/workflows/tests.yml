@@ -1,9 +1,7 @@
 name: tests
 
 on:
-  pull_request:
   push:
-  release:
 
 env:
   default-python: "3.12"
