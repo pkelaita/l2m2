@@ -1,5 +1,6 @@
 from typing import Any, List, Set, Dict, Optional, Tuple
 import httpx
+import os
 
 from l2m2.model_info import (
     MODEL_INFO,
@@ -27,6 +28,16 @@ from l2m2._internal.http import llm_post
 
 
 DEFAULT_TIMEOUT_SECONDS = 10
+
+DEFAULT_PROVIDER_ENVS = {
+    "openai": "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "cohere": "CO_API_KEY",
+    "google": "GOOGLE_API_KEY",
+    "groq": "GROQ_API_KEY",
+    "replicate": "REPLICATE_API_TOKEN",
+    "octoai": "OCTOAI_TOKEN",
+}
 
 
 class BaseLLMClient:
@@ -71,6 +82,13 @@ class BaseLLMClient:
         if providers is not None:
             for provider, api_key in providers.items():
                 self.add_provider(provider, api_key)
+
+        for provider, env_var in DEFAULT_PROVIDER_ENVS.items():
+            if (
+                provider not in self.active_providers
+                and (default_api_key := os.getenv(env_var)) is not None
+            ):
+                self.add_provider(provider, default_api_key)
 
         if memory_type is not None:
             if memory_type == MemoryType.CHAT:

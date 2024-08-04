@@ -1,8 +1,21 @@
 # Changelog
 
-_Current version: 0.0.27_
+_Current version: 0.0.28_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.28 - August 3, 2024
+
+#### Added
+
+- Providers can now be activated by default via the following environment variables:
+  - `OPENAI_API_KEY` for OpenAI
+  - `ANTHROPIC_API_KEY` for Anthropic
+  - `CO_API_KEY` for Cohere
+  - `GOOGLE_API_KEY` for Google
+  - `GROQ_API_KEY` for Groq
+  - `REPLICATE_API_TOKEN` for Replicate
+  - `OCTOAI_TOKEN` for OctoAI
 
 ### 0.0.27 - July 24, 2024
 

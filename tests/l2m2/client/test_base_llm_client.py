@@ -80,6 +80,44 @@ async def test_init_with_providers():
         assert "claude-3-opus" not in llm_client.active_models
 
 
+@pytest.mark.asyncio
+@patch.dict(
+    "os.environ", {"OPENAI_API_KEY": "test-key-openai", "CO_API_KEY": "test-key-cohere"}
+)
+async def test_init_with_env_providers():
+    async with BaseLLMClient() as llm_client:
+        assert llm_client.api_keys == {
+            "openai": "test-key-openai",
+            "cohere": "test-key-cohere",
+        }
+        assert llm_client.active_providers == {"openai", "cohere"}
+        assert "gpt-4-turbo" in llm_client.active_models
+        assert "command-r" in llm_client.active_models
+        assert "claude-3-opus" not in llm_client.active_models
+
+
+@pytest.mark.asyncio
+@patch.dict(
+    "os.environ", {"OPENAI_API_KEY": "env-key-openai", "CO_API_KEY": "env-key-cohere"}
+)
+async def test_init_with_env_providers_override():
+    async with BaseLLMClient(
+        {
+            "openai": "override-key-openai",
+            "anthropic": "new-key-anthropic",
+        }
+    ) as llm_client:
+        assert llm_client.api_keys == {
+            "openai": "override-key-openai",
+            "cohere": "env-key-cohere",
+            "anthropic": "new-key-anthropic",
+        }
+        assert llm_client.active_providers == {"openai", "cohere", "anthropic"}
+        assert "gpt-4-turbo" in llm_client.active_models
+        assert "command-r" in llm_client.active_models
+        assert "claude-3-opus" in llm_client.active_models
+
+
 def test_init_with_providers_invalid():
     with pytest.raises(ValueError):
         BaseLLMClient({"invalid_provider": "some-key", "openai": "test-key-openai"})

@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1721885410)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1721885410)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1722735824)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1722735824)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -84,14 +84,28 @@ pip install l2m2
 
 ```python
 from l2m2.client import LLMClient
+
+client = LLMClient()
 ```
 
-**Add Providers**
+**Activate Providers**
 
-In order to activate any of the available models, you must add the provider of that model and pass in your API key for that provider's API. Make sure to pass in a valid provider as shown in the table above.
+To activate any of the providers, set the provider's API key in the corresponding environment variable shown below, and L2M2 will read it in to activate the provider.
+
+| Provider  | Environment Variable  |
+| --------- | --------------------- |
+| OpenAI    | `OPENAI_API_KEY`      |
+| Anthropic | `ANTHROPIC_API_KEY`   |
+| Cohere    | `CO_API_KEY`          |
+| Google    | `GOOGLE_API_KEY`      |
+| Groq      | `GROQ_API_KEY`        |
+| Replicate | `REPLICATE_API_TOKEN` |
+| OctoAI    | `OCTOAI_TOKEN`        |
+
+Additionally, you can activate providers programmatically as follows:
 
 ```python
-client = LLMClient({
+client = LLMClient(providers={
     "provider-a": "api-key-a",
     "provider-b": "api-key-b",
     ...
@@ -131,11 +145,9 @@ If you'd like to call a language model from one of the supported providers that 
 ```python
 # example.py
 
-import os
 from l2m2.client import LLMClient
 
 client = LLMClient()
-client.add_provider("openai", os.getenv("OPENAI_API_KEY"))
 
 response = client.call(
     model="gpt-4o",
@@ -157,9 +169,6 @@ Arrr, matey! The skies be clear as the Caribbean waters today, with the sun blaz
 Some models are available from multiple providers, such as `llama3-70b` from both Groq and Replicate. When multiple of such providers are active, you can use the parameter `prefer_provider` to specify which provider to use for a given inference.
 
 ```python
-client.add_provider("groq", os.getenv("GROQ_API_KEY"))
-client.add_provider("replicate", os.getenv("REPLICATE_API_TOKEN"))
-
 response1 = client.call(
     model="llama3-70b",
     prompt="Hello there",
@@ -194,11 +203,7 @@ from l2m2.client import LLMClient
 from l2m2.memory import MemoryType
 
 # Use the MemoryType enum to specify the type of memory you want to use
-client = LLMClient({
-    "openai": os.getenv("OPENAI_API_KEY"),
-    "anthropic": os.getenv("ANTHROPIC_API_KEY"),
-    "groq": os.getenv("GROQ_API_KEY"),
-}, memory_type=MemoryType.CHAT)
+client = LLMClient(memory_type=MemoryType.CHAT)
 
 print(client.call(model="gpt-4o", prompt="My name is Pierce"))
 print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
@@ -218,7 +223,7 @@ Chat memory is stored per session, with a sliding window of messages which defau
 You can access the client's memory using `client.get_memory()`. Once accessed, `ChatMemory` lets you add user and agent messages, clear the memory, and access the memory as a list of messages.
 
 ```python
-client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.CHAT)
+client = LLMClient(memory_type=MemoryType.CHAT)
 
 memory = client.get_memory() # ChatMemory object
 memory.add_user_message("My favorite color is red.")
@@ -238,8 +243,6 @@ I'm sorry, I don't have that information.
 You can also load in a memory object on the fly using `load_memory`, which will enable memory if none is already loaded, and overwrite the existing memory if it is.
 
 ```python
-
-client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.CHAT)
 client.call(model="gpt-4o", prompt="My favorite color is red.")
 print(client.call(model="gpt-4o", prompt="What is my favorite color?"))
 
@@ -268,7 +271,7 @@ Here's a simple example of a custom memory implementation that has a description
 from l2m2.client import LLMClient
 from l2m2.memory import MemoryType
 
-client = LLMClient({"openai": os.getenv("OPENAI_API_KEY")}, memory_type=MemoryType.EXTERNAL)
+client = LLMClient(memory_type=MemoryType.EXTERNAL)
 
 messages = [
     "My name is Pierce",
@@ -306,7 +309,6 @@ By default, `ExternalMemory` contents are appended to the system prompt, or pass
 from l2m2.memory import ExternalMemoryLoadingType
 
 client = LLMClient(
-    {"openai": os.getenv("OPENAI_API_KEY")},
     memory_type=MemoryType.EXTERNAL,
     memory_loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND,
 )
@@ -322,7 +324,7 @@ L2M2 provides an asynchronous `AsyncLLMClient` in addition to the synchronous `L
 from l2m2.client import AsyncLLMClient
 
 async def main():
-    async with AsyncLLMClient({"provider": "api-key"}) as client:
+    async with AsyncLLMClient() as client:
         response = await client.call(
             model="model",
             prompt="prompt",
@@ -342,15 +344,7 @@ import timeit
 from l2m2.client import AsyncLLMClient
 
 async def call_concurrent():
-    async with AsyncLLMClient(
-        {
-            "openai": os.getenv("OPENAI_API_KEY"),
-            "google": os.getenv("GOOGLE_API_KEY"),
-            "anthropic": os.getenv("ANTHROPIC_API_KEY"),
-            "cohere": os.getenv("COHERE_API_KEY"),
-            "groq": os.getenv("GROQ_API_KEY"),
-        }
-    ) as client:
+    async with AsyncLLMClient() as client:
         calls = [
             ("gpt-4o", "foo"),
             ("claude-3.5-sonnet", "bar"),
@@ -454,7 +448,7 @@ If you'd like, you can specify a strategy by passing either `JsonModeStrategy.st
 from l2m2.client import LLMClient
 from l2m2.tools import JsonModeStrategy
 
-client = LLMClient({"anthropic": os.getenv("ANTHROPIC_API_KEY")})
+client = LLMClient()
 
 response = client.call(
     model="claude-3-sonnet",
