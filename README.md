@@ -1,21 +1,21 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1722735824)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1722735824)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1722833303)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1722833303)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ### Features
 
-- <!--start-count-->21<!--end-count--> supported models (see below) – regularly updated and with more on the way
-- Session chat memory – even across multiple models
+- <!--start-count-->21<!--end-count--> supported models (see below) – regularly updated and with more on the way.
+- Session chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
 - Prompt loading tools
 
 ### Advantages
 
-- **Simple:** Completely unified interface – just swap out the model name
-- **Tiny:** only two external dependencies (httpx and typing_extensions)
-- **Fast**: Fully asynchronous if concurrent calls are needed
+- **Simple:** Completely unified interface – just swap out the model name.
+- **Tiny:** Only two external dependencies (httpx and typing_extensions).
+- **Fast**: Fully asynchronous if concurrent calls are needed.
 
 ### Supported Models
 
@@ -200,10 +200,9 @@ L2M2 provides a simple memory system that allows you to maintain context and his
 
 ```python
 from l2m2.client import LLMClient
-from l2m2.memory import MemoryType
+from l2m2.memory import ChatMemory
 
-# Use the MemoryType enum to specify the type of memory you want to use
-client = LLMClient(memory_type=MemoryType.CHAT)
+client = LLMClient(memory=ChatMemory())
 
 print(client.call(model="gpt-4o", prompt="My name is Pierce"))
 print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
@@ -220,16 +219,16 @@ You are a software engineer.
 
 Chat memory is stored per session, with a sliding window of messages which defaults to the last 40 – this can be configured by passing `memory_window_size` to the client constructor.
 
-You can access the client's memory using `client.get_memory()`. Once accessed, `ChatMemory` lets you add user and agent messages, clear the memory, and access the memory as a list of messages.
+For more control, you can instantiate a `ChatMemory` object on its own and manipulate it directly.
 
 ```python
-client = LLMClient(memory_type=MemoryType.CHAT)
+memory = ChatMemory()
 
-memory = client.get_memory() # ChatMemory object
 memory.add_user_message("My favorite color is red.")
 memory.add_user_message("My least favorite color is green.")
-memory.add_agent_message("Ok, duly noted.")
+memory.add_agent_message("Ok, noted.")
 
+client = LLMClient(memory=memory)
 print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
 memory.clear()
 print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
@@ -240,23 +239,51 @@ Your favorite color is red, and your least favorite color is green.
 I'm sorry, I don't have that information.
 ```
 
-You can also load in a memory object on the fly using `load_memory`, which will enable memory if none is already loaded, and overwrite the existing memory if it is.
+> [!CAUTION]
+> Some providers such as Anthropic enforce that chat messages in memory strictly alternate between one user and one agent message and will throw an error if this is not the case.
+
+You can also load in alternate memory streams on the fly using the `alt_memory` parameter in `call` (This is especially useful for parallel memory streams – an example of this is shown in the [Async Calls](#async-calls) section).
 
 ```python
-client.call(model="gpt-4o", prompt="My favorite color is red.")
-print(client.call(model="gpt-4o", prompt="What is my favorite color?"))
+m1 = ChatMemory()
+m1.add_user_message("My favorite color is red.")
+m1.add_user_message("My least favorite color is green.")
+m1.add_agent_message("Ok, noted.")
 
-new_memory = ChatMemory()
-new_memory.add_user_message("My favorite color is blue.")
-new_memory.add_agent_message("Ok, noted.")
+m2 = ChatMemory()
+m2.add_user_message("My favorite color is blue.")
+m2.add_user_message("My least favorite color is yellow.")
+m2.add_agent_message("Got it.")
 
-client.load_memory(memory)
-print(client.call(model="gpt-4o", prompt="What is my favorite color?"))
+client = LLMClient(memory=m1)
+prompt = "What are my favorite and least favorite colors?"
+print(client.call(model="gpt-4o", prompt=prompt)
+print(client.call(model="gpt-4o", prompt=prompt, alt_memory=m2))
 ```
 
 ```
-Your favorite color is red.
-Your favorite color is blue.
+Your favorite color is red, and your least favorite color is green.
+Your favorite color is blue, and your least favorite color is yellow.
+```
+
+Finally, memory can be bypassed for a single call by passing `bypass_memory=True` to `call`. This will cause the client to ignore previously stored memory and not write to it for the current call.
+
+```python
+client = LLMClient(memory=ChatMemory())
+client.call(model="gpt-4o", prompt="My name is Pierce")
+client.call(model="gpt-4o", prompt="I am 25 years old")
+
+print(client.call(model="gpt-4o", prompt="What is my name?"))
+print(client.call(model="gpt-4o", prompt="What is my name?", bypass_memory=True))
+
+client.call(model="gpt-4o", prompt="I am a software engineer", bypass_memory=True)
+print(client.call(model="gpt-4o", prompt="What is my profession?"))
+```
+
+```
+Your name is Pierce.
+I'm sorry, but I don't have access to personal information, so I can't know your name.
+You haven't mentioned your profession yet, Pierce.
 ```
 
 #### External Memory
@@ -269,9 +296,9 @@ Here's a simple example of a custom memory implementation that has a description
 # example_external_memory.py
 
 from l2m2.client import LLMClient
-from l2m2.memory import MemoryType
+from l2m2.memory import ExternalMemory
 
-client = LLMClient(memory_type=MemoryType.EXTERNAL)
+client = LLMClient(memory=ExternalMemory())
 
 messages = [
     "My name is Pierce",
@@ -308,13 +335,11 @@ By default, `ExternalMemory` contents are appended to the system prompt, or pass
 ```python
 from l2m2.memory import ExternalMemoryLoadingType
 
-client = LLMClient(
-    memory_type=MemoryType.EXTERNAL,
-    memory_loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND,
-)
+memory = ExternalMemory(loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND)
+client = LLMClient(memory=memory)
 ```
 
-Similarly to `ChatMemory`, `ExternalMemory` can be passed into `client.load_memory` to load in new custom memory on the fly, and can be shared across multiple models and providers.
+Similarly to `ChatMemory`, `ExternalMemory` can be passed into `alt_memory` and bypassed with `bypass_memory`.
 
 ### Async Calls
 
@@ -345,6 +370,7 @@ from l2m2.client import AsyncLLMClient
 
 async def call_concurrent():
     async with AsyncLLMClient() as client:
+        # Assumes no conflicts between active providers
         calls = [
             ("gpt-4o", "foo"),
             ("claude-3.5-sonnet", "bar"),
@@ -385,6 +411,56 @@ gemini-1.5-pro: baz (0.73s)
 ```
 
 As a general rule, I typically find it's best to use the synchronous `LLMClient` for research and demos, and `AsyncLLMClient` for apps.
+
+#### Use Case: Parallel Memory Streams ⚡
+
+One of the most powerful features of `AsyncLLMClient` is the ability to run maintain memory streams in parallel, such as in multi-agent systems with multiple interactions happening concurrently. Here's a simple example of how to easily achieve this using `AsyncLLMClient` and `alt_memory`.
+
+```python
+# example_parallel_memory.py
+
+import asyncio
+from l2m2.client import AsyncLLMClient
+from l2m2.memory import ChatMemory
+
+async def call_concurrent_with_memory():
+    m1 = ChatMemory()
+    m2 = ChatMemory()
+
+    calls1 = ["My name is Pierce", "My favorite color is red", "I am 25 years old"]
+    calls2 = ["My name is Paul", "My favorite color is blue", "I am 60 years old"]
+    question = "What is my name, favorite color, and age?"
+
+    async with AsyncLLMClient() as client:
+        client.set_preferred_providers({"mixtral-8x7b": "groq"})
+
+        async def make_calls_1():
+            for prompt in calls1:
+                await client.call(model="mixtral-8x7b", prompt=prompt, alt_memory=m1)
+
+        async def make_calls_2():
+            for prompt in calls2:
+                await client.call(model="mixtral-8x7b", prompt=prompt, alt_memory=m2)
+
+        await asyncio.gather(make_calls_1(), make_calls_2())
+
+        [res1, res2] = await asyncio.gather(
+            client.call(model="mixtral-8x7b", prompt=question, alt_memory=m1),
+            client.call(model="mixtral-8x7b", prompt=question, alt_memory=m2),
+        )
+
+        print("Memory 1:", res1)
+        print("Memory 2:", res2)
+
+asyncio.run(call_concurrent_with_memory())
+```
+
+```
+>> python3 example_parallel_memory.py
+
+Memory 1: Your name is Pierce, your favorite color is red, and you are 25 years old. I hope this information is helpful!
+Memory 2: Your name is Paul, your favorite color is blue, and you are 60 years old. 😊
+```
 
 ### Tools: JSON Mode
 

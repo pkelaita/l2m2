@@ -7,15 +7,14 @@ from l2m2.model_info import (
     PROVIDER_INFO,
     PROVIDER_DEFAULT,
     ModelEntry,
+    ModelParams,
     ParamName,
 )
 from l2m2.memory import (
     ChatMemory,
-    CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
     ExternalMemory,
     ExternalMemoryLoadingType,
     BaseMemory,
-    MemoryType,
 )
 from l2m2.tools.json_mode_strategies import (
     JsonModeStrategy,
@@ -44,9 +43,7 @@ class BaseLLMClient:
     def __init__(
         self,
         providers: Optional[Dict[str, str]] = None,
-        memory_type: Optional[MemoryType] = None,
-        memory_window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
-        memory_loading_type: ExternalMemoryLoadingType = ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND,
+        memory: Optional[BaseMemory] = None,
     ) -> None:
         """Initializes the LLM Client.
 
@@ -61,17 +58,11 @@ class BaseLLMClient:
                     }
 
                 Defaults to `None`.
-            memory_type (MemoryType, optional): The type of memory to enable. If `None`, memory is
-                not enabled. Defaults to `None`.
-            memory_window_size (int, optional): The size of the memory window. Only applicable if
-                `memory_type` is `MemoryType.CHAT`, otherwise ignored. Defaults to `40`.
-            memory_loading_type (ExternalMemoryLoadingType, optional): How the model should load
-                external memory. Only applicable if `memory_type` is `MemoryType.EXTERNAL`,
-                otherwise ignored. Defaults to `ExternalMemoryLoadingType.SYSTEM_PROMPT`.
+            memory (BaseMemory, optional): The memory object to use. Defaults to `None`, in which
+                case memory is not enabled.
 
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
-            ValueError: If `memory_window_size` is not a positive integer.
         """
         self.api_keys: Dict[str, str] = {}
         self.active_providers: Set[str] = set()
@@ -90,12 +81,7 @@ class BaseLLMClient:
             ):
                 self.add_provider(provider, default_api_key)
 
-        if memory_type is not None:
-            if memory_type == MemoryType.CHAT:
-                self.memory = ChatMemory(window_size=memory_window_size)
-            elif memory_type == MemoryType.EXTERNAL:
-                self.memory = ExternalMemory(loading_type=memory_loading_type)
-
+        self.memory = memory
         self.httpx_client = httpx.AsyncClient()
 
     async def __aenter__(self) -> "BaseLLMClient":
@@ -273,6 +259,8 @@ class BaseLLMClient:
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+        alt_memory: Optional[BaseMemory] = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -295,6 +283,12 @@ class BaseLLMClient:
                 providers. Defaults to `None`.
             timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
                 in which case the request will be allowed to run indefinitely. Defaults to `10`.
+            bypass_memory (bool, optional): Whether to bypass memory when calling the model. If `True`, the
+                model will not read from or write to memory during the call if memory is enabled. Defaults
+                to `False`.
+            alt_memory (BaseMemory, optional): An alternative memory object to use for this call only. This
+                is very useful for asynchronous workflows where you want to keep track of multiple memory
+                streams in parallel without risking race conditions. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -350,6 +344,8 @@ class BaseLLMClient:
             json_mode,
             json_mode_strategy,
             timeout,
+            bypass_memory,
+            alt_memory,
         )
 
     async def call_custom(
@@ -364,6 +360,8 @@ class BaseLLMClient:
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+        alt_memory: Optional[BaseMemory] = None,
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -387,6 +385,12 @@ class BaseLLMClient:
                 providers. Defaults to `None`.
             timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
                 in which case the request will be allowed to run indefinitely. Defaults to `10`.
+            bypass_memory (bool, optional): Whether to bypass memory when calling the model. If `True`, the
+                model will not read from or write to memory during the call if memory is enabled. Defaults
+                to `False`.
+            alt_memory (BaseMemory, optional): An alternative memory object to use for this call only. This
+                is very useful for asynchronous workflows where you want to keep track of multiple memory
+                streams in parallel without risking race conditions. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -423,6 +427,8 @@ class BaseLLMClient:
             json_mode,
             json_mode_strategy,
             timeout,
+            bypass_memory,
+            alt_memory,
         )
 
     async def _call_impl(
@@ -435,8 +441,16 @@ class BaseLLMClient:
         max_tokens: Optional[int],
         json_mode: bool,
         json_mode_strategy: Optional[JsonModeStrategy],
-        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        timeout: Optional[int],
+        bypass_memory: bool,
+        alt_memory: Optional[BaseMemory],
     ) -> str:
+        # Prepare memory
+        memory = alt_memory if alt_memory is not None else self.memory
+        if bypass_memory:
+            memory = None
+
+        # Prepare JSON mode strategy
         if json_mode_strategy is None:
             json_mode_strategy = (
                 JsonModeStrategy.strip()
@@ -444,27 +458,10 @@ class BaseLLMClient:
                 else JsonModeStrategy.prepend()
             )
 
-        param_info = model_info["params"]
-        params = {}
-
-        def add_param(name: ParamName, value: Any) -> None:
-            if value is not None and value > (max_val := param_info[name]["max"]):
-                msg = f"Parameter {name} exceeds max value {max_val}"
-                raise ValueError(msg)
-
-            key = (
-                str(name)
-                if (key := param_info[name].get("custom_key")) is None
-                else key
-            )
-
-            if value is not None:
-                params[key] = value
-            elif (default := param_info[name]["default"]) != PROVIDER_DEFAULT:
-                params[key] = default
-
-        add_param("temperature", temperature)
-        add_param("max_tokens", max_tokens)
+        # Prepare params
+        params: Dict[str, Any] = {}
+        _add_param(params, model_info["params"], "temperature", temperature)
+        _add_param(params, model_info["params"], "max_tokens", max_tokens)
 
         # Handle native JSON mode
         has_native_json_mode = "json_mode_arg" in model_info["extras"]
@@ -474,9 +471,9 @@ class BaseLLMClient:
             params[key] = value
 
         # Update prompts if we're using external memory
-        if isinstance(self.memory, ExternalMemory):
-            system_prompt, prompt = self._get_external_memory_prompts(
-                system_prompt, prompt
+        if isinstance(memory, ExternalMemory):
+            system_prompt, prompt = _get_external_memory_prompts(
+                memory, system_prompt, prompt
             )
 
         # Run the LLM
@@ -487,6 +484,7 @@ class BaseLLMClient:
             system_prompt,
             params,
             timeout,
+            memory,
             json_mode,
             json_mode_strategy,
         )
@@ -496,9 +494,9 @@ class BaseLLMClient:
             result = run_json_strats_out(json_mode_strategy, result)
 
         # Lastly, update chat memory if applicable
-        if isinstance(self.memory, ChatMemory):
-            self.memory.add_user_message(prompt)
-            self.memory.add_agent_message(result)
+        if isinstance(memory, ChatMemory):
+            memory.add_user_message(prompt)
+            memory.add_agent_message(result)
 
         return str(result)
 
@@ -509,13 +507,14 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
-        if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        if isinstance(memory, ChatMemory):
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
         result = await llm_post(
             client=self.httpx_client,
@@ -534,14 +533,15 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
         if system_prompt is not None:
             params["system"] = system_prompt
         messages = []
-        if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        if isinstance(memory, ChatMemory):
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
 
         if json_mode:
@@ -566,15 +566,14 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
         if system_prompt is not None:
             params["preamble"] = system_prompt
-        if isinstance(self.memory, ChatMemory):
-            params["chat_history"] = self.memory.unpack(
-                "role", "message", "USER", "CHATBOT"
-            )
+        if isinstance(memory, ChatMemory):
+            params["chat_history"] = memory.unpack("role", "message", "USER", "CHATBOT")
 
         if json_mode:
             append_msg = get_extra_message(json_mode_strategy)
@@ -599,14 +598,15 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
-        if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        if isinstance(memory, ChatMemory):
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
 
         if json_mode:
@@ -631,6 +631,7 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         *_: Any,  # json_mode and json_mode_strategy are not used here
     ) -> str:
         data: Dict[str, Any] = {}
@@ -643,8 +644,8 @@ class BaseLLMClient:
                 data["system_instruction"] = {"parts": {"text": system_prompt}}
 
         messages: List[Dict[str, Any]] = []
-        if isinstance(self.memory, ChatMemory):
-            mem_items = self.memory.unpack("role", "parts", "user", "model")
+        if isinstance(memory, ChatMemory):
+            mem_items = memory.unpack("role", "parts", "user", "model")
             # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
             messages.extend([{**m, "parts": {"text": m["parts"]}} for m in mem_items])
 
@@ -676,10 +677,11 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        if isinstance(self.memory, ChatMemory):
+        if isinstance(memory, ChatMemory):
             raise LLMOperationError(
                 "Chat memory is not supported with Replicate."
                 + " Try using Groq, or using ExternalMemory instead."
@@ -710,10 +712,11 @@ class BaseLLMClient:
         system_prompt: Optional[str],
         params: Dict[str, Any],
         timeout: Optional[int],
+        memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        if isinstance(self.memory, ChatMemory) and model_id == "mixtral-8x22b-instruct":
+        if isinstance(memory, ChatMemory) and model_id == "mixtral-8x22b-instruct":
             raise LLMOperationError(
                 "Chat memory is not supported with mixtral-8x22b via OctoAI. Try using"
                 + " ExternalMemory instead, or ChatMemory with a different model/provider."
@@ -722,8 +725,8 @@ class BaseLLMClient:
         messages = []
         if system_prompt is not None:
             messages.append({"role": "system", "content": system_prompt})
-        if isinstance(self.memory, ChatMemory):
-            messages.extend(self.memory.unpack("role", "content", "user", "assistant"))
+        if isinstance(memory, ChatMemory):
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
 
         if json_mode:
@@ -741,19 +744,36 @@ class BaseLLMClient:
         )
         return str(result["choices"][0]["message"]["content"])
 
-    def _get_external_memory_prompts(
-        self, system_prompt: Optional[str], prompt: str
-    ) -> Tuple[Optional[str], str]:
-        assert isinstance(self.memory, ExternalMemory)
 
-        if self.memory.loading_type == ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND:
-            contents = self.memory.get_contents()
-            if system_prompt is not None:
-                system_prompt += "\n" + contents
-            else:
-                system_prompt = contents
+def _get_external_memory_prompts(
+    memory: ExternalMemory, system_prompt: Optional[str], prompt: str
+) -> Tuple[Optional[str], str]:
+    if memory.loading_type == ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND:
+        contents = memory.get_contents()
+        if system_prompt is not None:
+            system_prompt += "\n" + contents
+        else:
+            system_prompt = contents
 
-        elif self.memory.loading_type == ExternalMemoryLoadingType.USER_PROMPT_APPEND:
-            prompt += "\n" + self.memory.get_contents()
+    elif memory.loading_type == ExternalMemoryLoadingType.USER_PROMPT_APPEND:
+        prompt += "\n" + memory.get_contents()
 
-        return system_prompt, prompt
+    return system_prompt, prompt
+
+
+def _add_param(
+    params: Dict[str, Any],
+    param_info: ModelParams,
+    name: ParamName,
+    value: Any,
+) -> None:
+    if value is not None and value > (max_val := param_info[name]["max"]):
+        msg = f"Parameter {name} exceeds max value {max_val}"
+        raise ValueError(msg)
+
+    key = str(name) if (key := param_info[name].get("custom_key")) is None else key
+
+    if value is not None:
+        params[key] = value
+    elif (default := param_info[name]["default"]) != PROVIDER_DEFAULT:
+        params[key] = default

@@ -2,7 +2,7 @@ from collections import deque
 from typing import Deque, Iterator, List, Dict
 from enum import Enum
 
-from l2m2.memory.base_memory import BaseMemory, MemoryType
+from l2m2.memory.base_memory import BaseMemory
 
 CHAT_MEMORY_DEFAULT_WINDOW_SIZE = 40
 
@@ -35,7 +35,7 @@ class ChatMemory(BaseMemory):
         Raises:
             ValueError: If `window_size` is less than or equal to 0.
         """
-        super().__init__(MemoryType.CHAT)
+        super().__init__()
 
         if not window_size > 0:
             raise ValueError("window_size must be a positive integer.")
