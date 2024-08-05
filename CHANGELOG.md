@@ -1,18 +1,25 @@
 # Changelog
 
-_Current version: 0.0.28_
+_Current version: 0.0.29_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
-### 0.0.29 - IN PROGRESS
+### 0.0.29 - August 4, 2024
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+#### Added
+
+- `alt_memory` and `bypass_memory` have been added as parameters to `call` and `call_custom` in `LLMClient` and `AsyncLLMClient`. These parameters allow you to specify alternative memory streams to use for the call, or to bypass memory entirely.
 
 #### Changed
 
-- LLM client is now instantiated with a memory object rather than `MemoryType`.
+- Previously, the `LLMClient` and `AsyncLLMClient` constructors took `memory_type`, `memory_window_size`, and `memory_loading_type` as arguments. Now, it just takes `memory` as an argument, while `window_size` and `loading_type` can be set on the memory object itself. These changes make the memory API far more consistent and easy to use, especially with the additions of `alt_memory` and `bypass_memory`.
 
 #### Removed
 
-- `MemoryType` enum has been removed.
+- The `MemoryType` enum has been removed. **This is a breaking change!!!** Instances of `client = LLMClient(memory_type=MemoryType.CHAT)` should be replaced with `client = LLMClient(memory=ChatMemory())`, and so on.
 
 ### 0.0.28 - August 3, 2024
 

@@ -15,7 +15,7 @@ LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
 GET_EXTRA_MESSAGE_PATH = "l2m2.client.base_llm_client.get_extra_message"
 CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
 
-# All of the model/provider pairs which don't support ChatMemory
+# Model/provider pairs which don't support ChatMemory
 CHAT_MEMORY_UNSUPPORTED_MODELS = {
     "octoai": "mixtral-8x22b",
     "replicate": "llama3-8b",  # Applies to all models via Replicate
@@ -579,6 +579,79 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
         {"role": "system", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client_mem_chat.add_provider("openai", "fake-api-key")
+    llm_client_mem_chat.get_memory().add_user_message("A")
+    llm_client_mem_chat.get_memory().add_agent_message("B")
+
+    await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o", bypass_memory=True)
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+        {"role": "user", "content": "Hello"},
+    ]
+    assert llm_client_mem_chat.get_memory().unpack(
+        "role", "content", "user", "assistant"
+    ) == [
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "B"},
+    ]
+
+    await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o")
+    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "B"},
+        {"role": "user", "content": "Hello"},
+    ]
+    assert llm_client_mem_chat.get_memory().unpack(
+        "role", "content", "user", "assistant"
+    ) == [
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "B"},
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "response"},
+    ]
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_alt_memory(mock_call_openai, llm_client):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("openai", "fake-api-key")
+
+    m1 = ChatMemory()
+    m2 = ChatMemory()
+    llm_client.load_memory(ChatMemory())
+
+    await llm_client.call(prompt="A", model="gpt-4-turbo", alt_memory=m1)
+    await llm_client.call(prompt="X", model="gpt-4-turbo", alt_memory=m2)
+    await llm_client.call(prompt="B", model="gpt-4-turbo", alt_memory=m1)
+    await llm_client.call(prompt="Y", model="gpt-4-turbo", alt_memory=m2)
+    await llm_client.call(prompt="C", model="gpt-4-turbo", alt_memory=m1)
+    await llm_client.call(prompt="Z", model="gpt-4-turbo", alt_memory=m2)
+
+    assert m1.unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "response"},
+        {"role": "user", "content": "B"},
+        {"role": "assistant", "content": "response"},
+        {"role": "user", "content": "C"},
+        {"role": "assistant", "content": "response"},
+    ]
+
+    assert m2.unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "X"},
+        {"role": "assistant", "content": "response"},
+        {"role": "user", "content": "Y"},
+        {"role": "assistant", "content": "response"},
+        {"role": "user", "content": "Z"},
+        {"role": "assistant", "content": "response"},
+    ]
+
+    assert llm_client.get_memory().unpack("role", "content", "user", "assistant") == []
 
 
 # -- Test for non-native JSON mode default strategy (strip for all but Anthropic) -- #

@@ -36,6 +36,8 @@ class LLMClient(BaseLLMClient):
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+        alt_memory: Optional[BaseMemory] = None,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -49,6 +51,8 @@ class LLMClient(BaseLLMClient):
                 json_mode=json_mode,
                 json_mode_strategy=json_mode_strategy,
                 timeout=timeout,
+                bypass_memory=bypass_memory,
+                alt_memory=alt_memory,
             )
         )
         return str(result)
@@ -65,6 +69,8 @@ class LLMClient(BaseLLMClient):
         json_mode: bool = False,
         json_mode_strategy: Optional[JsonModeStrategy] = None,
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+        alt_memory: Optional[BaseMemory] = None,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -78,6 +84,8 @@ class LLMClient(BaseLLMClient):
                 json_mode=json_mode,
                 json_mode_strategy=json_mode_strategy,
                 timeout=timeout,
+                bypass_memory=bypass_memory,
+                alt_memory=alt_memory,
             )
         )
         return str(result)
