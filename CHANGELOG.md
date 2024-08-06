@@ -1,8 +1,16 @@
 # Changelog
 
-_Current version: 0.0.29_
+_Current version: 0.0.30_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.30 - August 5, 2024
+
+#### Added
+
+- [Mistral](https://mistral.ai/) provider support via La Plateforme.
+- [Mistral Large 2](https://mistral.ai/news/mistral-large-2407/) model availibility from Mistral.
+- Mistral 7B, Mixtral 8x7B, and Mixtral 8x22B model availibility from Mistral in addition to existing providers.
 
 ### 0.0.29 - August 4, 2024
 
