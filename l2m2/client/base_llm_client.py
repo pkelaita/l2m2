@@ -488,6 +488,7 @@ class BaseLLMClient:
             memory,
             json_mode,
             json_mode_strategy,
+            model_info["extras"],
         )
 
         # Handle JSON mode strategies for the output (but only if we don't have native support)
@@ -503,29 +504,9 @@ class BaseLLMClient:
 
     async def _call_openai(
         self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        *_: Any,  # json_mode and json_mode_strategy are not used here
+        *args: Any,
     ) -> str:
-        messages = []
-        if system_prompt is not None:
-            messages.append({"role": "system", "content": system_prompt})
-        if isinstance(memory, ChatMemory):
-            messages.extend(memory.unpack("role", "content", "user", "assistant"))
-        messages.append({"role": "user", "content": prompt})
-        result = await llm_post(
-            client=self.httpx_client,
-            provider="openai",
-            model_id=model_id,
-            api_key=self.api_keys["openai"],
-            data={"model": model_id, "messages": messages, **params},
-            timeout=timeout,
-        )
-        return str(result["choices"][0]["message"]["content"])
+        return await self._generic_openai_spec_call("openai", *args)
 
     async def _call_google(
         self,
@@ -535,7 +516,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
-        *_: Any,  # json_mode and json_mode_strategy are not used here
+        *_: Any,  # json_mode and json_mode_strategy, and extras are not used here
     ) -> str:
         data: Dict[str, Any] = {}
 
@@ -583,6 +564,7 @@ class BaseLLMClient:
         memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
+        _: Dict[str, Any],  # extras is not used here
     ) -> str:
         if system_prompt is not None:
             params["system"] = system_prompt
@@ -616,6 +598,7 @@ class BaseLLMClient:
         memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
+        _: Dict[str, Any],  # extras is not used here
     ) -> str:
         if system_prompt is not None:
             params["preamble"] = system_prompt
@@ -640,69 +623,15 @@ class BaseLLMClient:
 
     async def _call_groq(
         self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
+        *args: Any,
     ) -> str:
-        messages = []
-        if system_prompt is not None:
-            messages.append({"role": "system", "content": system_prompt})
-        if isinstance(memory, ChatMemory):
-            messages.extend(memory.unpack("role", "content", "user", "assistant"))
-        messages.append({"role": "user", "content": prompt})
-
-        if json_mode:
-            append_msg = get_extra_message(json_mode_strategy)
-            if append_msg:
-                messages.append({"role": "assistant", "content": append_msg})
-
-        result = await llm_post(
-            client=self.httpx_client,
-            provider="groq",
-            model_id=model_id,
-            api_key=self.api_keys["groq"],
-            data={"model": model_id, "messages": messages, **params},
-            timeout=timeout,
-        )
-        return str(result["choices"][0]["message"]["content"])
+        return await self._generic_openai_spec_call("groq", *args)
 
     async def _call_mistral(
         self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
+        *args: Any,
     ) -> str:
-        messages = []
-        if system_prompt is not None:
-            messages.append({"role": "system", "content": system_prompt})
-        if isinstance(memory, ChatMemory):
-            messages.extend(memory.unpack("role", "content", "user", "assistant"))
-        messages.append({"role": "user", "content": prompt})
-
-        if json_mode:
-            append_msg = get_extra_message(json_mode_strategy)
-            if append_msg:
-                messages.append({"role": "assistant", "content": append_msg})
-
-        result = await llm_post(
-            client=self.httpx_client,
-            provider="mistral",
-            model_id=model_id,
-            api_key=self.api_keys["mistral"],
-            data={"model": model_id, "messages": messages, **params},
-            timeout=timeout,
-        )
-        return str(result["choices"][0]["message"]["content"])
+        return await self._generic_openai_spec_call("mistral", *args)
 
     async def _call_replicate(
         self,
@@ -714,6 +643,7 @@ class BaseLLMClient:
         memory: Optional[BaseMemory],
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
+        __: Dict[str, Any],  # extras is not used here
     ) -> str:
         if isinstance(memory, ChatMemory):
             raise LLMOperationError(
@@ -749,12 +679,42 @@ class BaseLLMClient:
         memory: Optional[BaseMemory],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
+        _: Dict[str, Any],  # TODO refactor
     ) -> str:
         if isinstance(memory, ChatMemory) and model_id == "mixtral-8x22b-instruct":
             raise LLMOperationError(
                 "Chat memory is not supported with mixtral-8x22b via OctoAI. Try using"
                 + " ExternalMemory instead, or ChatMemory with a different model/provider."
             )
+
+        return await self._generic_openai_spec_call(
+            "octoai",
+            model_id,
+            prompt,
+            system_prompt,
+            params,
+            timeout,
+            memory,
+            json_mode,
+            json_mode_strategy,
+            {},
+        )
+
+    async def _generic_openai_spec_call(
+        self,
+        provider: str,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+        timeout: Optional[int],
+        memory: Optional[BaseMemory],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
+        extras: Dict[str, Any],
+    ) -> str:
+        """Generic call method for providers who follow the OpenAI API spec."""
+        supports_native_json_mode = "json_mode_arg" in extras
 
         messages = []
         if system_prompt is not None:
@@ -763,16 +723,16 @@ class BaseLLMClient:
             messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
 
-        if json_mode:
+        if json_mode and not supports_native_json_mode:
             append_msg = get_extra_message(json_mode_strategy)
             if append_msg:
                 messages.append({"role": "assistant", "content": append_msg})
 
         result = await llm_post(
             client=self.httpx_client,
-            provider="octoai",
+            provider=provider,
             model_id=model_id,
-            api_key=self.api_keys["octoai"],
+            api_key=self.api_keys[provider],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
         )
