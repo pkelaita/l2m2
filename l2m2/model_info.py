@@ -319,7 +319,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "mixtral-large-2": {
+    "mistral-large-2": {
         "mistral": {
             "model_id": "mistral-large-latest",
             "params": {
