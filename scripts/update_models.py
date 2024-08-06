@@ -36,7 +36,7 @@ for model_name in MODEL_INFO:
     for provider in MODEL_INFO[model_name]:
         extras = MODEL_INFO[model_name][provider].get("extras", {})
         if extras.get("json_mode_arg", None) is not None:
-            json_native += f"\n- `{model_name}` ({provider.capitalize()})"
+            json_native += f"\n- `{model_name}` (via {provider.capitalize()})"
 json_native += "\n\n"
 
 readme_path = "../README.md"

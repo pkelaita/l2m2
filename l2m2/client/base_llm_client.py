@@ -36,6 +36,7 @@ DEFAULT_PROVIDER_ENVS = {
     "groq": "GROQ_API_KEY",
     "replicate": "REPLICATE_API_TOKEN",
     "octoai": "OCTOAI_TOKEN",
+    "mistral": "MISTRAL_API_KEY",
 }
 
 
@@ -526,6 +527,52 @@ class BaseLLMClient:
         )
         return str(result["choices"][0]["message"]["content"])
 
+    async def _call_google(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+        timeout: Optional[int],
+        memory: Optional[BaseMemory],
+        *_: Any,  # json_mode and json_mode_strategy are not used here
+    ) -> str:
+        data: Dict[str, Any] = {}
+
+        if system_prompt is not None:
+            # Earlier models don't support system prompts, so prepend it to the prompt
+            if model_id not in ["gemini-1.5-pro"]:
+                prompt = f"{system_prompt}\n{prompt}"
+            else:
+                data["system_instruction"] = {"parts": {"text": system_prompt}}
+
+        messages: List[Dict[str, Any]] = []
+        if isinstance(memory, ChatMemory):
+            mem_items = memory.unpack("role", "parts", "user", "model")
+            # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
+            messages.extend([{**m, "parts": {"text": m["parts"]}} for m in mem_items])
+
+        messages.append({"role": "user", "parts": {"text": prompt}})
+
+        data["contents"] = messages
+        data["generation_config"] = params
+
+        result = await llm_post(
+            client=self.httpx_client,
+            provider="google",
+            model_id=model_id,
+            api_key=self.api_keys["google"],
+            data=data,
+            timeout=timeout,
+        )
+        result = result["candidates"][0]
+
+        # Will sometimes fail due to safety filters
+        if "content" in result:
+            return str(result["content"]["parts"][0]["text"])
+        else:
+            return str(result)
+
     async def _call_anthropic(
         self,
         model_id: str,
@@ -624,7 +671,7 @@ class BaseLLMClient:
         )
         return str(result["choices"][0]["message"]["content"])
 
-    async def _call_google(
+    async def _call_mistral(
         self,
         model_id: str,
         prompt: str,
@@ -632,43 +679,30 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
-        *_: Any,  # json_mode and json_mode_strategy are not used here
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
     ) -> str:
-        data: Dict[str, Any] = {}
-
+        messages = []
         if system_prompt is not None:
-            # Earlier models don't support system prompts, so prepend it to the prompt
-            if model_id not in ["gemini-1.5-pro"]:
-                prompt = f"{system_prompt}\n{prompt}"
-            else:
-                data["system_instruction"] = {"parts": {"text": system_prompt}}
-
-        messages: List[Dict[str, Any]] = []
+            messages.append({"role": "system", "content": system_prompt})
         if isinstance(memory, ChatMemory):
-            mem_items = memory.unpack("role", "parts", "user", "model")
-            # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
-            messages.extend([{**m, "parts": {"text": m["parts"]}} for m in mem_items])
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
+        messages.append({"role": "user", "content": prompt})
 
-        messages.append({"role": "user", "parts": {"text": prompt}})
-
-        data["contents"] = messages
-        data["generation_config"] = params
+        if json_mode:
+            append_msg = get_extra_message(json_mode_strategy)
+            if append_msg:
+                messages.append({"role": "assistant", "content": append_msg})
 
         result = await llm_post(
             client=self.httpx_client,
-            provider="google",
+            provider="mistral",
             model_id=model_id,
-            api_key=self.api_keys["google"],
-            data=data,
+            api_key=self.api_keys["mistral"],
+            data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
         )
-        result = result["candidates"][0]
-
-        # Will sometimes fail due to safety filters
-        if "content" in result:
-            return str(result["content"]["parts"][0]["text"])
-        else:
-            return str(result)
+        return str(result["choices"][0]["message"]["content"])
 
     async def _call_replicate(
         self,

@@ -84,6 +84,15 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
             "Authorization": f"Bearer {API_KEY}",
         },
     },
+    "mistral": {
+        "name": "Mistral",
+        "homepage": "https://mistral.ai/",
+        "endpoint": "https://api.mistral.ai/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
+    },
     "groq": {
         "name": "Groq",
         "homepage": "https://wow.groq.com/",
@@ -310,9 +319,39 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "mistral-7b": {
+    "mixtral-large-2": {
+        "mistral": {
+            "model_id": "mistral-large-latest",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "mixtral-8x22b": {
+        "mistral": {
+            "model_id": "open-mixtral-8x22b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
         "octoai": {
-            "model_id": "mistral-7b-instruct",
+            "model_id": "mixtral-8x22b-instruct",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -327,19 +366,19 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
         },
     },
     "mixtral-8x7b": {
-        "groq": {
-            "model_id": "mixtral-8x7b-32768",
+        "mistral": {
+            "model_id": "open-mixtral-8x7b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
+                    "max": 1.0,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": INF,
                 },
             },
-            "extras": {},
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
         "octoai": {
             "model_id": "mixtral-8x7b-instruct",
@@ -355,10 +394,38 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
+        "groq": {
+            "model_id": "mixtral-8x7b-32768",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
     },
-    "mixtral-8x22b": {
+    "mistral-7b": {
+        "mistral": {
+            "model_id": "open-mistral-7b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
         "octoai": {
-            "model_id": "mixtral-8x22b-instruct",
+            "model_id": "mistral-7b-instruct",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
