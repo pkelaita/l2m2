@@ -125,7 +125,7 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     "gpt-4o": {
         "openai": {
-            "model_id": "gpt-4o-2024-05-13",
+            "model_id": "gpt-4o-2024-08-06",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,

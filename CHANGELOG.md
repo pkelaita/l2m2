@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.32_
+_Current version: 0.0.33_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.33 - September 11, 2024
+
+#### Changed
+
+- Updated gpt-4o version from `gpt-4o-2024-05-13` to `gpt-4o-2024-08-06`.
 
 ### 0.0.32 - August 5, 2024
 
