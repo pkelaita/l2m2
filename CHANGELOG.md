@@ -1,8 +1,32 @@
 # Changelog
 
-_Current version: 0.0.33_
+_Current version: 0.0.34_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.34 - September 30, 2024
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+#### Added
+
+- New supported models `gemma-2-9b`, `llama-3.2-1b`, and `llama-3.2-3b` via Groq.
+
+#### Changed
+
+- In order to be more consistent with l2m2's naming scheme, the following model ids have been updated:
+  - `llama3-8b` → `llama-3-8b`
+  - `llama3-70b` → `llama-3-70b`
+  - `llama3.1-8b` → `llama-3.1-8b`
+  - `llama3.1-70b` → `llama-3.1-70b`
+  - `llama3.1-405b` → `llama-3.1-405b`
+- **This is a breaking change!!!** Calls using the old `model_id`s (`llama3-8b`, etc.) will fail.
+
+#### Removed
+
+- Provider `octoai` has been removed as they have [been acquired](https://www.geekwire.com/2024/chip-giant-nvidia-acquires-octoai-a-seattle-startup-that-helps-companies-run-ai-models/) and are shutting down their cloud platform. **This is a breaking change!!!** Calls using the `octoai` provider will fail.
+  - All previous OctoAI supported models (`mixtral-8x22b`, `mixtral-8x7b`, `mistral-7b`, `llama-3-70b`, `llama-3.1-8b`, `llama-3.1-70b`, and `llama-3.1-405b`) are still available via Mistral, Groq, and/or Replicate.
 
 ### 0.0.33 - September 11, 2024
 
