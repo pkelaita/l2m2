@@ -111,15 +111,6 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
             "Content-Type": "application/json",
         },
     },
-    "octoai": {
-        "name": "OctoAI",
-        "homepage": "https://octoai.cloud/",
-        "endpoint": "https://text.octoai.run/v1/chat/completions",
-        "headers": {
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json",
-        },
-    },
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
@@ -350,20 +341,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
-        "octoai": {
-            "model_id": "mixtral-8x22b-instruct",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {},
-        },
     },
     "mixtral-8x7b": {
         "mistral": {
@@ -379,20 +356,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-        "octoai": {
-            "model_id": "mixtral-8x7b-instruct",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {},
         },
         "groq": {
             "model_id": "mixtral-8x7b-32768",
@@ -424,20 +387,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
-        "octoai": {
-            "model_id": "mistral-7b-instruct",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {},
-        },
     },
     "gemma-7b": {
         "groq": {
@@ -455,7 +404,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3-8b": {
+    "gemma-2-9b": {
+        "groq": {
+            "model_id": "gemma2-9b-it",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "llama-3-8b": {
         "groq": {
             "model_id": "llama3-8b-8192",
             "params": {
@@ -486,7 +451,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3-70b": {
+    "llama-3-70b": {
         "groq": {
             "model_id": "llama3-70b-8192",
             "params": {
@@ -516,8 +481,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
-        "octoai": {
-            "model_id": "meta-llama-3-70b-instruct",
+    },
+    "llama-3.1-8b": {
+        "groq": {
+            "model_id": "llama-3.1-8b-instant",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -525,15 +492,15 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 8000,
                 },
             },
             "extras": {},
         },
     },
-    "llama3.1-8b": {
-        "octoai": {
-            "model_id": "meta-llama-3.1-8b-instruct",
+    "llama-3.1-70b": {
+        "groq": {
+            "model_id": "llama-3.1-70b-versatile",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -541,29 +508,13 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 8000,
                 },
             },
             "extras": {},
         },
     },
-    "llama3.1-70b": {
-        "octoai": {
-            "model_id": "meta-llama-3.1-70b-instruct",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {},
-        },
-    },
-    "llama3.1-405b": {
+    "llama-3.1-405b": {
         "replicate": {
             "model_id": "meta/meta-llama-3.1-405b-instruct",
             "params": {
@@ -579,8 +530,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
-        "octoai": {
-            "model_id": "meta-llama-3.1-405b-instruct",
+    },
+    "llama-3.2-1b": {
+        "groq": {
+            "model_id": "llama-3.2-1b-preview",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -588,10 +541,26 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**13,
                 },
             },
-            "extras": {},
+            "extras": {"preview": True},
+        },
+    },
+    "llama-3.2-3b": {
+        "groq": {
+            "model_id": "llama-3.2-3b-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {"preview": True},
         },
     },
 }

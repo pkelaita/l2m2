@@ -22,7 +22,7 @@ class ChatMemoryEntry:
 class ChatMemory(BaseMemory):
     """Represents a sliding-window conversation memory between a user and an agent. `ChatMemory` is
     the most basic type of memory and is designed to be passed directly to chat-based models such
-    as `llama3-70b-instruct`.
+    as `llama-3-70b-instruct`.
     """
 
     def __init__(self, window_size: int = CHAT_MEMORY_DEFAULT_WINDOW_SIZE) -> None:
