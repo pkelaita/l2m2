@@ -455,9 +455,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3-8b": {
+    "llama-3-8b": {
         "groq": {
-            "model_id": "llama3-8b-8192",
+            "model_id": "llama-3-8b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -486,9 +486,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3-70b": {
+    "llama-3-70b": {
         "groq": {
-            "model_id": "llama3-70b-8192",
+            "model_id": "llama-3-70b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -531,7 +531,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3.1-8b": {
+    "llama-3.1-8b": {
         "octoai": {
             "model_id": "meta-llama-3.1-8b-instruct",
             "params": {
@@ -547,7 +547,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3.1-70b": {
+    "llama-3.1-70b": {
         "octoai": {
             "model_id": "meta-llama-3.1-70b-instruct",
             "params": {
@@ -563,7 +563,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama3.1-405b": {
+    "llama-3.1-405b": {
         "replicate": {
             "model_id": "meta/meta-llama-3.1-405b-instruct",
             "params": {

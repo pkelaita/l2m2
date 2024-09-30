@@ -186,14 +186,14 @@ class BaseLLMClient:
                 For example::
 
                     {
-                        "llama3-8b": "groq",
-                        "llama3-70b": "replicate",
+                        "llama-3-8b": "groq",
+                        "llama-3-70b": "replicate",
                     }
 
                 If you'd like to remove a preferred provider, set it to `None`, e.g.::
 
                     {
-                        "llama3-8b": None,
+                        "llama-3-8b": None,
                     }
 
         Raises:

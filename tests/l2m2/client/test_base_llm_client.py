@@ -18,7 +18,7 @@ CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
 # Model/provider pairs which don't support ChatMemory
 CHAT_MEMORY_UNSUPPORTED_MODELS = {
     "octoai": "mixtral-8x22b",
-    "replicate": "llama3-8b",  # Applies to all models via Replicate
+    "replicate": "llama-3-8b",  # Applies to all models via Replicate
 }
 
 
@@ -173,10 +173,10 @@ def test_remove_provider(llm_client):
 def test_remove_provider_overlapping_model(llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
-    assert "llama3-8b" in llm_client.active_models
+    assert "llama-3-8b" in llm_client.active_models
 
     llm_client.remove_provider("groq")
-    assert "llama3-8b" in llm_client.active_models
+    assert "llama-3-8b" in llm_client.active_models
 
 
 def test_remove_provider_not_active(llm_client):
@@ -185,32 +185,34 @@ def test_remove_provider_not_active(llm_client):
 
 
 def test_set_preferred_provider(llm_client):
-    llm_client.set_preferred_providers({"llama3-8b": "groq", "llama3-70b": "replicate"})
+    llm_client.set_preferred_providers(
+        {"llama-3-8b": "groq", "llama-3-70b": "replicate"}
+    )
     assert llm_client.preferred_providers == {
-        "llama3-8b": "groq",
-        "llama3-70b": "replicate",
+        "llama-3-8b": "groq",
+        "llama-3-70b": "replicate",
     }
-    llm_client.set_preferred_providers({"llama3-8b": "replicate"})
+    llm_client.set_preferred_providers({"llama-3-8b": "replicate"})
     assert llm_client.preferred_providers == {
-        "llama3-8b": "replicate",
-        "llama3-70b": "replicate",
+        "llama-3-8b": "replicate",
+        "llama-3-70b": "replicate",
     }
-    llm_client.set_preferred_providers({"llama3-8b": None})
+    llm_client.set_preferred_providers({"llama-3-8b": None})
     assert llm_client.preferred_providers == {
-        "llama3-70b": "replicate",
-        "llama3-8b": None,
+        "llama-3-70b": "replicate",
+        "llama-3-8b": None,
     }
 
 
 def test_set_preferred_provider_invalid(llm_client):
     with pytest.raises(ValueError):  # Invalid provider
-        llm_client.set_preferred_providers({"llama3-8b": "invalid_provider"})
+        llm_client.set_preferred_providers({"llama-3-8b": "invalid_provider"})
 
     with pytest.raises(ValueError):  # Invalid model
         llm_client.set_preferred_providers({"invalid_model": "groq"})
 
     with pytest.raises(ValueError):  # Mismatched model and provider
-        llm_client.set_preferred_providers({"llama3-70b": "openai"})
+        llm_client.set_preferred_providers({"llama-3-70b": "openai"})
 
 
 # -- Tests for call -- #
@@ -313,7 +315,7 @@ async def test_call_groq(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "groq", "llama3-70b")
+    await _generic_test_call(llm_client, "groq", "llama-3-70b")
 
 
 @pytest.mark.asyncio
@@ -323,7 +325,7 @@ async def test_call_replicate(mock_get_extra_message, mock_llm_post, llm_client)
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"output": ["response"]}
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "replicate", "llama3-8b")
+    await _generic_test_call(llm_client, "replicate", "llama-3-8b")
 
 
 @pytest.mark.asyncio
@@ -333,7 +335,7 @@ async def test_call_octoai(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "octoai", "llama3.1-405b")
+    await _generic_test_call(llm_client, "octoai", "llama-3.1-405b")
 
 
 @pytest.mark.asyncio
@@ -433,7 +435,7 @@ async def test_multi_provider(mock_call_replicate, mock_call_groq, llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
 
-    kwargs = {"prompt": "Hello", "model": "llama3-70b"}
+    kwargs = {"prompt": "Hello", "model": "llama-3-70b"}
     response_groq = await llm_client.call(**kwargs, prefer_provider="groq")
     response_replicate = await llm_client.call(**kwargs, prefer_provider="replicate")
     assert response_groq == "hello from groq"
@@ -451,11 +453,11 @@ async def test_multi_provider_with_defaults(
 
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
-    llm_client.set_preferred_providers({"llama3-8b": "groq"})
-    llm_client.set_preferred_providers({"llama3-70b": "replicate"})
+    llm_client.set_preferred_providers({"llama-3-8b": "groq"})
+    llm_client.set_preferred_providers({"llama-3-70b": "replicate"})
 
-    response_groq = await llm_client.call(prompt="Hello", model="llama3-8b")
-    response_replicate = await llm_client.call(prompt="Hello", model="llama3-70b")
+    response_groq = await llm_client.call(prompt="Hello", model="llama-3-8b")
+    response_replicate = await llm_client.call(prompt="Hello", model="llama-3-70b")
     assert response_groq == "hello from groq"
     assert response_replicate == "hello from replicate"
 
@@ -465,7 +467,7 @@ async def test_multi_provider_with_defaults(
 async def test_multi_provider_one_active(mock_call_groq, llm_client):
     mock_call_groq.return_value = "hello from groq"
     llm_client.add_provider("groq", "test-key-groq")
-    response = await llm_client.call(prompt="Hello", model="llama3-8b")
+    response = await llm_client.call(prompt="Hello", model="llama-3-8b")
     assert response == "hello from groq"
 
 
@@ -479,7 +481,7 @@ async def test_multi_provider_pref_missing(_, llm_client):
     await llm_client.call(prompt="Hello", model="mixtral-8x7b")
 
     with pytest.raises(ValueError):
-        await llm_client.call(prompt="Hello", model="llama3-70b")
+        await llm_client.call(prompt="Hello", model="llama-3-70b")
 
 
 @pytest.mark.asyncio
@@ -488,7 +490,7 @@ async def test_multi_provider_pref_inactive(llm_client):
     llm_client.add_provider("replicate", "test-key-replicate")
     with pytest.raises(ValueError):
         await llm_client.call(
-            prompt="Hello", model="llama3-70b", prefer_provider="openai"
+            prompt="Hello", model="llama-3-70b", prefer_provider="openai"
         )
 
 
@@ -686,7 +688,7 @@ async def test_json_mode_default_strategy_strip(mock_call, llm_client):
     llm_client.add_provider("groq", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
-        model="llama3-70b",
+        model="llama-3-70b",
         json_mode=True,
     )
     assert response == "{response}"
@@ -789,7 +791,7 @@ async def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
     llm_client.add_provider("groq", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
-        model="llama3-70b",
+        model="llama-3-70b",
         json_mode=True,
         json_mode_strategy=JsonModeStrategy.prepend(),
     )
@@ -807,7 +809,7 @@ async def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
     with pytest.raises(LLMOperationError):
         await llm_client.call(
             prompt="Hello",
-            model="llama3-8b",
+            model="llama-3-8b",
             json_mode=True,
             json_mode_strategy=JsonModeStrategy.prepend(),
         )
