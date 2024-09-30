@@ -17,7 +17,6 @@ CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
 
 # Model/provider pairs which don't support ChatMemory
 CHAT_MEMORY_UNSUPPORTED_MODELS = {
-    "octoai": "mixtral-8x22b",
     "replicate": "llama-3-8b",  # Applies to all models via Replicate
 }
 
@@ -326,16 +325,6 @@ async def test_call_replicate(mock_get_extra_message, mock_llm_post, llm_client)
     mock_return_value = {"output": ["response"]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "replicate", "llama-3-8b")
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-@patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_octoai(mock_get_extra_message, mock_llm_post, llm_client):
-    mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
-    mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "octoai", "llama-3.1-405b")
 
 
 @pytest.mark.asyncio

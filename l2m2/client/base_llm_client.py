@@ -35,7 +35,6 @@ DEFAULT_PROVIDER_ENVS = {
     "google": "GOOGLE_API_KEY",
     "groq": "GROQ_API_KEY",
     "replicate": "REPLICATE_API_TOKEN",
-    "octoai": "OCTOAI_TOKEN",
     "mistral": "MISTRAL_API_KEY",
 }
 
@@ -668,37 +667,6 @@ class BaseLLMClient:
             timeout=timeout,
         )
         return "".join(result["output"])
-
-    async def _call_octoai(
-        self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
-        _: Dict[str, Any],  # TODO refactor
-    ) -> str:
-        if isinstance(memory, ChatMemory) and model_id == "mixtral-8x22b-instruct":
-            raise LLMOperationError(
-                "Chat memory is not supported with mixtral-8x22b via OctoAI. Try using"
-                + " ExternalMemory instead, or ChatMemory with a different model/provider."
-            )
-
-        return await self._generic_openai_spec_call(
-            "octoai",
-            model_id,
-            prompt,
-            system_prompt,
-            params,
-            timeout,
-            memory,
-            json_mode,
-            json_mode_strategy,
-            {},
-        )
 
     async def _generic_openai_spec_call(
         self,
