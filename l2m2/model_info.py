@@ -455,9 +455,25 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "gemma-2-9b": {
+        "groq": {
+            "model_id": "gemma2-9b-it",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+    },
     "llama-3-8b": {
         "groq": {
-            "model_id": "llama-3-8b-8192",
+            "model_id": "llama3-8b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -488,7 +504,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "llama-3-70b": {
         "groq": {
-            "model_id": "llama-3-70b-8192",
+            "model_id": "llama3-70b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -546,6 +562,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
+        "groq": {
+            "model_id": "llama-3.1-8b-instant",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 8000,
+                },
+            },
+            "extras": {},
+        },
     },
     "llama-3.1-70b": {
         "octoai": {
@@ -558,6 +588,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": INF,
+                },
+            },
+            "extras": {},
+        },
+        "groq": {
+            "model_id": "llama-3.1-70b-versatile",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 8000,
                 },
             },
             "extras": {},
@@ -592,6 +636,38 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
+        },
+    },
+    "llama-3.2-1b": {
+        "groq": {
+            "model_id": "llama-3.2-1b-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {"preview": True},
+        },
+    },
+    "llama-3.2-3b": {
+        "groq": {
+            "model_id": "llama-3.2-3b-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {"preview": True},
         },
     },
 }
