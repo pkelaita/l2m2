@@ -216,7 +216,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "claude-3.5-sonnet": {
         "anthropic": {
-            "model_id": "claude-3-5-sonnet-20240620",
+            "model_id": "claude-3-5-sonnet-latest",
             "params": {
                 "temperature": {
                     "default": 0.0,
