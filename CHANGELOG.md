@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.35_
+_Current version: 0.0.36_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.36 - November 21, 2024
+
+#### Changed
+
+- Updated `gpt-4o` version from `gpt-4o-2024-08-06` to `gpt-4o-2024-11-20` ([Announcement](https://twitter.com/OpenAI/status/1859296125947347164))
 
 ### 0.0.35 - October 22, 2024
 

@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1729656605)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1729656605)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1732217169)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1732217169)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -25,7 +25,7 @@ L2M2 currently supports the following models:
 
 | Model Name          | Provider(s)                                                        | Model Version(s)                                    |
 | ------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
-| `gpt-4o`            | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-08-06`                                 |
+| `gpt-4o`            | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-11-20`                                 |
 | `gpt-4o-mini`       | [OpenAI](https://openai.com/product)                               | `gpt-4o-mini-2024-07-18`                            |
 | `gpt-4-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
 | `gpt-3.5-turbo`     | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
