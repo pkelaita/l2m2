@@ -27,7 +27,15 @@ packages.find.namespaces = false
 
 
 [tool.mypy]
-exclude = ["build", "dist", "venv", "integration_tests", "scripts", "tests"]
+exclude = [
+    "build",
+    "dist",
+    "venv",
+    "integration_tests",
+    "scripts",
+    "tests",
+    "playground",
+]
 
 ignore_missing_imports = true
 explicit_package_bases = true

@@ -1,5 +1,5 @@
 [flake8]
-exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,venv,integration_tests,scripts
+exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,venv,integration_tests,scripts,playground
 max-line-length = 120
 max-complexity = 10
 
