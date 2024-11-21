@@ -641,6 +641,7 @@ Your name is Pierce and you are a software engineer.
 
 ## Planned Features
 
+- Support for batch APIs where available (OpenAI, Anthropic, etc.)
 - Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
 - Tools for common application workflows: RAG, prompt management, search, etc.
