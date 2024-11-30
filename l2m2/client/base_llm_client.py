@@ -1,4 +1,5 @@
-from typing import Any, List, Set, Dict, Optional, Tuple
+from typing import Any, List, Set, Dict, Optional, Tuple, Sequence
+import asyncio
 import httpx
 import os
 
@@ -300,52 +301,18 @@ class BaseLLMClient:
             str: The model's completion for the prompt, or an error message if the model is
                 unable to generate a completion.
         """
-        if model not in self.active_models:
-            if model in self.get_available_models():
-                available_providers = ", ".join(MODEL_INFO[model].keys())
-                msg = (
-                    f"Model {model} is available, but not active."
-                    + f" Please add any of ({available_providers}) to activate it."
-                )
-                raise ValueError(msg)
-            else:
-                raise ValueError(f"Invalid model: {model}")
-
-        if prefer_provider is not None and prefer_provider not in self.active_providers:
-            raise ValueError(
-                "Argument prefer_provider must either be None or an active provider."
-                + f" Active providers are {', '.join(self.active_providers)}"
-            )
-
-        providers = set(MODEL_INFO[model].keys()) & self.active_providers
-        if len(providers) == 1:
-            provider = next(iter(providers))
-
-        elif prefer_provider is not None:
-            provider = prefer_provider
-
-        elif self.preferred_providers.get(model) is not None:
-            provider = self.preferred_providers[model]
-
-        else:
-            raise ValueError(
-                f"Model {model} is available from multiple active providers: {', '.join(providers)}."
-                + " Please specify a preferred provider with the argument prefer_provider, or set a"
-                + " default provider for the model with set_preferred_providers."
-            )
-
-        return await self._call_impl(
-            MODEL_INFO[model][provider],
-            provider,
-            prompt,
-            system_prompt,
-            temperature,
-            max_tokens,
-            json_mode,
-            json_mode_strategy,
-            timeout,
-            bypass_memory,
-            alt_memory,
+        return await self._async_call(
+            model=model,
+            prompt=prompt,
+            system_prompt=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            prefer_provider=prefer_provider,
+            json_mode=json_mode,
+            json_mode_strategy=json_mode_strategy,
+            timeout=timeout,
+            bypass_memory=bypass_memory,
+            alt_memory=alt_memory,
         )
 
     async def call_custom(
@@ -419,6 +386,146 @@ class BaseLLMClient:
 
         return await self._call_impl(
             model_info,
+            provider,
+            prompt,
+            system_prompt,
+            temperature,
+            max_tokens,
+            json_mode,
+            json_mode_strategy,
+            timeout,
+            bypass_memory,
+            alt_memory,
+        )
+
+    async def batch_call(
+        self,
+        *,
+        model: str,
+        prompts: List[str],
+        memory_streams: Optional[List[BaseMemory]] = None,
+        system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        prefer_provider: Optional[str] = None,
+        json_mode: bool = False,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+    ) -> List[str]:
+        """Performs batch inference on any active model. If the provider offers a batch endpoint for
+        the model, it will be used. Otherwise, concurrent standard calls are made.
+
+        Args:
+            model (str): The active model to call.
+            prompts (List[str]): The batch of prompts for which to generate completions.
+            system_prompt (str, optional): The system prompt to send to the model. If the specified
+                model does not support system prompts, it is prepended to the user prompt. Defaults
+                to None.
+            memory_streams (List[BaseMemory], optional): The batch of memory streams to use for each
+                prompt. If not specified, the default memory stream is used for each prompt. Defaults
+                to None.
+            temperature (float, optional): The sampling temperature for the model. If not specified,
+                the provider's default value for the model is used. Defaults to None.
+            max_tokens (int, optional): The maximum number of tokens to generate. If not specified,
+                the provider's default value for the model is used. Defaults to None.
+            prefer_provider (str, optional): The preferred provider to use for the model, if the
+                model is available from multiple active providers. Defaults to None.
+            json_mode (bool, optional): Whether to return the response in JSON format. Defaults to False.
+            json_mode_strategy (JsonModeStrategy, optional): The strategy to use to enforce JSON outputs
+                when `json_mode` is True. If `None`, the default strategy will be used:
+                `JsonModeStrategy.prepend()` for Anthropic, and `JsonModeStrategy.strip()` for all other
+                providers. Defaults to `None`.
+            timeout (int, optional): The timeout in seconds for the LLM request. Can be set to `None`,
+                in which case the request will be allowed to run indefinitely. Defaults to `10`.
+            bypass_memory (bool, optional): Whether to bypass memory when calling the model. If `True`, the
+                model will not read from or write to memory during the call if memory is enabled. Defaults
+                to `False`.
+
+        Raises:
+            ValueError: If the provided model is not active and/or not available.
+            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+                nor a default provider is specified.
+            ValueError: If `prefer_provider` is specified but not active.
+
+        Returns:
+            str: The model's completion for the prompt, or an error message if the model is
+                unable to generate a completion.
+        """
+        _memory_streams: Sequence[Optional[BaseMemory]] = (
+            memory_streams
+            if memory_streams is not None
+            else [None for _ in range(len(prompts))]  # type: ignore
+        )
+        if len(prompts) != len(_memory_streams):
+            raise ValueError("prompts and memory_streams must have the same length.")
+        calls = [
+            self._async_call(
+                model=model,
+                prompt=prompt,
+                system_prompt=system_prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                prefer_provider=prefer_provider,
+                json_mode=json_mode,
+                json_mode_strategy=json_mode_strategy,
+                timeout=timeout,
+                bypass_memory=bypass_memory,
+                alt_memory=memory_stream,
+            )
+            for prompt, memory_stream in zip(prompts, _memory_streams)
+        ]
+        return await asyncio.gather(*calls)
+
+    async def _async_call(
+        self,
+        model: str,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        prefer_provider: Optional[str] = None,
+        json_mode: bool = False,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+        alt_memory: Optional[BaseMemory] = None,
+    ) -> str:
+        # Protected async implementation of call that both sync and async use
+
+        if model not in self.active_models:
+            if model in self.get_available_models():
+                available_providers = ", ".join(MODEL_INFO[model].keys())
+                msg = (
+                    f"Model {model} is available, but not active."
+                    + f" Please add any of ({available_providers}) to activate it."
+                )
+                raise ValueError(msg)
+            else:
+                raise ValueError(f"Invalid model: {model}")
+
+        if prefer_provider is not None and prefer_provider not in self.active_providers:
+            raise ValueError(
+                "Argument prefer_provider must either be None or an active provider."
+                + f" Active providers are {', '.join(self.active_providers)}"
+            )
+
+        providers = set(MODEL_INFO[model].keys()) & self.active_providers
+        if len(providers) == 1:
+            provider = next(iter(providers))
+        elif prefer_provider is not None:
+            provider = prefer_provider
+        elif self.preferred_providers.get(model) is not None:
+            provider = self.preferred_providers[model]
+        else:
+            raise ValueError(
+                f"Model {model} is available from multiple active providers: {', '.join(providers)}."
+                + " Please specify a preferred provider with the argument prefer_provider, or set a"
+                + " default provider for the model with set_preferred_providers."
+            )
+
+        return await self._call_impl(
+            MODEL_INFO[model][provider],
             provider,
             prompt,
             system_prompt,

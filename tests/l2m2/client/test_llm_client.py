@@ -27,6 +27,16 @@ def test_call_custom(mock_asyncio_run, llm_client):
     assert result == "async_call_custom_result"
 
 
+@patch("l2m2.client.llm_client.asyncio.run", return_value=["hi_1", "hi_2"])
+def test_batch_call(mock_asyncio_run, llm_client):
+    result = llm_client.batch_call(
+        model="test-model", prompts=["test prompt 1", "test prompt 2"]
+    )
+
+    mock_asyncio_run.assert_called_once()
+    assert result == ["hi_1", "hi_2"]
+
+
 @pytest.mark.asyncio
 async def test_sync_fn_wrapper():
     async def dummy_fn(*args, **kwargs):

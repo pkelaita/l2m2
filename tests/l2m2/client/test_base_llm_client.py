@@ -823,3 +823,82 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
         mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "custom-prefix-123{"
     )
+
+
+# -- Tests for batch_call -- #
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_basic_batch_call_no_memory(mock_call_groq, llm_client):
+    mock_call_groq.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("groq", "fake-api-key")
+    prompts = ["A", "B", "C", "D"]
+    system_prompt = "This is a system prompt"
+
+    responses = await llm_client.batch_call(
+        model="mixtral-8x7b",
+        prompts=prompts,
+        system_prompt=system_prompt,
+    )
+
+    assert len(responses) == 4
+    assert responses == ["response", "response", "response", "response"]
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_basic_batch_call_memory_streams(mock_call_groq, llm_client):
+    mock_call_groq.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("groq", "fake-api-key")
+    prompts = ["A", "B", "C", "D"]
+    memory_streams = [ChatMemory(), ChatMemory(), ChatMemory(), ChatMemory()]
+    memory_streams[0].add_user_message("AA")
+    memory_streams[1].add_user_message("BB")
+    memory_streams[2].add_user_message("CC")
+    memory_streams[3].add_user_message("DD")
+
+    responses = await llm_client.batch_call(
+        model="mixtral-8x7b",
+        prompts=prompts,
+        memory_streams=memory_streams,
+    )
+
+    assert len(responses) == 4
+    assert responses == ["response", "response", "response", "response"]
+    assert memory_streams[0].unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "AA"},
+        {"role": "user", "content": "A"},
+        {"role": "assistant", "content": "response"},
+    ]
+    assert memory_streams[1].unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "BB"},
+        {"role": "user", "content": "B"},
+        {"role": "assistant", "content": "response"},
+    ]
+    assert memory_streams[2].unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "CC"},
+        {"role": "user", "content": "C"},
+        {"role": "assistant", "content": "response"},
+    ]
+    assert memory_streams[3].unpack("role", "content", "user", "assistant") == [
+        {"role": "user", "content": "DD"},
+        {"role": "user", "content": "D"},
+        {"role": "assistant", "content": "response"},
+    ]
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_basic_batch_call_mismatch_length_throws_error(
+    mock_call_groq, llm_client
+):
+    mock_call_groq.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("groq", "fake-api-key")
+    prompts = ["A", "B", "C", "D"]
+    memory_streams = [ChatMemory(), ChatMemory(), ChatMemory()]
+
+    with pytest.raises(ValueError):
+        await llm_client.batch_call(
+            model="mixtral-8x7b", prompts=prompts, memory_streams=memory_streams
+        )

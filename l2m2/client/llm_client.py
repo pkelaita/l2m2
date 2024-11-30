@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import asyncio
 import httpx
 
@@ -90,7 +90,41 @@ class LLMClient(BaseLLMClient):
         )
         return str(result)
 
+    def batch_call(  # type: ignore
+        self,
+        *,
+        model: str,
+        prompts: List[str],
+        memory_streams: Optional[List[BaseMemory]] = None,
+        system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+        prefer_provider: Optional[str] = None,
+        json_mode: bool = False,
+        json_mode_strategy: Optional[JsonModeStrategy] = None,
+        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        bypass_memory: bool = False,
+    ) -> List[str]:
+        result = asyncio.run(
+            self._sync_fn_wrapper(
+                super(LLMClient, self).batch_call,
+                model=model,
+                prompts=prompts,
+                memory_streams=memory_streams,
+                system_prompt=system_prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                prefer_provider=prefer_provider,
+                json_mode=json_mode,
+                json_mode_strategy=json_mode_strategy,
+                timeout=timeout,
+                bypass_memory=bypass_memory,
+            )
+        )
+        return [str(r) for r in result]
+
     # Inherit docstrings
     __init__.__doc__ = BaseLLMClient.__init__.__doc__
     call.__doc__ = BaseLLMClient.call.__doc__
     call_custom.__doc__ = BaseLLMClient.call_custom.__doc__
+    batch_call.__doc__ = BaseLLMClient.batch_call.__doc__
