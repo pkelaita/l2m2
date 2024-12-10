@@ -1,6 +1,6 @@
 # Changelog
 
-_Current version: 0.0.36_
+_Current version: 0.0.37_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
@@ -22,9 +22,8 @@ _Current version: 0.0.36_
 
 - `mixtral-8x22b`, `mixtral-8x7b`, and `mistral-7b` are no longer available from provider Mistral as they have been [deprecated](https://docs.mistral.ai/getting-started/models/models_overview/). **This is a breaking change!!!** Calls to `mixtral-8x7b` and `mistral-7b` will fail, and calls to `mixtral-8x22b` via provider Mistral will fail.
 
-[!NOTE]
-
-> `mixtral-8x22b` is still available via Groq.
+> [!NOTE]
+> The model `mixtral-8x22b` is still available via Groq.
 
 ### 0.0.36 - November 21, 2024
 
