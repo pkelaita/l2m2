@@ -1,12 +1,12 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1732217169)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1732217169)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1733805961)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1733805961)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ### Features
 
-- <!--start-count-->25<!--end-count--> supported models (see below) – regularly updated and with more on the way.
+- <!--start-count-->26<!--end-count--> supported models (see below) – regularly updated and with more on the way.
 - Session chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
 - Prompt loading tools
@@ -32,6 +32,7 @@ L2M2 currently supports the following models:
 | `gemini-1.5-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro`                                    |
 | `gemini-1.0-pro`    | [Google](https://ai.google.dev/)                                   | `gemini-1.0-pro`                                    |
 | `claude-3.5-sonnet` | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-sonnet-latest`                          |
+| `claude-3.5-haiku`  | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-haiku-latest`                           |
 | `claude-3-opus`     | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-opus-20240229`                            |
 | `claude-3-sonnet`   | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-sonnet-20240229`                          |
 | `claude-3-haiku`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                           |
@@ -45,8 +46,8 @@ L2M2 currently supports the following models:
 | `gemma-2-9b`        | [Groq](https://wow.groq.com/)                                      | `gemma2-9b-it`                                      |
 | `llama-3-8b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
 | `llama-3-70b`       | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
-| `llama-3.1-8b`      | [Groq](https://wow.groq.com/)                                      | `llama-3.1-8b-instant`                              |
-| `llama-3.1-70b`     | [Groq](https://wow.groq.com/)                                      | `llama-3.1-70b-versatile`                           |
+| `llama-3.1-8b`      | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-8b-instant`, `llama3.1-8b`               |
+| `llama-3.1-70b`     | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-70b-versatile`, `llama3.1-70b`           |
 | `llama-3.1-405b`    | [Replicate](https://replicate.com/)                                | `meta/meta-llama-3.1-405b-instruct`                 |
 | `llama-3.2-1b`      | [Groq](https://wow.groq.com/)                                      | `llama-3.2-1b-preview`                              |
 | `llama-3.2-3b`      | [Groq](https://wow.groq.com/)                                      | `llama-3.2-3b-preview`                              |
@@ -105,6 +106,7 @@ To activate any of the providers, set the provider's API key in the correspondin
 | Groq                    | `GROQ_API_KEY`        |
 | Replicate               | `REPLICATE_API_TOKEN` |
 | Mistral (La Plateforme) | `MISTRAL_API_KEY`     |
+| Cerebras                | `CEREBRAS_API_KEY`    |
 
 Additionally, you can activate providers programmatically as follows:
 

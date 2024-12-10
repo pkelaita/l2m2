@@ -329,6 +329,16 @@ async def test_call_replicate(mock_get_extra_message, mock_llm_post, llm_client)
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cerebras(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "cerebras", "llama-3.1-70b")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
 async def test_call_google_gemini_fails(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}

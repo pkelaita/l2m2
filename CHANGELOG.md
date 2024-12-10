@@ -4,6 +4,12 @@ _Current version: 0.0.36_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
+### 0.0.37 - December 9, 2024
+
+#### Added
+
+- Support for [Cerebras](https://www.cerebras.net/) via [Groq](https://www.groq.com/).
+
 ### 0.0.36 - November 21, 2024
 
 #### Changed

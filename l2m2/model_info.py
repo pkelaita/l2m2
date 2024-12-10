@@ -111,6 +111,15 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
             "Content-Type": "application/json",
         },
     },
+    "cerebras": {
+        "name": "Cerebras",
+        "homepage": "https://cerebras.ai/",
+        "endpoint": "https://api.cerebras.ai/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
+    },
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
@@ -513,6 +522,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
+        "cerebras": {
+            "model_id": "llama3.1-8b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {},
+        },
     },
     "llama-3.1-70b": {
         "groq": {
@@ -525,6 +548,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": 8000,
+                },
+            },
+            "extras": {},
+        },
+        "cerebras": {
+            "model_id": "llama3.1-70b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {},
