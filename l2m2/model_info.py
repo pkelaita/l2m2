@@ -111,6 +111,15 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
             "Content-Type": "application/json",
         },
     },
+    "cerebras": {
+        "name": "Cerebras",
+        "homepage": "https://cerebras.ai/",
+        "endpoint": "https://api.cerebras.ai/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
+    },
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
@@ -230,6 +239,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "claude-3.5-haiku": {
+        "anthropic": {
+            "model_id": "claude-3-5-haiku-latest",
+            "params": {
+                "temperature": {
+                    "default": 0.0,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 1000,  # L2M2 default, field is required
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-3-opus": {
         "anthropic": {
             "model_id": "claude-3-opus-20240229",
@@ -310,7 +335,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "mistral-large-2": {
+    "mistral-large": {
         "mistral": {
             "model_id": "mistral-large-latest",
             "params": {
@@ -326,9 +351,41 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
-    "mixtral-8x22b": {
+    "ministral-3b": {
         "mistral": {
-            "model_id": "open-mixtral-8x22b",
+            "model_id": "ministral-3b-latest",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "ministral-8b": {
+        "mistral": {
+            "model_id": "ministral-8b-latest",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "mistral-small": {
+        "mistral": {
+            "model_id": "mistral-small-latest",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -343,20 +400,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
         },
     },
     "mixtral-8x7b": {
-        "mistral": {
-            "model_id": "open-mixtral-8x7b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
         "groq": {
             "model_id": "mixtral-8x7b-32768",
             "params": {
@@ -370,22 +413,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
-        },
-    },
-    "mistral-7b": {
-        "mistral": {
-            "model_id": "open-mistral-7b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gemma-7b": {
@@ -497,6 +524,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
             "extras": {},
         },
+        "cerebras": {
+            "model_id": "llama3.1-8b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {},
+        },
     },
     "llama-3.1-70b": {
         "groq": {
@@ -509,6 +550,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": 8000,
+                },
+            },
+            "extras": {},
+        },
+        "cerebras": {
+            "model_id": "llama3.1-70b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {},

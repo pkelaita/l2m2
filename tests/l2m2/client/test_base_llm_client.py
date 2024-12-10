@@ -304,7 +304,7 @@ async def test_call_mistral(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "mistral", "mixtral-8x7b")
+    await _generic_test_call(llm_client, "mistral", "mistral-large")
 
 
 @pytest.mark.asyncio
@@ -325,6 +325,16 @@ async def test_call_replicate(mock_get_extra_message, mock_llm_post, llm_client)
     mock_return_value = {"output": ["response"]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "replicate", "llama-3-8b")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cerebras(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "cerebras", "llama-3.1-70b")
 
 
 @pytest.mark.asyncio

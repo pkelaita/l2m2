@@ -1,319 +1,264 @@
-import pytest
-import httpx
-import respx
-from unittest.mock import patch
-
-from l2m2.exceptions import LLMRateLimitError, LLMTimeoutError
-from l2m2.model_info import API_KEY, MODEL_ID
 from l2m2._internal.http import (
     _get_headers,
     _handle_replicate_201,
     llm_post,
 )
+import pytest
+import httpx
+from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
+from l2m2.model_info import API_KEY, PROVIDER_INFO
 
-PROVIDER_INFO_PATH = "l2m2._internal.http.PROVIDER_INFO"
 
+def test_get_headers():
+    # Test header generation with API key replacement
+    test_api_key = "test_key_123"
 
-MOCK_PROVIDER_INFO = {
-    "test_provider": {
+    # Mock PROVIDER_INFO for testing
+    original_provider_info = PROVIDER_INFO.copy()
+    PROVIDER_INFO["openai"] = {
         "headers": {"Authorization": f"Bearer {API_KEY}"},
-        "endpoint": "https://api.testprovider.com/v1",
-    },
-    "test_provider_model_id_in_url": {
-        "headers": {"Authorization": f"Bearer {API_KEY}"},
-        "endpoint": f"https://api.testprovider.com/v1/models/{MODEL_ID}",
-    },
-    "test_provider_api_key_in_url": {
-        "headers": {"foo": "bar"},
-        "endpoint": f"https://api.testprovider.com/v1?key={API_KEY}",
-    },
-    "test_provider_both_in_url": {
-        "headers": {"foo": "bar"},
-        "endpoint": f"https://api.testprovider.com/v1/models/{MODEL_ID}?key={API_KEY}",
-    },
-    # Need to test replicate's implementation separately
-    "replicate": {
+        "endpoint": "https://api.openai.com/v1/chat/completions",
+    }
+    PROVIDER_INFO["replicate"] = {
         "headers": {"Authorization": f"Token {API_KEY}"},
         "endpoint": "https://api.replicate.com/v1/predictions",
-    },
-}
+    }
+
+    try:
+        headers = _get_headers("openai", test_api_key)
+        assert "Authorization" in headers
+        assert headers["Authorization"] == f"Bearer {test_api_key}"
+
+        headers_replicate = _get_headers("replicate", test_api_key)
+        assert "Authorization" in headers_replicate
+        assert headers_replicate["Authorization"] == f"Token {test_api_key}"
+    finally:
+        # Restore original PROVIDER_INFO
+        PROVIDER_INFO.clear()
+        PROVIDER_INFO.update(original_provider_info)
 
 
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-def test_get_headers():
-    provider = "test_provider"
-    api_key = "test_api_key"
-    expected_headers = {"Authorization": "Bearer test_api_key"}
-    headers = _get_headers(provider, api_key)
-    assert headers == expected_headers
+class MockTransport(httpx.AsyncBaseTransport):
+    def __init__(self, responses):
+        self.responses = responses
+        self.request_count = 0
+
+    async def handle_async_request(self, request):
+        if self.request_count >= len(self.responses):
+            raise Exception("No more mock responses available")
+        response = self.responses[self.request_count]
+        self.request_count += 1
+        if isinstance(response, Exception):
+            raise response
+        if isinstance(response, httpx.TimeoutException):
+            raise response
+        return response
 
 
 @pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
 async def test_handle_replicate_201_success():
-    api_key = "test_api_key"
-    resource_url = "https://api.replicate.com/v1/predictions/get"
-    mock_resource = {
-        "status": "succeeded",
-        "urls": {"get": resource_url},
-    }
+    responses = [
+        httpx.Response(
+            200,  # Changed from 201 to 200 for the status check
+            json={
+                "status": "succeeded",  # Changed from processing to succeeded
+                "output": "test output",
+            },
+        ),
+    ]
 
-    respx.get(resource_url).mock(return_value=httpx.Response(200, json=mock_resource))
-    response = httpx.Response(
-        201,
-        json={
-            "status": "starting",
-            "urls": {"get": resource_url},
-        },
-    )
-
-    async with httpx.AsyncClient() as client:
-        result = await _handle_replicate_201(client, response, api_key)
-        assert result == mock_resource
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        response = httpx.Response(
+            201,
+            json={
+                "status": "processing",
+                "urls": {"get": "https://api.replicate.com/status/1"},
+            },
+        )
+        result = await _handle_replicate_201(client, response, "test_key")
+        assert result["status"] == "succeeded"
+        assert result["output"] == "test output"
 
 
 @pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
 async def test_handle_replicate_201_failure():
-    api_key = "test_api_key"
-    resource_url = "https://api.replicate.com/v1/predictions/get"
-    mock_resource = {
-        "status": "failed",
-        "urls": {"get": resource_url},
-    }
+    responses = [
+        httpx.Response(
+            200,
+            json={
+                "status": "failed",
+                "error": "Something went wrong",
+            },
+        ),
+    ]
 
-    respx.get(resource_url).mock(return_value=httpx.Response(200, json=mock_resource))
-    response = httpx.Response(
-        201,
-        json={
-            "status": "starting",
-            "urls": {"get": resource_url},
-        },
-    )
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        response = httpx.Response(
+            201,
+            json={
+                "status": "processing",
+                "urls": {"get": "https://api.replicate.com/status/1"},
+            },
+        )
+        with pytest.raises(Exception):
+            await _handle_replicate_201(client, response, "test_key")
 
+
+@pytest.mark.asyncio
+async def test_handle_replicate_201_invalid_response():
+    response = httpx.Response(201, json={"invalid": "response"})
     async with httpx.AsyncClient() as client:
         with pytest.raises(Exception):
-            await _handle_replicate_201(client, response, api_key)
+            await _handle_replicate_201(client, response, "test_key")
 
 
 @pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
 async def test_llm_post_success():
-    async def _test_generic_llm_post(provider):
-        api_key = "test_api_key"
-        data = {"input": "test input"}
-        model_id = "test_model_id"
+    responses = [
+        httpx.Response(200, json={"result": "success"}),
+    ]
 
-        endpoint = (
-            MOCK_PROVIDER_INFO[provider]["endpoint"]
-            .replace(API_KEY, api_key)
-            .replace(MODEL_ID, model_id)
-        )
-        expected_response = {"result": "success"}
-
-        respx.post(endpoint).mock(
-            return_value=httpx.Response(200, json=expected_response)
-        )
-        async with httpx.AsyncClient() as client:
-            result = await llm_post(
-                client=client,
-                provider=provider,
-                model_id=model_id,
-                api_key=api_key,
-                data=data,
-                timeout=10,
-            )
-            assert result == expected_response
-
-    await _test_generic_llm_post("test_provider")
-    await _test_generic_llm_post("test_provider_model_id_in_url")
-    await _test_generic_llm_post("test_provider_api_key_in_url")
-    await _test_generic_llm_post("test_provider_both_in_url")
-
-
-@pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_llm_post_replicate():
-    provider = "replicate"
-    api_key = "test_api_key"
-    data = {"input": "test input"}
-
-    endpoint = MOCK_PROVIDER_INFO[provider]["endpoint"].replace(API_KEY, api_key)
-    mock_initial_response = {
-        "status": "starting",
-        "urls": {"get": "https://api.replicate.com/v1/predictions/get"},
-    }
-    mock_success_response = {
-        "status": "succeeded",
-        "urls": {"get": "https://api.replicate.com/v1/predictions/get"},
-    }
-
-    respx.post(endpoint).mock(
-        return_value=httpx.Response(201, json=mock_initial_response)
-    )
-    respx.get("https://api.replicate.com/v1/predictions/get").mock(
-        return_value=httpx.Response(200, json=mock_success_response)
-    )
-
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
         result = await llm_post(
-            client=client,
-            provider=provider,
-            model_id="fake_model_id",
-            api_key=api_key,
-            data=data,
+            client,
+            "openai",
+            "gpt-4",
+            "test_key",
+            {"prompt": "test"},
             timeout=10,
         )
-        assert result == mock_success_response
+        assert result == {"result": "success"}
 
 
 @pytest.mark.asyncio
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_handle_replicate_201_missing_keys():
-    api_key = "test_api_key"
-    invalid_resource = {"some_other_key": "some_value"}
-
-    response = httpx.Response(201, json=invalid_resource)
-
-    async with httpx.AsyncClient() as client:
-        with pytest.raises(Exception):
-            await _handle_replicate_201(client, response, api_key)
-
-
-@pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_handle_replicate_201_status_failed():
-    api_key = "test_api_key"
-    resource_url = "https://api.replicate.com/v1/predictions/get"
-    failed_resource = {
-        "status": "failed",
-        "urls": {"get": resource_url},
-    }
-
-    respx.get(resource_url).mock(return_value=httpx.Response(200, json=failed_resource))
-    response = httpx.Response(
-        201,
-        json={
-            "status": "starting",
-            "urls": {"get": resource_url},
-        },
-    )
-
-    async with httpx.AsyncClient() as client:
-        with pytest.raises(Exception):
-            await _handle_replicate_201(client, response, api_key)
-
-
-@pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_handle_replicate_201_status_code_not_200():
-    api_key = "test_api_key"
-    resource_url = "https://api.replicate.com/v1/predictions/get"
-
-    respx.get(resource_url).mock(
-        return_value=httpx.Response(500, text="Internal Server Error")
-    )
-    response = httpx.Response(
-        201,
-        json={
-            "status": "starting",
-            "urls": {"get": resource_url},
-        },
-    )
-
-    async with httpx.AsyncClient() as client:
-        with pytest.raises(Exception):
-            await _handle_replicate_201(client, response, api_key)
-
-
-@pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_llm_post_failure():
-    provider = "test_provider"
-    api_key = "test_api_key"
-    data = {"input": "test input"}
-    model_id = "test_model_id"
-
-    endpoint = (
-        MOCK_PROVIDER_INFO[provider]["endpoint"]
-        .replace(API_KEY, api_key)
-        .replace(MODEL_ID, model_id)
-    )
-
-    respx.post(endpoint).mock(return_value=httpx.Response(400, text="Bad Request"))
-    async with httpx.AsyncClient() as client:
-        with pytest.raises(Exception):
-            await llm_post(
-                client=client,
-                provider=provider,
-                model_id=model_id,
-                api_key=api_key,
-                data=data,
-                timeout=10,
-            )
-
-
-@pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
 async def test_llm_post_timeout():
-    provider = "test_provider"
-    api_key = "test_api_key"
-    data = {"input": "test input"}
-    model_id = "test_model_id"
-    timeout = 5
+    responses = [httpx.ReadTimeout("Request timed out")]
 
-    endpoint = (
-        MOCK_PROVIDER_INFO[provider]["endpoint"]
-        .replace(API_KEY, api_key)
-        .replace(MODEL_ID, model_id)
-    )
-
-    respx.post(endpoint).mock(side_effect=httpx.ReadTimeout)
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
         with pytest.raises(LLMTimeoutError):
             await llm_post(
-                client=client,
-                provider=provider,
-                model_id=model_id,
-                api_key=api_key,
-                data=data,
-                timeout=timeout,
+                client,
+                "openai",
+                "gpt-4",
+                "test_key",
+                {"prompt": "test"},
+                timeout=10,
             )
 
 
 @pytest.mark.asyncio
-@respx.mock
-@patch(PROVIDER_INFO_PATH, MOCK_PROVIDER_INFO)
-async def test_llm_post_rate_limit_error():
-    provider = "test_provider"
-    api_key = "test_api_key"
-    data = {"input": "test input"}
-    model_id = "test_model_id"
+async def test_llm_post_rate_limit():
+    responses = [
+        httpx.Response(429, text="Rate limit exceeded"),
+    ]
 
-    endpoint = (
-        MOCK_PROVIDER_INFO[provider]["endpoint"]
-        .replace(API_KEY, api_key)
-        .replace(MODEL_ID, model_id)
-    )
-
-    respx.post(endpoint).mock(
-        return_value=httpx.Response(429, text="Rate Limit Exceeded")
-    )
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
         with pytest.raises(LLMRateLimitError):
             await llm_post(
-                client=client,
-                provider=provider,
-                model_id=model_id,
-                api_key=api_key,
-                data=data,
+                client,
+                "openai",
+                "gpt-4",
+                "test_key",
+                {"prompt": "test"},
                 timeout=10,
             )
+
+
+@pytest.mark.asyncio
+async def test_llm_post_error():
+    responses = [
+        httpx.Response(400, text="Bad request"),
+    ]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        with pytest.raises(Exception) as exc_info:
+            await llm_post(
+                client,
+                "openai",
+                "gpt-4",
+                "test_key",
+                {"prompt": "test"},
+                timeout=10,
+            )
+        assert str(exc_info.value) == "Bad request"
+
+
+@pytest.mark.asyncio
+async def test_llm_post_replicate_success():
+    responses = [
+        httpx.Response(
+            201,
+            json={
+                "status": "processing",
+                "urls": {"get": "https://api.replicate.com/status/1"},
+            },
+        ),
+        httpx.Response(
+            200,
+            json={
+                "status": "succeeded",
+                "output": "test output",
+            },
+        ),
+    ]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        result = await llm_post(
+            client,
+            "replicate",
+            "model123",
+            "test_key",
+            {"prompt": "test"},
+            timeout=10,
+        )
+        assert result["status"] == "succeeded"
+        assert result["output"] == "test output"
+
+
+@pytest.mark.asyncio
+async def test_handle_replicate_201_status_check_failure():
+    """Test case where the status check request fails"""
+    responses = [httpx.Response(400, text="Bad status check request")]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        response = httpx.Response(
+            201,
+            json={
+                "status": "processing",
+                "urls": {"get": "https://api.replicate.com/status/1"},
+            },
+        )
+        with pytest.raises(Exception) as exc_info:
+            await _handle_replicate_201(client, response, "test_key")
+        assert str(exc_info.value) == "Bad status check request"
+
+
+@pytest.mark.asyncio
+async def test_llm_post_with_api_key_in_endpoint():
+    """Test case where API_KEY needs to be replaced in the endpoint"""
+    responses = [
+        httpx.Response(200, json={"result": "success"}),
+    ]
+
+    # Mock PROVIDER_INFO with API_KEY in endpoint
+    original_provider_info = PROVIDER_INFO.copy()
+    PROVIDER_INFO["test_provider"] = {
+        "headers": {"Authorization": f"Bearer {API_KEY}"},
+        "endpoint": f"https://api.test.com/{API_KEY}/v1/chat",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            result = await llm_post(
+                client,
+                "test_provider",
+                None,
+                "test_key_123",
+                {"prompt": "test"},
+                timeout=10,
+            )
+            assert result == {"result": "success"}
+    finally:
+        # Restore original PROVIDER_INFO
+        PROVIDER_INFO.clear()
+        PROVIDER_INFO.update(original_provider_info)

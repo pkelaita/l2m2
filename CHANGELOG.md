@@ -1,8 +1,29 @@
 # Changelog
 
-_Current version: 0.0.36_
+_Current version: 0.0.37_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.37 - December 9, 2024
+
+> [!CAUTION]
+> This release has _significant_ breaking changes! Please read the changelog carefully.
+
+#### Added
+
+- Support for provider [Cerebras](https://cerebras.ai/), offering `llama-3.1-8b` and `llama-3.1-70b`.
+- Support for Mistral's `mistral-small`, `ministral-8b`, and `ministral-3b` models via La Plateforme.
+
+#### Changed
+
+- `mistral-large-2` has been renamed to `mistral-large`, to keep up with Mistral's naming scheme. **This is a breaking change!!!** Calls to `mistral-large-2` will fail.
+
+#### Removed
+
+- `mixtral-8x22b`, `mixtral-8x7b`, and `mistral-7b` are no longer available from provider Mistral as they have been [deprecated](https://docs.mistral.ai/getting-started/models/models_overview/). **This is a breaking change!!!** Calls to `mixtral-8x7b` and `mistral-7b` will fail, and calls to `mixtral-8x22b` via provider Mistral will fail.
+
+> [!NOTE]
+> The model `mixtral-8x22b` is still available via Groq.
 
 ### 0.0.36 - November 21, 2024
 

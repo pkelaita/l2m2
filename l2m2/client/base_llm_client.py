@@ -36,6 +36,7 @@ DEFAULT_PROVIDER_ENVS = {
     "groq": "GROQ_API_KEY",
     "replicate": "REPLICATE_API_TOKEN",
     "mistral": "MISTRAL_API_KEY",
+    "cerebras": "CEREBRAS_API_KEY",
 }
 
 
@@ -667,6 +668,12 @@ class BaseLLMClient:
             timeout=timeout,
         )
         return "".join(result["output"])
+
+    async def _call_cerebras(
+        self,
+        *args: Any,
+    ) -> str:
+        return await self._generic_openai_spec_call("cerebras", *args)
 
     async def _generic_openai_spec_call(
         self,
