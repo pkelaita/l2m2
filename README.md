@@ -1,12 +1,12 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1733805961)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1733805961)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1733808328)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1733808328)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
 ### Features
 
-- <!--start-count-->26<!--end-count--> supported models (see below) – regularly updated and with more on the way.
+- <!--start-count-->27<!--end-count--> supported models (see below) – regularly updated and with more on the way.
 - Session chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
 - Prompt loading tools
@@ -38,10 +38,11 @@ L2M2 currently supports the following models:
 | `claude-3-haiku`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                           |
 | `command-r`         | [Cohere](https://docs.cohere.com/)                                 | `command-r`                                         |
 | `command-r-plus`    | [Cohere](https://docs.cohere.com/)                                 | `command-r-plus`                                    |
-| `mistral-large-2`   | [Mistral](https://mistral.ai/)                                     | `mistral-large-latest`                              |
-| `mixtral-8x22b`     | [Mistral](https://mistral.ai/)                                     | `open-mixtral-8x22b`                                |
-| `mixtral-8x7b`      | [Mistral](https://mistral.ai/), [Groq](https://wow.groq.com/)      | `open-mixtral-8x7b`, `mixtral-8x7b-32768`           |
-| `mistral-7b`        | [Mistral](https://mistral.ai/)                                     | `open-mistral-7b`                                   |
+| `mistral-large`     | [Mistral](https://mistral.ai/)                                     | `mistral-large-latest`                              |
+| `ministral-3b`      | [Mistral](https://mistral.ai/)                                     | `ministral-3b-latest`                               |
+| `ministral-8b`      | [Mistral](https://mistral.ai/)                                     | `ministral-8b-latest`                               |
+| `mistral-small`     | [Mistral](https://mistral.ai/)                                     | `mistral-small-latest`                              |
+| `mixtral-8x7b`      | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                                |
 | `gemma-7b`          | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                       |
 | `gemma-2-9b`        | [Groq](https://wow.groq.com/)                                      | `gemma2-9b-it`                                      |
 | `llama-3-8b`        | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
@@ -512,10 +513,10 @@ The following models natively support JSON mode via the given provider:
 - `gpt-4-turbo` (via Openai)
 - `gpt-3.5-turbo` (via Openai)
 - `gemini-1.5-pro` (via Google)
-- `mistral-large-2` (via Mistral)
-- `mixtral-8x22b` (via Mistral)
-- `mixtral-8x7b` (via Mistral)
-- `mistral-7b` (via Mistral)
+- `mistral-large` (via Mistral)
+- `ministral-3b` (via Mistral)
+- `ministral-8b` (via Mistral)
+- `mistral-small` (via Mistral)
 
 <!--end-json-native-->
 

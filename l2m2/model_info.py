@@ -335,7 +335,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "mistral-large-2": {
+    "mistral-large": {
         "mistral": {
             "model_id": "mistral-large-latest",
             "params": {
@@ -351,9 +351,41 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
-    "mixtral-8x22b": {
+    "ministral-3b": {
         "mistral": {
-            "model_id": "open-mixtral-8x22b",
+            "model_id": "ministral-3b-latest",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "ministral-8b": {
+        "mistral": {
+            "model_id": "ministral-8b-latest",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "mistral-small": {
+        "mistral": {
+            "model_id": "mistral-small-latest",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -368,20 +400,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
         },
     },
     "mixtral-8x7b": {
-        "mistral": {
-            "model_id": "open-mixtral-8x7b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
         "groq": {
             "model_id": "mixtral-8x7b-32768",
             "params": {
@@ -395,22 +413,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
-        },
-    },
-    "mistral-7b": {
-        "mistral": {
-            "model_id": "open-mistral-7b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gemma-7b": {

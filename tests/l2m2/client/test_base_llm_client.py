@@ -304,7 +304,7 @@ async def test_call_mistral(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "mistral", "mixtral-8x7b")
+    await _generic_test_call(llm_client, "mistral", "mistral-large")
 
 
 @pytest.mark.asyncio
