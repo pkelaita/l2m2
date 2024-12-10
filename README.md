@@ -4,6 +4,8 @@
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
+![](assets/l2m2_demo.gif)
+
 ### Features
 
 - <!--start-count-->27<!--end-count--> supported models (see below) – regularly updated and with more on the way.
