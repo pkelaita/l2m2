@@ -11,6 +11,7 @@ _Current version: 0.0.37_
 
 #### Added
 
+- Support for Anthropic's [claude-3.5-haiku](https://www.anthropic.com/news/3-5-models-and-computer-use)
 - Support for provider [Cerebras](https://cerebras.ai/), offering `llama-3.1-8b` and `llama-3.1-70b`.
 - Support for Mistral's `mistral-small`, `ministral-8b`, and `ministral-3b` models via La Plateforme.
 
