@@ -49,4 +49,4 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
 
-python_version = "3.12"
+python_version = "3.13"
