@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  default-python: "3.12"
+  default-python: "3.13"
   minimum-supported-python: "3.9"
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout code
