@@ -4,6 +4,12 @@ _Current version: 0.0.37_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
+### In Development
+
+#### Added
+
+- Support for [Python 3.13](https://www.python.org/downloads/release/python-3130/).
+
 ### 0.0.37 - December 9, 2024
 
 > [!CAUTION]
