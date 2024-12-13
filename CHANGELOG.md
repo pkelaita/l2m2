@@ -1,14 +1,22 @@
 # Changelog
 
-_Current version: 0.0.37_
+_Current version: 0.0.38_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
-### In Development
+### v0.0.38 - December 12, 2024
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
 
 #### Added
 
 - Support for [Python 3.13](https://www.python.org/downloads/release/python-3130/).
+- Support for Google's [Gemini 2.0 Flash](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-2.0-flash), [Gemini 1.5 Flash](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.5-flash), and [Gemini 1.5 Flash 8B](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.5-flash-8b) models.
+
+#### Removed
+
+- Gemini 1.0 Pro is no longer supported, as it is [deprecated](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.0-pro) by Google. **This is a breaking change!!!** Calls to Gemini 1.0 Pro will fail.
 
 ### 0.0.37 - December 9, 2024
 
