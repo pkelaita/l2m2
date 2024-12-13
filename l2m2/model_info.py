@@ -187,6 +187,60 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
+    "gemini-2.0-flash": {
+        "google": {
+            "model_id": "gemini-2.0-flash-exp",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
+    "gemini-1.5-flash": {
+        "google": {
+            "model_id": "gemini-1.5-flash",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
+    "gemini-1.5-flash-8b": {
+        "google": {
+            "model_id": "gemini-1.5-flash-8b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-1.5-pro": {
         "google": {
             "model_id": "gemini-1.5-pro",
@@ -203,24 +257,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
-        },
-    },
-    "gemini-1.0-pro": {
-        "google": {
-            "model_id": "gemini-1.0-pro",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_output_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                    "max": 8192,
-                },
-            },
-            "extras": {},
         },
     },
     "claude-3.5-sonnet": {

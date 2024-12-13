@@ -270,16 +270,6 @@ async def test_call_google_1_5(mock_get_extra_message, mock_llm_post, llm_client
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_google_1_0(mock_get_extra_message, mock_llm_post, llm_client):
-    mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
-    mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "google", "gemini-1.0-pro")
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-@patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_anthropic(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"content": [{"text": "response"}]}

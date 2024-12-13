@@ -521,11 +521,7 @@ class BaseLLMClient:
         data: Dict[str, Any] = {}
 
         if system_prompt is not None:
-            # Earlier models don't support system prompts, so prepend it to the prompt
-            if model_id not in ["gemini-1.5-pro"]:
-                prompt = f"{system_prompt}\n{prompt}"
-            else:
-                data["system_instruction"] = {"parts": {"text": system_prompt}}
+            data["system_instruction"] = {"parts": {"text": system_prompt}}
 
         messages: List[Dict[str, Any]] = []
         if isinstance(memory, ChatMemory):
