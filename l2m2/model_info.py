@@ -132,6 +132,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -148,6 +149,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -164,6 +166,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -180,6 +183,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
