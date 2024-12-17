@@ -51,7 +51,7 @@ INF: int = sys.maxsize
 PROVIDER_INFO: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
-        "homepage": "https://openai.com/product",
+        "homepage": "https://openai.com/api/",
         "endpoint": "https://api.openai.com/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
@@ -86,7 +86,7 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
     },
     "mistral": {
         "name": "Mistral",
-        "homepage": "https://mistral.ai/",
+        "homepage": "https://docs.mistral.ai/deployment/laplateforme/overview/",
         "endpoint": "https://api.mistral.ai/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
@@ -113,7 +113,7 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
     },
     "cerebras": {
         "name": "Cerebras",
-        "homepage": "https://cerebras.ai/",
+        "homepage": "https://inference-docs.cerebras.ai",
         "endpoint": "https://api.cerebras.ai/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
