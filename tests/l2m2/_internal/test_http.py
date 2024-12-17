@@ -126,6 +126,25 @@ async def test_llm_post_success():
             "test_key",
             {"prompt": "test"},
             timeout=10,
+            extra_params={},
+        )
+        assert result == {"result": "success"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("extra_param_value", ["bar", 123, 0.0])
+async def test_llm_post_success_with_extra_params(extra_param_value):
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        result = await llm_post(
+            client,
+            "openai",
+            "gpt-4",
+            "test_key",
+            {"prompt": "test"},
+            timeout=10,
+            extra_params={"foo": extra_param_value},
         )
         assert result == {"result": "success"}
 
@@ -143,6 +162,7 @@ async def test_llm_post_timeout():
                 "test_key",
                 {"prompt": "test"},
                 timeout=10,
+                extra_params={},
             )
 
 
@@ -161,6 +181,7 @@ async def test_llm_post_rate_limit():
                 "test_key",
                 {"prompt": "test"},
                 timeout=10,
+                extra_params={},
             )
 
 
@@ -179,6 +200,7 @@ async def test_llm_post_error():
                 "test_key",
                 {"prompt": "test"},
                 timeout=10,
+                extra_params={},
             )
         assert str(exc_info.value) == "Bad request"
 
@@ -210,6 +232,7 @@ async def test_llm_post_replicate_success():
             "test_key",
             {"prompt": "test"},
             timeout=10,
+            extra_params={},
         )
         assert result["status"] == "succeeded"
         assert result["output"] == "test output"
@@ -256,6 +279,7 @@ async def test_llm_post_with_api_key_in_endpoint():
                 "test_key_123",
                 {"prompt": "test"},
                 timeout=10,
+                extra_params={},
             )
             assert result == {"result": "success"}
     finally:

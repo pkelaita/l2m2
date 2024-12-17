@@ -13,6 +13,7 @@ _Current version: 0.0.39_
 
 - Support for [Llama 3.3 70b](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/) via [Groq](https://console.groq.com/docs/models) and [Cerebras](https://inference-docs.cerebras.ai/introduction).
 - Support for OpenAI's [o1 series](https://openai.com/o1/): `o1`, `o1-preview`, and `o1-mini`.
+- The `extra_params` parameter to `call` and `call_custom`.
 
 > [!NOTE]
 > At the time of this release, you must be on OpenAI's [usage tier](https://platform.openai.com/docs/guides/rate-limits) 5 to use `o1` and tier 1+ to use `o1-preview` and `o1-mini`.

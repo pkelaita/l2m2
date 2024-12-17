@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 import httpx
 
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
@@ -43,12 +43,17 @@ async def llm_post(
     api_key: str,
     data: Dict[str, Any],
     timeout: Optional[int],
+    extra_params: Optional[Dict[str, Union[str, int, float]]],
 ) -> Any:
     endpoint = PROVIDER_INFO[provider]["endpoint"]
     if API_KEY in endpoint:
         endpoint = endpoint.replace(API_KEY, api_key)
     if MODEL_ID in endpoint and model_id is not None:
         endpoint = endpoint.replace(MODEL_ID, model_id)
+
+    if extra_params:
+        data.update(extra_params)
+
     try:
         response = await client.post(
             endpoint,

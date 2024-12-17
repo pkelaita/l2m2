@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734470191)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734470191)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734476927)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734476927)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -59,9 +59,6 @@ L2M2 currently supports the following models:
 | `llama-3.2-3b`        | [Groq](https://wow.groq.com/)                                      | `llama-3.2-3b-preview`                              |
 | `llama-3.3-70b`       | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.3-70b-versatile`, `llama3.3-70b`           |
 
-> [!NOTE]
-> Currently, you must be on OpenAI's [usage tier](https://platform.openai.com/docs/guides/rate-limits) 5 to use `o1` and tier 1+ to use `o1-preview`, `o1-mini`, and `gpt-4o`.
-
 <!--end-model-table-->
 
 ## Table of Contents
@@ -78,6 +75,7 @@ L2M2 currently supports the following models:
   - **Tools**
     - [JSON Mode](#tools-json-mode)
     - [Prompt Loader](#tools-prompt-loader)
+- [Other Capabilities](#other-capabilities)
 - [Planned Features](#planned-features)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -154,9 +152,7 @@ response = client.call(
 )
 ```
 
-If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
-
-### Example
+#### Example
 
 ```python
 # example.py
@@ -652,6 +648,34 @@ print(prompt)
 >> python3 example_prompt_loader.py
 
 Your name is Pierce and you are a software engineer.
+```
+
+## Other Capabilities
+
+#### Call Custom
+
+If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
+
+```python
+response = client.call_custom(
+    provider="<provider name>",
+    model_id="<model id for given provider>",
+    prompt="<prompt>",
+    ...
+)
+```
+
+#### Extra Parameters
+
+You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series) by passing in the `extra_params` parameter to `call` or `call_custom`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Similarly, using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
+
+```python
+response = client.call(
+    model="<model name>",
+    prompt="<prompt>",
+    extra_params={"foo": "bar", "baz": 123},
+    ...
+)
 ```
 
 ## Planned Features
