@@ -51,7 +51,7 @@ INF: int = sys.maxsize
 PROVIDER_INFO: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
-        "homepage": "https://openai.com/product",
+        "homepage": "https://openai.com/api/",
         "endpoint": "https://api.openai.com/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
@@ -86,7 +86,7 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
     },
     "mistral": {
         "name": "Mistral",
-        "homepage": "https://mistral.ai/",
+        "homepage": "https://docs.mistral.ai/deployment/laplateforme/overview/",
         "endpoint": "https://api.mistral.ai/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
@@ -113,7 +113,7 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
     },
     "cerebras": {
         "name": "Cerebras",
-        "homepage": "https://cerebras.ai/",
+        "homepage": "https://inference-docs.cerebras.ai",
         "endpoint": "https://api.cerebras.ai/v1/chat/completions",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
@@ -132,6 +132,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -148,11 +149,63 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "o1": {
+        "openai": {
+            "model_id": "o1",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-preview": {
+        "openai": {
+            "model_id": "o1-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-mini": {
+        "openai": {
+            "model_id": "o1-mini",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
         },
     },
     "gpt-4-turbo": {
@@ -164,6 +217,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -180,6 +234,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_completion_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -451,22 +506,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "gemma-7b": {
-        "groq": {
-            "model_id": "gemma-7b-it",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {},
-        },
-    },
     "gemma-2-9b": {
         "groq": {
             "model_id": "gemma2-9b-it",
@@ -575,36 +614,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.1-70b": {
-        "groq": {
-            "model_id": "llama-3.1-70b-versatile",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 8000,
-                },
-            },
-            "extras": {},
-        },
-        "cerebras": {
-            "model_id": "llama3.1-70b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.5,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**31 - 1,
-                },
-            },
-            "extras": {},
-        },
-    },
     "llama-3.1-405b": {
         "replicate": {
             "model_id": "meta/meta-llama-3.1-405b-instruct",
@@ -652,6 +661,36 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {"preview": True},
+        },
+    },
+    "llama-3.3-70b": {
+        "groq": {
+            "model_id": "llama-3.3-70b-versatile",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"preview": True},
+        },
+        "cerebras": {
+            "model_id": "llama3.3-70b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {},
         },
     },
 }

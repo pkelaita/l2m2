@@ -1,8 +1,27 @@
 # Changelog
 
-_Current version: 0.0.38_
+_Current version: 0.0.39_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.39 - December 17, 2024
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+#### Added
+
+- Support for [Llama 3.3 70b](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/) via [Groq](https://console.groq.com/docs/models) and [Cerebras](https://inference-docs.cerebras.ai/introduction).
+- Support for OpenAI's [o1 series](https://openai.com/o1/): `o1`, `o1-preview`, and `o1-mini`.
+- The `extra_params` parameter to `call` and `call_custom`.
+
+> [!NOTE]
+> At the time of this release, you must be on OpenAI's [usage tier](https://platform.openai.com/docs/guides/rate-limits) 5 to use `o1` and tier 1+ to use `o1-preview` and `o1-mini`.
+
+#### Removed
+
+- `gemma-7b` has been removed as it has been [deprecated](https://console.groq.com/docs/models) by Groq.
+- `llama-3.1-70b` has been removed as it has been deprecated by both [Groq](https://console.groq.com/docs/models) and [Cerebras](https://inference-docs.cerebras.ai/introduction).
 
 ### v0.0.38 - December 12, 2024
 

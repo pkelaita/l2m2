@@ -1,4 +1,4 @@
-from typing import Any, List, Set, Dict, Optional, Tuple
+from typing import Any, List, Set, Dict, Optional, Tuple, Union
 import httpx
 import os
 
@@ -262,6 +262,7 @@ class BaseLLMClient:
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
         alt_memory: Optional[BaseMemory] = None,
+        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -290,6 +291,8 @@ class BaseLLMClient:
             alt_memory (BaseMemory, optional): An alternative memory object to use for this call only. This
                 is very useful for asynchronous workflows where you want to keep track of multiple memory
                 streams in parallel without risking race conditions. Defaults to `None`.
+            extra_params (Dict[str, Union[str, int, float]], optional): Extra parameters to pass to the model.
+                Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -347,6 +350,7 @@ class BaseLLMClient:
             timeout,
             bypass_memory,
             alt_memory,
+            extra_params,
         )
 
     async def call_custom(
@@ -363,6 +367,7 @@ class BaseLLMClient:
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
         alt_memory: Optional[BaseMemory] = None,
+        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
     ) -> str:
         """Performs inference on any model from an active provider that is not officially supported
         by L2M2. This method does not guarantee correctness.
@@ -430,6 +435,7 @@ class BaseLLMClient:
             timeout,
             bypass_memory,
             alt_memory,
+            extra_params,
         )
 
     async def _call_impl(
@@ -445,6 +451,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         bypass_memory: bool,
         alt_memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
     ) -> str:
         # Prepare memory
         memory = alt_memory if alt_memory is not None else self.memory
@@ -486,6 +493,7 @@ class BaseLLMClient:
             params,
             timeout,
             memory,
+            extra_params,
             json_mode,
             json_mode_strategy,
             model_info["extras"],
@@ -516,6 +524,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
         *_: Any,  # json_mode and json_mode_strategy, and extras are not used here
     ) -> str:
         data: Dict[str, Any] = {}
@@ -541,6 +550,7 @@ class BaseLLMClient:
             api_key=self.api_keys["google"],
             data=data,
             timeout=timeout,
+            extra_params=extra_params,
         )
         result = result["candidates"][0]
 
@@ -558,6 +568,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         _: Dict[str, Any],  # extras is not used here
@@ -581,6 +592,7 @@ class BaseLLMClient:
             api_key=self.api_keys["anthropic"],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
+            extra_params=extra_params,
         )
         return str(result["content"][0]["text"])
 
@@ -592,6 +604,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         _: Dict[str, Any],  # extras is not used here
@@ -614,6 +627,7 @@ class BaseLLMClient:
             api_key=self.api_keys["cohere"],
             data={"model": model_id, "message": prompt, **params},
             timeout=timeout,
+            extra_params=extra_params,
         )
         return str(result["text"])
 
@@ -637,6 +651,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
         __: Dict[str, Any],  # extras is not used here
@@ -662,6 +677,7 @@ class BaseLLMClient:
             api_key=self.api_keys["replicate"],
             data={"input": {"prompt": prompt, **params}},
             timeout=timeout,
+            extra_params=extra_params,
         )
         return "".join(result["output"])
 
@@ -680,6 +696,7 @@ class BaseLLMClient:
         params: Dict[str, Any],
         timeout: Optional[int],
         memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         extras: Dict[str, Any],
@@ -687,9 +704,14 @@ class BaseLLMClient:
         """Generic call method for providers who follow the OpenAI API spec."""
         supports_native_json_mode = "json_mode_arg" in extras
 
+        # For o1 and newer, use "developer" messages instead of "system"
+        system_key = "system"
+        if provider == "openai" and model_id in ["o1", "o1-preview", "o1-mini"]:
+            system_key = "developer"
+
         messages = []
         if system_prompt is not None:
-            messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": system_key, "content": system_prompt})
         if isinstance(memory, ChatMemory):
             messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
@@ -706,6 +728,7 @@ class BaseLLMClient:
             api_key=self.api_keys[provider],
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
+            extra_params=extra_params,
         )
         return str(result["choices"][0]["message"]["content"])
 

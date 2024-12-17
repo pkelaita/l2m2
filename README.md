@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734052060)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734052060)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734477464)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734477464)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -8,7 +8,7 @@
 
 ### Features
 
-- <!--start-count-->29<!--end-count--> supported models (see below) – regularly updated and with more on the way.
+- <!--start-count-->31<!--end-count--> supported models (see below) – regularly updated and with more on the way.
 - Session chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
 - Prompt loading tools
@@ -25,37 +25,39 @@ L2M2 currently supports the following models:
 
 <!--start-model-table-->
 
-| Model Name            | Provider(s)                                                        | Model Version(s)                                    |
-| --------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
-| `gpt-4o`              | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-11-20`                                 |
-| `gpt-4o-mini`         | [OpenAI](https://openai.com/product)                               | `gpt-4o-mini-2024-07-18`                            |
-| `gpt-4-turbo`         | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
-| `gpt-3.5-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
-| `gemini-2.0-flash`    | [Google](https://ai.google.dev/)                                   | `gemini-2.0-flash-exp`                              |
-| `gemini-1.5-flash`    | [Google](https://ai.google.dev/)                                   | `gemini-1.5-flash`                                  |
-| `gemini-1.5-flash-8b` | [Google](https://ai.google.dev/)                                   | `gemini-1.5-flash-8b`                               |
-| `gemini-1.5-pro`      | [Google](https://ai.google.dev/)                                   | `gemini-1.5-pro`                                    |
-| `claude-3.5-sonnet`   | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-sonnet-latest`                          |
-| `claude-3.5-haiku`    | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-5-haiku-latest`                           |
-| `claude-3-opus`       | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-opus-20240229`                            |
-| `claude-3-sonnet`     | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-sonnet-20240229`                          |
-| `claude-3-haiku`      | [Anthropic](https://www.anthropic.com/api)                         | `claude-3-haiku-20240307`                           |
-| `command-r`           | [Cohere](https://docs.cohere.com/)                                 | `command-r`                                         |
-| `command-r-plus`      | [Cohere](https://docs.cohere.com/)                                 | `command-r-plus`                                    |
-| `mistral-large`       | [Mistral](https://mistral.ai/)                                     | `mistral-large-latest`                              |
-| `ministral-3b`        | [Mistral](https://mistral.ai/)                                     | `ministral-3b-latest`                               |
-| `ministral-8b`        | [Mistral](https://mistral.ai/)                                     | `ministral-8b-latest`                               |
-| `mistral-small`       | [Mistral](https://mistral.ai/)                                     | `mistral-small-latest`                              |
-| `mixtral-8x7b`        | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                                |
-| `gemma-7b`            | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                       |
-| `gemma-2-9b`          | [Groq](https://wow.groq.com/)                                      | `gemma2-9b-it`                                      |
-| `llama-3-8b`          | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
-| `llama-3-70b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
-| `llama-3.1-8b`        | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-8b-instant`, `llama3.1-8b`               |
-| `llama-3.1-70b`       | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-70b-versatile`, `llama3.1-70b`           |
-| `llama-3.1-405b`      | [Replicate](https://replicate.com/)                                | `meta/meta-llama-3.1-405b-instruct`                 |
-| `llama-3.2-1b`        | [Groq](https://wow.groq.com/)                                      | `llama-3.2-1b-preview`                              |
-| `llama-3.2-3b`        | [Groq](https://wow.groq.com/)                                      | `llama-3.2-3b-preview`                              |
+| Model Name            | Provider(s)                                                                   | Model Version(s)                                    |
+| --------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------- |
+| `gpt-4o`              | [OpenAI](https://openai.com/api/)                                             | `gpt-4o-2024-11-20`                                 |
+| `gpt-4o-mini`         | [OpenAI](https://openai.com/api/)                                             | `gpt-4o-mini-2024-07-18`                            |
+| `o1`                  | [OpenAI](https://openai.com/api/)                                             | `o1`                                                |
+| `o1-preview`          | [OpenAI](https://openai.com/api/)                                             | `o1-preview`                                        |
+| `o1-mini`             | [OpenAI](https://openai.com/api/)                                             | `o1-mini`                                           |
+| `gpt-4-turbo`         | [OpenAI](https://openai.com/api/)                                             | `gpt-4-turbo-2024-04-09`                            |
+| `gpt-3.5-turbo`       | [OpenAI](https://openai.com/api/)                                             | `gpt-3.5-turbo-0125`                                |
+| `gemini-2.0-flash`    | [Google](https://ai.google.dev/)                                              | `gemini-2.0-flash-exp`                              |
+| `gemini-1.5-flash`    | [Google](https://ai.google.dev/)                                              | `gemini-1.5-flash`                                  |
+| `gemini-1.5-flash-8b` | [Google](https://ai.google.dev/)                                              | `gemini-1.5-flash-8b`                               |
+| `gemini-1.5-pro`      | [Google](https://ai.google.dev/)                                              | `gemini-1.5-pro`                                    |
+| `claude-3.5-sonnet`   | [Anthropic](https://www.anthropic.com/api)                                    | `claude-3-5-sonnet-latest`                          |
+| `claude-3.5-haiku`    | [Anthropic](https://www.anthropic.com/api)                                    | `claude-3-5-haiku-latest`                           |
+| `claude-3-opus`       | [Anthropic](https://www.anthropic.com/api)                                    | `claude-3-opus-20240229`                            |
+| `claude-3-sonnet`     | [Anthropic](https://www.anthropic.com/api)                                    | `claude-3-sonnet-20240229`                          |
+| `claude-3-haiku`      | [Anthropic](https://www.anthropic.com/api)                                    | `claude-3-haiku-20240307`                           |
+| `command-r`           | [Cohere](https://docs.cohere.com/)                                            | `command-r`                                         |
+| `command-r-plus`      | [Cohere](https://docs.cohere.com/)                                            | `command-r-plus`                                    |
+| `mistral-large`       | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/)          | `mistral-large-latest`                              |
+| `ministral-3b`        | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/)          | `ministral-3b-latest`                               |
+| `ministral-8b`        | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/)          | `ministral-8b-latest`                               |
+| `mistral-small`       | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/)          | `mistral-small-latest`                              |
+| `mixtral-8x7b`        | [Groq](https://wow.groq.com/)                                                 | `mixtral-8x7b-32768`                                |
+| `gemma-2-9b`          | [Groq](https://wow.groq.com/)                                                 | `gemma2-9b-it`                                      |
+| `llama-3-8b`          | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/)            | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
+| `llama-3-70b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/)            | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
+| `llama-3.1-8b`        | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.1-8b-instant`, `llama3.1-8b`               |
+| `llama-3.1-405b`      | [Replicate](https://replicate.com/)                                           | `meta/meta-llama-3.1-405b-instruct`                 |
+| `llama-3.2-1b`        | [Groq](https://wow.groq.com/)                                                 | `llama-3.2-1b-preview`                              |
+| `llama-3.2-3b`        | [Groq](https://wow.groq.com/)                                                 | `llama-3.2-3b-preview`                              |
+| `llama-3.3-70b`       | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b`           |
 
 <!--end-model-table-->
 
@@ -73,6 +75,7 @@ L2M2 currently supports the following models:
   - **Tools**
     - [JSON Mode](#tools-json-mode)
     - [Prompt Loader](#tools-prompt-loader)
+- [Other Capabilities](#other-capabilities)
 - [Planned Features](#planned-features)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -149,9 +152,7 @@ response = client.call(
 )
 ```
 
-If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
-
-### Example
+#### Example
 
 ```python
 # example.py
@@ -649,10 +650,39 @@ print(prompt)
 Your name is Pierce and you are a software engineer.
 ```
 
+## Other Capabilities
+
+#### Call Custom
+
+If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
+
+```python
+response = client.call_custom(
+    provider="<provider name>",
+    model_id="<model id for given provider>",
+    prompt="<prompt>",
+    ...
+)
+```
+
+#### Extra Parameters
+
+You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series) by passing in the `extra_params` parameter to `call` or `call_custom`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Similarly, using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
+
+```python
+response = client.call(
+    model="<model name>",
+    prompt="<prompt>",
+    extra_params={"foo": "bar", "baz": 123},
+    ...
+)
+```
+
 ## Planned Features
 
+- Support for structured outputs where available (Just OpenAI as far as I know)
+- Support for OSS and self-hosted (Hugging Face, Ollama, Gpt4all, etc.)
 - Support for batch APIs where available (OpenAI, Anthropic, etc.)
-- Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
 - Tools for common application workflows: RAG, prompt management, search, etc.
 - Support for streaming responses

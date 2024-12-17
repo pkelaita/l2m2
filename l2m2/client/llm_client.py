@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union
 import asyncio
 import httpx
 
@@ -38,6 +38,7 @@ class LLMClient(BaseLLMClient):
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
         alt_memory: Optional[BaseMemory] = None,
+        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -53,6 +54,7 @@ class LLMClient(BaseLLMClient):
                 timeout=timeout,
                 bypass_memory=bypass_memory,
                 alt_memory=alt_memory,
+                extra_params=extra_params,
             )
         )
         return str(result)
@@ -71,6 +73,7 @@ class LLMClient(BaseLLMClient):
         timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
         alt_memory: Optional[BaseMemory] = None,
+        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
     ) -> str:
         result = asyncio.run(
             self._sync_fn_wrapper(
@@ -86,6 +89,7 @@ class LLMClient(BaseLLMClient):
                 timeout=timeout,
                 bypass_memory=bypass_memory,
                 alt_memory=alt_memory,
+                extra_params=extra_params,
             )
         )
         return str(result)
