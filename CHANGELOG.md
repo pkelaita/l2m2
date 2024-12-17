@@ -9,6 +9,10 @@ _Current version: 0.0.39_
 > [!CAUTION]
 > This release has breaking changes! Please read the changelog carefully.
 
+#### Added
+
+- Support for [Llama 3.3 70b](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_3/) via [Groq](https://console.groq.com/docs/models) and [Cerebras](https://inference-docs.cerebras.ai/introduction).
+
 #### Removed
 
 - `gemma-7b` has been removed as it has been [deprecated](https://console.groq.com/docs/models) by Groq.
