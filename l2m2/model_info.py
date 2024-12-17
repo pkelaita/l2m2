@@ -451,22 +451,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "gemma-7b": {
-        "groq": {
-            "model_id": "gemma-7b-it",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {},
-        },
-    },
     "gemma-2-9b": {
         "groq": {
             "model_id": "gemma2-9b-it",

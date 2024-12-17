@@ -1,8 +1,17 @@
 # Changelog
 
-_Current version: 0.0.38_
+_Current version: 0.0.39_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.39 - December 17, 2024
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+#### Removed
+
+- `gemma-7b` has been removed as it has been [deprecated](https://console.groq.com/docs/models) by Groq.
 
 ### v0.0.38 - December 12, 2024
 
