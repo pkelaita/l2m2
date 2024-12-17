@@ -559,36 +559,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.1-70b": {
-        "groq": {
-            "model_id": "llama-3.1-70b-versatile",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 8000,
-                },
-            },
-            "extras": {},
-        },
-        "cerebras": {
-            "model_id": "llama3.1-70b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.5,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**31 - 1,
-                },
-            },
-            "extras": {},
-        },
-    },
     "llama-3.1-405b": {
         "replicate": {
             "model_id": "meta/meta-llama-3.1-405b-instruct",

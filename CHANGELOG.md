@@ -12,6 +12,7 @@ _Current version: 0.0.39_
 #### Removed
 
 - `gemma-7b` has been removed as it has been [deprecated](https://console.groq.com/docs/models) by Groq.
+- `llama-3.1-70b` has been removed as it has been deprecated by both [Groq](https://console.groq.com/docs/models) and [Cerebras](https://inference-docs.cerebras.ai/introduction).
 
 ### v0.0.38 - December 12, 2024
 
