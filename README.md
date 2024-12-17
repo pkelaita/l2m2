@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734052060)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734052060)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734470191)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734470191)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -8,7 +8,7 @@
 
 ### Features
 
-- <!--start-count-->29<!--end-count--> supported models (see below) – regularly updated and with more on the way.
+- <!--start-count-->31<!--end-count--> supported models (see below) – regularly updated and with more on the way.
 - Session chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
 - Prompt loading tools
@@ -29,6 +29,9 @@ L2M2 currently supports the following models:
 | --------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
 | `gpt-4o`              | [OpenAI](https://openai.com/product)                               | `gpt-4o-2024-11-20`                                 |
 | `gpt-4o-mini`         | [OpenAI](https://openai.com/product)                               | `gpt-4o-mini-2024-07-18`                            |
+| `o1`                  | [OpenAI](https://openai.com/product)                               | `o1`                                                |
+| `o1-preview`          | [OpenAI](https://openai.com/product)                               | `o1-preview`                                        |
+| `o1-mini`             | [OpenAI](https://openai.com/product)                               | `o1-mini`                                           |
 | `gpt-4-turbo`         | [OpenAI](https://openai.com/product)                               | `gpt-4-turbo-2024-04-09`                            |
 | `gpt-3.5-turbo`       | [OpenAI](https://openai.com/product)                               | `gpt-3.5-turbo-0125`                                |
 | `gemini-2.0-flash`    | [Google](https://ai.google.dev/)                                   | `gemini-2.0-flash-exp`                              |
@@ -47,15 +50,17 @@ L2M2 currently supports the following models:
 | `ministral-8b`        | [Mistral](https://mistral.ai/)                                     | `ministral-8b-latest`                               |
 | `mistral-small`       | [Mistral](https://mistral.ai/)                                     | `mistral-small-latest`                              |
 | `mixtral-8x7b`        | [Groq](https://wow.groq.com/)                                      | `mixtral-8x7b-32768`                                |
-| `gemma-7b`            | [Groq](https://wow.groq.com/)                                      | `gemma-7b-it`                                       |
 | `gemma-2-9b`          | [Groq](https://wow.groq.com/)                                      | `gemma2-9b-it`                                      |
 | `llama-3-8b`          | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct`   |
 | `llama-3-70b`         | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 | `llama-3.1-8b`        | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-8b-instant`, `llama3.1-8b`               |
-| `llama-3.1-70b`       | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.1-70b-versatile`, `llama3.1-70b`           |
 | `llama-3.1-405b`      | [Replicate](https://replicate.com/)                                | `meta/meta-llama-3.1-405b-instruct`                 |
 | `llama-3.2-1b`        | [Groq](https://wow.groq.com/)                                      | `llama-3.2-1b-preview`                              |
 | `llama-3.2-3b`        | [Groq](https://wow.groq.com/)                                      | `llama-3.2-3b-preview`                              |
+| `llama-3.3-70b`       | [Groq](https://wow.groq.com/), [Cerebras](https://cerebras.ai/)    | `llama-3.3-70b-versatile`, `llama3.3-70b`           |
+
+> [!NOTE]
+> Currently, you must be on OpenAI's [usage tier](https://platform.openai.com/docs/guides/rate-limits) 5 to use `o1` and tier 1+ to use `o1-preview`, `o1-mini`, and `gpt-4o`.
 
 <!--end-model-table-->
 
@@ -651,8 +656,9 @@ Your name is Pierce and you are a software engineer.
 
 ## Planned Features
 
+- Support for structured outputs where available (Just OpenAI as far as I know)
+- Support for OSS and self-hosted (Hugging Face, Ollama, Gpt4all, etc.)
 - Support for batch APIs where available (OpenAI, Anthropic, etc.)
-- Support for OSS and self-hosted (Hugging Face, Gpt4all, etc.)
 - Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
 - Tools for common application workflows: RAG, prompt management, search, etc.
 - Support for streaming responses

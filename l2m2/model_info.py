@@ -157,6 +157,57 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
+    "o1": {
+        "openai": {
+            "model_id": "o1",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-preview": {
+        "openai": {
+            "model_id": "o1-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-mini": {
+        "openai": {
+            "model_id": "o1-mini",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
     "gpt-4-turbo": {
         "openai": {
             "model_id": "gpt-4-turbo-2024-04-09",

@@ -687,9 +687,14 @@ class BaseLLMClient:
         """Generic call method for providers who follow the OpenAI API spec."""
         supports_native_json_mode = "json_mode_arg" in extras
 
+        # For o1 and newer, use "developer" messages instead of "system"
+        system_key = "system"
+        if provider == "openai" and model_id in ["o1", "o1-preview", "o1-mini"]:
+            system_key = "developer"
+
         messages = []
         if system_prompt is not None:
-            messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": system_key, "content": system_prompt})
         if isinstance(memory, ChatMemory):
             messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
