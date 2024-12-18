@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734477464)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734477464)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1734494879)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1734494879)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -75,7 +75,7 @@ L2M2 currently supports the following models:
   - **Tools**
     - [JSON Mode](#tools-json-mode)
     - [Prompt Loader](#tools-prompt-loader)
-- [Other Capabilities](#other-capabilities)
+    - [Other Capabilities](#other-capabilities)
 - [Planned Features](#planned-features)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -650,7 +650,7 @@ print(prompt)
 Your name is Pierce and you are a software engineer.
 ```
 
-## Other Capabilities
+### Other Capabilities
 
 #### Call Custom
 
