@@ -683,7 +683,7 @@ response = client.call(
 - Support for structured outputs where available (Just OpenAI as far as I know)
 - Support for OSS and self-hosted (Hugging Face, Ollama, Gpt4all, etc.)
 - Support for batch APIs where available (OpenAI, Anthropic, etc.)
-- Basic (i.e., customizable & non-opinionated) agent & multi-agent system features
+- Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
 - Tools for common application workflows: RAG, prompt management, search, etc.
 - Support for streaming responses
 - ...etc.
