@@ -665,12 +665,13 @@ response = client.call(
 
 ## Planned Features
 
-- Support for structured outputs where available (Just OpenAI as far as I know)
-- Support for OSS and self-hosted (Hugging Face, Ollama, Gpt4all, etc.)
-- Support for batch APIs where available (OpenAI, Anthropic, etc.)
+- Support for self-hosted model hosting (LMStudio, Ollama, etc)
+- Streaming responses
+- Embeddings
+- Basic tools for common application workflows: RAG, prompt management, search, etc.
 - Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
-- Tools for common application workflows: RAG, prompt management, search, etc.
-- Support for streaming responses
+- Support for batch APIs where available (OpenAI, Anthropic, etc.)
+- Support for structured outputs where available (Just OpenAI as far as I know)
 - ...etc.
 
 ## Contributing
