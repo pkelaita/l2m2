@@ -1,8 +1,17 @@
 # Changelog
 
-_Current version: 0.0.39_
+_Current version: 0.0.40_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.40 - January 16, 2025
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+#### Removed
+
+- The `call_custom` method has been removed from `LLMClient` and `AsyncLLMClient` due to lack of use and unnecessary complexity. **This is a breaking change!!!** If you need to call a model that is not officially supported by L2M2, please open an issue on the [Github repo](https://github.com/pkelaita/l2m2/issues).
 
 ### 0.0.39 - December 17, 2024
 

@@ -59,42 +59,6 @@ class LLMClient(BaseLLMClient):
         )
         return str(result)
 
-    def call_custom(  # type: ignore
-        self,
-        *,
-        provider: str,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        json_mode: bool = False,
-        json_mode_strategy: Optional[JsonModeStrategy] = None,
-        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
-        bypass_memory: bool = False,
-        alt_memory: Optional[BaseMemory] = None,
-        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
-    ) -> str:
-        result = asyncio.run(
-            self._sync_fn_wrapper(
-                super(LLMClient, self).call_custom,
-                provider=provider,
-                model_id=model_id,
-                prompt=prompt,
-                system_prompt=system_prompt,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                json_mode=json_mode,
-                json_mode_strategy=json_mode_strategy,
-                timeout=timeout,
-                bypass_memory=bypass_memory,
-                alt_memory=alt_memory,
-                extra_params=extra_params,
-            )
-        )
-        return str(result)
-
     # Inherit docstrings
     __init__.__doc__ = BaseLLMClient.__init__.__doc__
     call.__doc__ = BaseLLMClient.call.__doc__
-    call_custom.__doc__ = BaseLLMClient.call_custom.__doc__

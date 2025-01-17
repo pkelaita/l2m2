@@ -650,24 +650,9 @@ print(prompt)
 Your name is Pierce and you are a software engineer.
 ```
 
-### Other Capabilities
+### Other Capabilities: Extra Parameters
 
-#### Call Custom
-
-If you'd like to call a language model from one of the supported providers that isn't officially supported by L2M2 (for example, older models such as `gpt-4-0125-preview`), you can similarly `call_custom` with the additional required parameter `provider`, and pass in the model name expected by the provider's API. Unlike `call`, `call_custom` doesn't guarantee correctness or well-defined behavior.
-
-```python
-response = client.call_custom(
-    provider="<provider name>",
-    model_id="<model id for given provider>",
-    prompt="<prompt>",
-    ...
-)
-```
-
-#### Extra Parameters
-
-You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series) by passing in the `extra_params` parameter to `call` or `call_custom`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Similarly, using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
+You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series) by passing in the `extra_params` parameter to `call`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
 
 ```python
 response = client.call(
