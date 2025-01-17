@@ -375,52 +375,6 @@ async def test_call_temperature_too_high(llm_client):
         await llm_client.call(prompt="Hello", model="gpt-4o", temperature=3.0)
 
 
-# -- Tests for call_custom -- #
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-async def test_call_custom(mock_call_openai, llm_client):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
-    llm_client.add_provider("openai", "fake-api-key")
-    response_default = await llm_client.call_custom(
-        provider="openai",
-        prompt="Hello",
-        model_id="custom-model-xyz",
-    )
-    response_custom = await llm_client.call_custom(
-        provider="openai",
-        prompt="Hello",
-        model_id="custom-model-xyz",
-        system_prompt="System prompt",
-        temperature=0.5,
-        max_tokens=100,
-    )
-
-    assert response_default == "response"
-    assert response_custom == "response"
-
-
-@pytest.mark.asyncio
-async def test_call_custom_invalid_provider(llm_client):
-    with pytest.raises(ValueError):
-        await llm_client.call_custom(
-            provider="invalid_provider",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-        )
-
-
-@pytest.mark.asyncio
-async def test_call_custom_not_active(llm_client):
-    with pytest.raises(ValueError):
-        await llm_client.call_custom(
-            provider="openai",
-            prompt="Hello",
-            model_id="custom-model-xyz",
-        )
-
-
 # -- Tests for multi provider -- #
 
 

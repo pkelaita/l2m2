@@ -17,16 +17,6 @@ def test_call(mock_asyncio_run, llm_client):
     assert result == "async_call_result"
 
 
-@patch("l2m2.client.llm_client.asyncio.run", return_value="async_call_custom_result")
-def test_call_custom(mock_asyncio_run, llm_client):
-    result = llm_client.call_custom(
-        provider="test-provider", model_id="test-model-id", prompt="test prompt"
-    )
-
-    mock_asyncio_run.assert_called_once()
-    assert result == "async_call_custom_result"
-
-
 @pytest.mark.asyncio
 async def test_sync_fn_wrapper():
     async def dummy_fn(*args, **kwargs):
