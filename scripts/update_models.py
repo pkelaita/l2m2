@@ -39,33 +39,53 @@ for model_name in MODEL_INFO:
             json_native += f"\n- `{model_name}` (via {provider.capitalize()})"
 json_native += "\n\n"
 
-readme_path = "../README.md"
-count_start = "<!--start-count-->"
-count_end = "<!--end-count-->"
-table_start = "<!--start-model-table-->"
-table_end = "<!--end-model-table-->"
-json_native_start = "<!--start-json-native-->"
-json_native_end = "<!--end-json-native-->"
+
+provider_list = ""
+for i, provider_key in enumerate(PROVIDER_INFO):
+    if i == len(PROVIDER_INFO) - 1:
+        provider_list += "and "
+    provider_list += f"{get_provider_link(provider_key)}"
+    if i < len(PROVIDER_INFO) - 1:
+        provider_list += ", "
+
+
+start_model_count = "<!--start-model-count-->"
+start_model_table = "<!--start-model-table-->"
+start_json_native = "<!--start-json-native-->"
+start_prov_list = "<!--start-prov-list-->"
+end_model_count = "<!--end-model-count-->"
+end_model_table = "<!--end-model-table-->"
+end_json_native = "<!--end-json-native-->"
+end_prov_list = "<!--end-prov-list-->"
 
 
 def replace_between(full_string, start, end, replacement):
-    try:
-        start_idx = full_string.index(start) + len(start)
-        end_idx = full_string.index(end)
-        return full_string[:start_idx] + replacement + full_string[end_idx:]
-    except ValueError:
-        print(f"Could not find {start} or {end} in the string)")
-        return full_string
+    i_s = full_string.find(start)
+    while i_s != -1:
+        i_e = full_string.find(end, i_s)
+        if i_e == -1:
+            break
+        full_string = (
+            full_string[: i_s + len(start)] + str(replacement) + full_string[i_e:]
+        )
+        i_s = full_string.find(start, i_e)
+    return full_string
 
 
+readme_path = "../README.md"
 with open(readme_path, "r") as f:
     out = f.read()
-
-out = replace_between(out, count_start, count_end, str(len(MODEL_INFO)))
-out = replace_between(out, table_start, table_end, model_table)
-out = replace_between(out, json_native_start, json_native_end, json_native)
-
+out = replace_between(out, start_model_count, end_model_count, len(MODEL_INFO))
+out = replace_between(out, start_prov_list, end_prov_list, provider_list)
+out = replace_between(out, start_json_native, end_json_native, json_native)
 with open(readme_path, "w") as f:
     f.write(out)
+print("Updated README.md")
 
-print("Updated model table in README.md")
+supported_models_path = "../docs/supported_models.md"
+with open(supported_models_path, "r") as f:
+    out = f.read()
+    out = replace_between(out, start_model_table, end_model_table, model_table)
+with open(supported_models_path, "w") as f:
+    f.write(out)
+print("Updated supported_models.md")
