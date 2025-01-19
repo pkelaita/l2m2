@@ -52,6 +52,6 @@ clean:
 publish: clean build
 	twine upload dist/*
 
-update-readme:
+update-docs:
 	cd scripts && ./update_badges.sh
 	cd scripts && python3 update_models.py
