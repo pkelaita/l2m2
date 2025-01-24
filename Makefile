@@ -3,7 +3,7 @@
 
 VERSION := $(shell python -c "from l2m2 import __version__; print(__version__)")
 
-default: lint typecheck test
+default: lint typecheck test tox
 
 init:
 	pip install --upgrade pip
@@ -12,6 +12,9 @@ init:
 
 test:
 	pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
+
+tox:
+	tox -p auto
 
 clear-deps:
 	@pip uninstall -y l2m2 > /dev/null 2>&1
@@ -30,7 +33,7 @@ coverage:
 	open htmlcov/index.html
 
 lint:
-	-flake8 .
+	-ruff check .
 
 typecheck:
 	-mypy .

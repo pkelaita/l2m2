@@ -1,10 +1,11 @@
 import sys
 from pathlib import Path
 
+from l2m2.model_info import MODEL_INFO, PROVIDER_INFO
+
 file = Path(__file__).resolve()
 sys.path.append(str(file.parents[1]))
 
-from l2m2.model_info import MODEL_INFO, PROVIDER_INFO
 
 header = "| Model Name | Provider(s) | Model Version(s) |\n"
 sep = "| --- | --- | --- |\n"
