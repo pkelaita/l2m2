@@ -18,6 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Activate virtual environment
+        run: |
+          uv venv
+          source .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
       - name: Install dependencies
         run: make init
 
@@ -37,6 +46,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Activate virtual environment
+        run: |
+          uv venv
+          source .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
 
       - name: Install dependencies
         run: make init
