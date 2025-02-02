@@ -3,12 +3,12 @@
 
 VERSION := $(shell python -c "from l2m2 import __version__; print(__version__)")
 
-default: lint typecheck test tox
+default: lint typecheck test
 
 init:
-	pip install --upgrade pip
-	pip install -r requirements.txt
-	pip install -r requirements-dev.txt
+	uv pip install --upgrade uv pip
+	uv pip install -r requirements.txt
+	uv pip install -r requirements-dev.txt
 
 test:
 	pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
@@ -21,8 +21,8 @@ clear-deps:
 	@pip freeze | xargs pip uninstall -y > /dev/null
 
 itest-run:
-	@pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
-	@pip install -r integration_tests/requirements-itest.txt > /dev/null
+	@uv pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
+	@uv pip install -r integration_tests/requirements-itest.txt > /dev/null
 	python integration_tests/itests.py
 
 itest: clear-deps itest-run clear-deps
