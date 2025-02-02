@@ -1,9 +1,14 @@
 """Information about models and providers supported by L2M2."""
 
-from typing import Dict, Union, Any
-from typing_extensions import TypedDict, NotRequired, TypeVar, Generic, Literal
-from enum import Enum
+from typing import Any, Dict, Union, Literal, TypedDict
 import sys
+
+PROVIDER_DEFAULT: Literal["<<PROVIDER_DEFAULT>>"] = "<<PROVIDER_DEFAULT>>"
+
+API_KEY = "<<API_KEY>>"
+MODEL_ID = "<<MODEL_ID>>"
+
+INF: int = sys.maxsize
 
 
 class ProviderEntry(TypedDict):
@@ -13,39 +18,32 @@ class ProviderEntry(TypedDict):
     headers: Dict[str, str]
 
 
-T = TypeVar("T")
-
-Marker = Enum("Marker", {"PROVIDER_DEFAULT": "<<PROVIDER_DEFAULT>>"})
-PROVIDER_DEFAULT: Marker = Marker.PROVIDER_DEFAULT
-
-API_KEY = "<<API_KEY>>"
-MODEL_ID = "<<MODEL_ID>>"
+class ParamOptionalFields(TypedDict, total=False):
+    custom_key: str
 
 
-class Param(TypedDict, Generic[T]):
-    custom_key: NotRequired[str]
-    default: Union[T, Literal[Marker.PROVIDER_DEFAULT]]
-    max: T
+class FloatParam(ParamOptionalFields):
+    default: Union[float, Literal["<<PROVIDER_DEFAULT>>"]]
+    max: float
+
+
+class IntParam(ParamOptionalFields):
+    default: Union[int, Literal["<<PROVIDER_DEFAULT>>"]]
+    max: int
+
+
+ParamName = Literal["temperature", "max_tokens"]
 
 
 class ModelParams(TypedDict):
-    temperature: Param[float]
-    max_tokens: Param[int]
-
-
-ParamName = Literal[
-    "temperature",
-    "max_tokens",
-]
+    temperature: FloatParam
+    max_tokens: IntParam
 
 
 class ModelEntry(TypedDict):
     model_id: str
     params: ModelParams
     extras: Dict[str, Any]
-
-
-INF: int = sys.maxsize
 
 
 PROVIDER_INFO: Dict[str, ProviderEntry] = {
