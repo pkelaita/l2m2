@@ -5,6 +5,7 @@ import os
 from l2m2.model_info import (
     MODEL_INFO,
     HOSTED_PROVIDERS,
+    LOCAL_PROVIDERS,
     PROVIDER_DEFAULT,
     ModelEntry,
     ModelParams,
@@ -65,25 +66,31 @@ class BaseLLMClient:
         Raises:
             ValueError: If an invalid provider is specified in `providers`.
         """
+        # Hosted models and providers state
         self.api_keys: Dict[str, str] = {}
-        self.active_providers: Set[str] = set()
-        self.active_models: Set[str] = set()
-        self.preferred_providers: Dict[str, str] = {}
-        self.memory: Optional[BaseMemory] = None
+        self.active_hosted_providers: Set[str] = set()
+        self.active_hosted_models: Set[str] = set()
 
+        # Local models and providers state
+        self.local_model_pairings: Set[Tuple[str, str]] = set()  # (model, provider)
+        self.local_provider_overrides: Dict[str, str] = {}  # provider -> base url
+
+        # Misc state
+        self.preferred_providers: Dict[str, str] = {}  # model -> provider
+        self.memory = memory
+        self.httpx_client = httpx.AsyncClient()
+
+        # TODO rename to api_keys
         if providers is not None:
             for provider, api_key in providers.items():
                 self.add_provider(provider, api_key)
 
         for provider, env_var in DEFAULT_PROVIDER_ENVS.items():
             if (
-                provider not in self.active_providers
+                provider not in self.active_hosted_providers
                 and (default_api_key := os.getenv(env_var)) is not None
             ):
                 self.add_provider(provider, default_api_key)
-
-        self.memory = memory
-        self.httpx_client = httpx.AsyncClient()
 
     async def __aenter__(self) -> "BaseLLMClient":
         await self.httpx_client.__aenter__()
@@ -95,19 +102,21 @@ class BaseLLMClient:
     @staticmethod
     def get_available_providers() -> Set[str]:
         """Get the exhaustive set of L2M2's available model providers. This set includes
-        all providers, regardless of whether they are currently active. L2M2 does not currently
-        support adding custom providers.
+        all providers, regardless of whether they are currently active, and includes both hosted
+        and local providers.
 
         Returns:
             Set[str]: A set of available providers.
         """
-        return set(HOSTED_PROVIDERS.keys())
+        return set(HOSTED_PROVIDERS.keys()) | set(LOCAL_PROVIDERS.keys())
 
+    # TODO deprecate
     @staticmethod
     def get_available_models() -> Set[str]:
         """The set of L2M2's supported models. This set includes all models, regardless of
-        whether they are currently active. L2M2 allows users to call non-available models
-        from available and active providers, but does not guarantee correctness for such calls.
+        whether they are currently active. IMPORTANT: this set does not include local models,
+        since local models can be arbitrary, and only includes models available from hosted
+        providers.
 
         Returns:
             Set[str]: A set of available models.
@@ -115,13 +124,13 @@ class BaseLLMClient:
         return set(MODEL_INFO.keys())
 
     def get_active_providers(self) -> Set[str]:
-        """Get the set of currently active providers. Active providers are those for which an API
-        key has been set.
+        """Get the set of currently active providers. Active providers are either hosted providers
+        for which an API key has been set, or local providers for which a model has been added.
 
         Returns:
             Set[str]: A set of active providers.
         """
-        return set(self.active_providers)
+        return set(self.active_hosted_providers) | self._get_active_local_providers()
 
     def get_active_models(self) -> Set[str]:
         """Get the set of currently active models. Active models are those that are available and
@@ -130,7 +139,7 @@ class BaseLLMClient:
         Returns:
             Set[str]: A set of active models.
         """
-        return set(self.active_models)
+        return set(self.active_hosted_models) | self._get_active_local_models()
 
     def add_provider(self, provider: str, api_key: str) -> None:
         """Add a provider to the LLMClient, making its models available for use.
@@ -148,8 +157,8 @@ class BaseLLMClient:
             )
 
         self.api_keys[provider] = api_key
-        self.active_providers.add(provider)
-        self.active_models.update(
+        self.active_hosted_providers.add(provider)
+        self.active_hosted_models.update(
             model for model in MODEL_INFO.keys() if provider in MODEL_INFO[model].keys()
         )
 
@@ -162,17 +171,80 @@ class BaseLLMClient:
         Raises:
             ValueError: If the given provider is not active.
         """
-        if provider_to_remove not in self.active_providers:
+        if provider_to_remove not in self.active_hosted_providers:
             raise ValueError(f"Provider not active: {provider_to_remove}")
 
         del self.api_keys[provider_to_remove]
-        self.active_providers.remove(provider_to_remove)
+        self.active_hosted_providers.remove(provider_to_remove)
 
-        self.active_models = {
+        self.active_hosted_models = {
             model
-            for model in self.active_models
-            if not MODEL_INFO[model].keys().isdisjoint(self.active_providers)
+            for model in self.active_hosted_models
+            if not MODEL_INFO[model].keys().isdisjoint(self.active_hosted_providers)
         }
+
+    def add_local_model(self, model: str, local_provider: str) -> None:
+        """Add a local model to the LLMClient.
+
+        Args:
+            model (str): The model name.
+            local_provider (str): The local provider name (Currently, only "ollama" is supported).
+
+        Raises:
+            ValueError: If the local provider is invalid.
+        """
+        if local_provider not in LOCAL_PROVIDERS:
+            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+
+        self.local_model_pairings.add((model, local_provider))
+
+    def remove_local_model(self, model: str, local_provider: str) -> None:
+        """Remove a local model from the LLMClient.
+
+        Args:
+            model (str): The model name.
+            local_provider (str): The local provider name (Currently, only "ollama" is supported).
+
+        Raises:
+            ValueError: If the local model is not active.
+        """
+        if (model, local_provider) not in self.local_model_pairings:
+            raise ValueError(f"Local {model} via {local_provider} is not active.")
+
+        self.local_model_pairings.remove((model, local_provider))
+
+    def override_local_base_url(self, local_provider: str, base_url: str) -> None:
+        """Overrides the default base URL for a local provider. For example, ollama defaults to
+        http://localhost:11434, but you can override it to use a remote instance, a different port,
+        etc.
+
+        TODO add instructions for injecting headers etc once this functionality exists.
+
+        Args:
+            local_provider (str): The local provider name (Currently, only "ollama" is supported).
+            new_base_url (str): The new base URL to use for the local provider.
+
+        Raises:
+            ValueError: If the local provider is invalid.
+        """
+        if local_provider not in LOCAL_PROVIDERS:
+            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+
+        self.local_provider_overrides[local_provider] = base_url
+
+    def reset_local_base_url(self, local_provider: str) -> None:
+        """Resets the base URL for a local provider to the default.
+
+        Args:
+            local_provider (str): The local provider name (Currently, only "ollama" is supported).
+
+        Raises:
+            ValueError: If the local provider is invalid.
+        """
+        if local_provider not in LOCAL_PROVIDERS:
+            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+
+        self.local_provider_overrides.pop(local_provider, None)
 
     def set_preferred_providers(self, preferred_providers: Dict[str, str]) -> None:
         """Set the preferred provider for each model. If a model is available from multiple active
@@ -195,15 +267,17 @@ class BaseLLMClient:
 
         Raises:
             ValueError: If an invalid model or provider is specified in `preferred_providers`.
-            ValueError: If the given model does not correlate to the given provider.
+            ValueError: If the given provider is hosted and the given model is not available from it.
         """
+
         for model, provider in preferred_providers.items():
-            if model not in self.get_available_models():
-                raise ValueError(f"Invalid model: {model}")
             if provider is not None:
                 if provider not in self.get_available_providers():
                     raise ValueError(f"Invalid provider: {provider}")
-                if provider not in MODEL_INFO[model].keys():
+
+                if provider in HOSTED_PROVIDERS and (
+                    model not in MODEL_INFO or provider not in MODEL_INFO[model].keys()
+                ):
                     raise ValueError(
                         f"Model {model} is not available from provider {provider}."
                     )
@@ -301,24 +375,24 @@ class BaseLLMClient:
             str: The model's completion for the prompt, or an error message if the model is
                 unable to generate a completion.
         """
-        if model not in self.active_models:
-            if model in self.get_available_models():
-                available_providers = ", ".join(MODEL_INFO[model].keys())
-                msg = (
-                    f"Model {model} is available, but not active."
-                    + f" Please add any of ({available_providers}) to activate it."
-                )
-                raise ValueError(msg)
-            else:
-                raise ValueError(f"Invalid model: {model}")
+        if model not in self.get_active_models():
+            raise ValueError(f"Invalid or non-active model: {model}")
 
-        if prefer_provider is not None and prefer_provider not in self.active_providers:
+        if (
+            prefer_provider is not None
+            and prefer_provider not in self.get_active_providers()
+        ):
             raise ValueError(
                 "Argument prefer_provider must either be None or an active provider."
-                + f" Active providers are {', '.join(self.active_providers)}"
+                + f" Active providers are {', '.join(self.get_active_providers())}"
             )
 
-        providers = set(MODEL_INFO[model].keys()) & self.active_providers
+        hosted_providers = (
+            set(MODEL_INFO.get(model, {}).keys()) & self.active_hosted_providers
+        )
+        local_providers = self._get_local_providers_for_model(model)
+        providers = hosted_providers | local_providers
+
         if len(providers) == 1:
             provider = next(iter(providers))
 
@@ -335,8 +409,14 @@ class BaseLLMClient:
                 + " default provider for the model with set_preferred_providers."
             )
 
+        model_entry = (
+            MODEL_INFO[model][provider]
+            if model in MODEL_INFO
+            else _get_local_model_entry(provider, model)
+        )
+
         return await self._call_impl(
-            MODEL_INFO[model][provider],
+            model_entry,
             provider,
             prompt,
             system_prompt,
@@ -643,6 +723,29 @@ class BaseLLMClient:
             extra_params=extra_params,
         )
         return str(result["choices"][0]["message"]["content"])
+
+    # State-dependent helper methods
+
+    def _get_local_providers_for_model(self, model: str) -> Set[str]:
+        return {
+            provider_i
+            for model_i, provider_i in self.local_model_pairings  # comment to preserve formatting
+            if model_i == model
+        }
+
+    def _get_active_local_models(self) -> Set[str]:
+        return {model_i for model_i, _ in self.local_model_pairings}
+
+    def _get_active_local_providers(self) -> Set[str]:
+        return {provider_i for _, provider_i in self.local_model_pairings}
+
+
+# Non-state-dependent helper methods
+
+
+def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:
+    generic_model_entry = LOCAL_PROVIDERS[provider]["model_entry"]
+    return {**generic_model_entry, "model_id": model_id}
 
 
 def _get_external_memory_prompts(

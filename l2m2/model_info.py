@@ -14,21 +14,6 @@ INF: int = sys.maxsize
 ParamName = Literal["temperature", "max_tokens"]
 
 
-class ProviderEntry(TypedDict):
-    name: str
-    homepage: str
-    endpoint: str
-    headers: Dict[str, str]
-
-
-class LocalProviderEntry(TypedDict):
-    name: str
-    homepage: str
-    endpoint: str
-    headers: Dict[str, str]
-    default_base_url: str
-
-
 class ParamOptionalFields(TypedDict, total=False):
     custom_key: str
 
@@ -52,6 +37,27 @@ class ModelEntry(TypedDict):
     model_id: str
     params: ModelParams
     extras: Dict[str, Any]
+
+
+class GenericModelEntry(TypedDict):
+    params: ModelParams
+    extras: Dict[str, Any]
+
+
+class ProviderEntry(TypedDict):
+    name: str
+    homepage: str
+    endpoint: str
+    headers: Dict[str, str]
+
+
+class LocalProviderEntry(TypedDict):
+    name: str
+    homepage: str
+    endpoint: str
+    headers: Dict[str, str]
+    default_base_url: str
+    model_entry: GenericModelEntry
 
 
 HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
@@ -132,9 +138,22 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
     "ollama": {
         "name": "Ollama",
         "homepage": "https://ollama.ai/",
-        "endpoint": f"{SERVICE_BASE_URL}/api/generate",
+        "endpoint": f"{SERVICE_BASE_URL}/api/chat",
         "headers": {"Content-Type": "application/json"},
         "default_base_url": "http://localhost:11434",
+        "model_entry": {
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
     },
 }
 
