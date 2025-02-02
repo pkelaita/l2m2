@@ -6,20 +6,20 @@ from l2m2._internal.http import (
 import pytest
 import httpx
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
-from l2m2.model_info import API_KEY, PROVIDER_INFO
+from l2m2.model_info import API_KEY, HOSTED_PROVIDERS
 
 
 def test_get_headers():
     # Test header generation with API key replacement
     test_api_key = "test_key_123"
 
-    # Mock PROVIDER_INFO for testing
-    original_provider_info = PROVIDER_INFO.copy()
-    PROVIDER_INFO["openai"] = {
+    # Mock HOSTED_PROVIDERS for testing
+    original_HOSTED_PROVIDERS = HOSTED_PROVIDERS.copy()
+    HOSTED_PROVIDERS["openai"] = {
         "headers": {"Authorization": f"Bearer {API_KEY}"},
         "endpoint": "https://api.openai.com/v1/chat/completions",
     }
-    PROVIDER_INFO["replicate"] = {
+    HOSTED_PROVIDERS["replicate"] = {
         "headers": {"Authorization": f"Token {API_KEY}"},
         "endpoint": "https://api.replicate.com/v1/predictions",
     }
@@ -33,9 +33,9 @@ def test_get_headers():
         assert "Authorization" in headers_replicate
         assert headers_replicate["Authorization"] == f"Token {test_api_key}"
     finally:
-        # Restore original PROVIDER_INFO
-        PROVIDER_INFO.clear()
-        PROVIDER_INFO.update(original_provider_info)
+        # Restore original HOSTED_PROVIDERS
+        HOSTED_PROVIDERS.clear()
+        HOSTED_PROVIDERS.update(original_HOSTED_PROVIDERS)
 
 
 class MockTransport(httpx.AsyncBaseTransport):
@@ -263,9 +263,9 @@ async def test_llm_post_with_api_key_in_endpoint():
         httpx.Response(200, json={"result": "success"}),
     ]
 
-    # Mock PROVIDER_INFO with API_KEY in endpoint
-    original_provider_info = PROVIDER_INFO.copy()
-    PROVIDER_INFO["test_provider"] = {
+    # Mock HOSTED_PROVIDERS with API_KEY in endpoint
+    original_HOSTED_PROVIDERS = HOSTED_PROVIDERS.copy()
+    HOSTED_PROVIDERS["test_provider"] = {
         "headers": {"Authorization": f"Bearer {API_KEY}"},
         "endpoint": f"https://api.test.com/{API_KEY}/v1/chat",
     }
@@ -283,6 +283,6 @@ async def test_llm_post_with_api_key_in_endpoint():
             )
             assert result == {"result": "success"}
     finally:
-        # Restore original PROVIDER_INFO
-        PROVIDER_INFO.clear()
-        PROVIDER_INFO.update(original_provider_info)
+        # Restore original HOSTED_PROVIDERS
+        HOSTED_PROVIDERS.clear()
+        HOSTED_PROVIDERS.update(original_HOSTED_PROVIDERS)

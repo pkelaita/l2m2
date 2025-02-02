@@ -2,11 +2,11 @@ from typing import Optional, Dict, Any, Union
 import httpx
 
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
-from l2m2.model_info import API_KEY, MODEL_ID, PROVIDER_INFO
+from l2m2.model_info import API_KEY, MODEL_ID, HOSTED_PROVIDERS
 
 
 def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
-    provider_info = PROVIDER_INFO[provider]
+    provider_info = HOSTED_PROVIDERS[provider]
     headers = provider_info["headers"].copy()
     return {key: value.replace(API_KEY, api_key) for key, value in headers.items()}
 
@@ -45,7 +45,7 @@ async def llm_post(
     timeout: Optional[int],
     extra_params: Optional[Dict[str, Union[str, int, float]]],
 ) -> Any:
-    endpoint = PROVIDER_INFO[provider]["endpoint"]
+    endpoint = HOSTED_PROVIDERS[provider]["endpoint"]
     if API_KEY in endpoint:
         endpoint = endpoint.replace(API_KEY, api_key)
     if MODEL_ID in endpoint and model_id is not None:

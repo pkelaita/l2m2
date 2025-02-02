@@ -7,8 +7,11 @@ PROVIDER_DEFAULT: Literal["<<PROVIDER_DEFAULT>>"] = "<<PROVIDER_DEFAULT>>"
 
 API_KEY = "<<API_KEY>>"
 MODEL_ID = "<<MODEL_ID>>"
+SERVICE_BASE_URL = "<<SERVICE_BASE_URL>>"
 
 INF: int = sys.maxsize
+
+ParamName = Literal["temperature", "max_tokens"]
 
 
 class ProviderEntry(TypedDict):
@@ -16,6 +19,14 @@ class ProviderEntry(TypedDict):
     homepage: str
     endpoint: str
     headers: Dict[str, str]
+
+
+class LocalProviderEntry(TypedDict):
+    name: str
+    homepage: str
+    endpoint: str
+    headers: Dict[str, str]
+    default_base_url: str
 
 
 class ParamOptionalFields(TypedDict, total=False):
@@ -32,9 +43,6 @@ class IntParam(ParamOptionalFields):
     max: int
 
 
-ParamName = Literal["temperature", "max_tokens"]
-
-
 class ModelParams(TypedDict):
     temperature: FloatParam
     max_tokens: IntParam
@@ -46,7 +54,7 @@ class ModelEntry(TypedDict):
     extras: Dict[str, Any]
 
 
-PROVIDER_INFO: Dict[str, ProviderEntry] = {
+HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/api/",
@@ -117,6 +125,16 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
         },
+    },
+}
+
+LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
+    "ollama": {
+        "name": "Ollama",
+        "homepage": "https://ollama.ai/",
+        "endpoint": f"{SERVICE_BASE_URL}/api/generate",
+        "headers": {"Content-Type": "application/json"},
+        "default_base_url": "http://localhost:11434",
     },
 }
 

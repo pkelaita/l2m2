@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from l2m2.model_info import MODEL_INFO, PROVIDER_INFO
+from l2m2.model_info import MODEL_INFO, HOSTED_PROVIDERS
 
 file = Path(__file__).resolve()
 sys.path.append(str(file.parents[1]))
@@ -13,8 +13,8 @@ rows = ""
 
 
 def get_provider_link(provider_key):
-    provider_name = PROVIDER_INFO[provider_key]["name"]
-    provider_homepage = PROVIDER_INFO[provider_key]["homepage"]
+    provider_name = HOSTED_PROVIDERS[provider_key]["name"]
+    provider_homepage = HOSTED_PROVIDERS[provider_key]["homepage"]
     return f"[{provider_name}]({provider_homepage})"
 
 
@@ -42,11 +42,11 @@ json_native += "\n\n"
 
 
 provider_list = ""
-for i, provider_key in enumerate(PROVIDER_INFO):
-    if i == len(PROVIDER_INFO) - 1:
+for i, provider_key in enumerate(HOSTED_PROVIDERS):
+    if i == len(HOSTED_PROVIDERS) - 1:
         provider_list += "and "
     provider_list += f"{get_provider_link(provider_key)}"
-    if i < len(PROVIDER_INFO) - 1:
+    if i < len(HOSTED_PROVIDERS) - 1:
         provider_list += ", "
 
 

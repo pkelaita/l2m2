@@ -4,7 +4,7 @@ import os
 
 from l2m2.model_info import (
     MODEL_INFO,
-    PROVIDER_INFO,
+    HOSTED_PROVIDERS,
     PROVIDER_DEFAULT,
     ModelEntry,
     ModelParams,
@@ -101,7 +101,7 @@ class BaseLLMClient:
         Returns:
             Set[str]: A set of available providers.
         """
-        return set(PROVIDER_INFO.keys())
+        return set(HOSTED_PROVIDERS.keys())
 
     @staticmethod
     def get_available_models() -> Set[str]:
