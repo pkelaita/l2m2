@@ -12,6 +12,7 @@ from l2m2.tools import JsonModeStrategy
 from l2m2.exceptions import LLMOperationError
 
 LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
+LOCAL_LLM_POST_PATH = "l2m2.client.base_llm_client.local_llm_post"
 GET_EXTRA_MESSAGE_PATH = "l2m2.client.base_llm_client.get_extra_message"
 CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
 
@@ -388,6 +389,20 @@ async def test_call_cerebras(mock_get_extra_message, mock_llm_post, llm_client):
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cerebras", "llama-3.3-70b")
+
+
+@pytest.mark.asyncio
+@patch(LOCAL_LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    llm_client.add_local_model("phi3", "ollama")
+    mock_return_value = {"message": {"content": "response"}}
+    mock_local_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "ollama", "phi3")
+
+
+# -- Tests for call errors -- #
 
 
 @pytest.mark.asyncio

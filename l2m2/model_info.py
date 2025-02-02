@@ -152,7 +152,7 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
                     "max": INF,
                 },
             },
-            "extras": {},
+            "extras": {"json_mode_arg": {"format": "json"}},
         },
     },
 }

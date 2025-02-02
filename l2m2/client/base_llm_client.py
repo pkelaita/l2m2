@@ -24,7 +24,7 @@ from l2m2.tools.json_mode_strategies import (
     run_json_strats_out,
 )
 from l2m2.exceptions import LLMOperationError
-from l2m2._internal.http import llm_post
+from l2m2._internal.http import llm_post, local_llm_post
 
 
 DEFAULT_TIMEOUT_SECONDS = 10
@@ -678,6 +678,36 @@ class BaseLLMClient:
         *args: Any,
     ) -> str:
         return await self._generic_openai_spec_call("cerebras", *args)
+
+    async def _call_ollama(
+        self,
+        model_id: str,
+        prompt: str,
+        system_prompt: Optional[str],
+        params: Dict[str, Any],
+        timeout: Optional[int],
+        memory: Optional[BaseMemory],
+        extra_params: Optional[Dict[str, Union[str, int, float]]],
+        json_mode: bool,
+        json_mode_strategy: JsonModeStrategy,
+        _: Dict[str, Any],  # extras is not used here
+    ) -> str:
+        messages = []
+        if system_prompt is not None:
+            messages.append({"role": "system", "content": system_prompt})
+        if isinstance(memory, ChatMemory):
+            messages.extend(memory.unpack("role", "content", "user", "assistant"))
+        messages.append({"role": "user", "content": prompt})
+
+        result = await local_llm_post(
+            client=self.httpx_client,
+            provider="ollama",
+            data={"model": model_id, "messages": messages, **params},
+            timeout=timeout,
+            local_provider_overrides=self.local_provider_overrides,
+            extra_params=extra_params,
+        )
+        return str(result["message"]["content"])
 
     async def _generic_openai_spec_call(
         self,
