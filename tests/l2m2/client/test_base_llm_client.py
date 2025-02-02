@@ -151,13 +151,6 @@ def test_add_provider_invalid(llm_client):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
-def test_add_provider_bad_key(llm_client):
-    with pytest.raises(ValueError):
-        llm_client.add_provider("openai", None)
-    with pytest.raises(ValueError):
-        llm_client.add_provider("openai", 123)
-
-
 def test_remove_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
     llm_client.add_provider("anthropic", "test-key-anthropic")

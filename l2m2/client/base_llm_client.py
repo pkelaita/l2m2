@@ -141,14 +141,11 @@ class BaseLLMClient:
 
         Raises:
             ValueError: If the provider is not one of the available providers.
-            ValueError: If the API key is not a string.
         """
         if provider not in (providers := self.get_available_providers()):
             raise ValueError(
                 f"Invalid provider: {provider}. Available providers: {providers}"
             )
-        if not isinstance(api_key, str):
-            raise ValueError(f"API key for provider {provider} must be a string.")
 
         self.api_keys[provider] = api_key
         self.active_providers.add(provider)
@@ -355,7 +352,7 @@ class BaseLLMClient:
 
     async def _call_impl(
         self,
-        model_info: ModelEntry,
+        model_entry: ModelEntry,
         provider: str,
         prompt: str,
         system_prompt: Optional[str],
@@ -383,13 +380,13 @@ class BaseLLMClient:
 
         # Prepare params
         params: Dict[str, Any] = {}
-        _add_param(params, model_info["params"], "temperature", temperature)
-        _add_param(params, model_info["params"], "max_tokens", max_tokens)
+        _add_param(params, model_entry["params"], "temperature", temperature)
+        _add_param(params, model_entry["params"], "max_tokens", max_tokens)
 
         # Handle native JSON mode
-        has_native_json_mode = "json_mode_arg" in model_info["extras"]
+        has_native_json_mode = "json_mode_arg" in model_entry["extras"]
         if json_mode and has_native_json_mode:
-            arg = model_info["extras"]["json_mode_arg"]
+            arg = model_entry["extras"]["json_mode_arg"]
             key, value = next(iter(arg.items()))
             params[key] = value
 
@@ -402,7 +399,7 @@ class BaseLLMClient:
         # Run the LLM
         call_fn = getattr(self, f"_call_{provider}")
         result = await call_fn(
-            model_info["model_id"],
+            model_entry["model_id"],
             prompt,
             system_prompt,
             params,
@@ -411,7 +408,7 @@ class BaseLLMClient:
             extra_params,
             json_mode,
             json_mode_strategy,
-            model_info["extras"],
+            model_entry["extras"],
         )
 
         # Handle JSON mode strategies for the output (but only if we don't have native support)
