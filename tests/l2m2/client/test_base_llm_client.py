@@ -65,7 +65,7 @@ def test_init(llm_client):
 
 
 @pytest.mark.asyncio
-async def test_init_with_providers():
+async def test_init_with_api_keys_passed_in():
     async with BaseLLMClient(
         {"openai": "test-key-openai", "cohere": "test-key-cohere"}
     ) as llm_client:
@@ -83,7 +83,7 @@ async def test_init_with_providers():
 @patch.dict(
     "os.environ", {"OPENAI_API_KEY": "test-key-openai", "CO_API_KEY": "test-key-cohere"}
 )
-async def test_init_with_env_providers():
+async def test_init_with_api_keys_in_env():
     async with BaseLLMClient() as llm_client:
         assert llm_client.api_keys == {
             "openai": "test-key-openai",
@@ -99,7 +99,7 @@ async def test_init_with_env_providers():
 @patch.dict(
     "os.environ", {"OPENAI_API_KEY": "env-key-openai", "CO_API_KEY": "env-key-cohere"}
 )
-async def test_init_with_env_providers_override():
+async def test_init_with_api_keys_overridden():
     async with BaseLLMClient(
         {
             "openai": "override-key-openai",
@@ -117,7 +117,7 @@ async def test_init_with_env_providers_override():
         assert "claude-3-opus" in llm_client.active_hosted_models
 
 
-def test_init_with_providers_invalid():
+def test_init_with_invalid_provider():
     with pytest.raises(ValueError):
         BaseLLMClient({"invalid_provider": "some-key", "openai": "test-key-openai"})
 
@@ -135,10 +135,6 @@ def test_getters(llm_client):
     available_providers = BaseLLMClient.get_available_providers()
     assert llm_client.get_active_providers().issubset(available_providers)
     assert len(available_providers) > len(llm_client.get_active_providers())
-
-    available_models = BaseLLMClient.get_available_models()
-    assert llm_client.get_active_models().issubset(available_models)
-    assert len(available_models) > len(llm_client.get_active_models())
 
 
 def test_add_provider(llm_client):

@@ -39,7 +39,7 @@ To activate any of the providers, set the provider's API key in the correspondin
 Additionally, you can activate providers programmatically as follows:
 
 ```python
-client = LLMClient(providers={
+client = LLMClient({
     "provider-a": "api-key-a",
     "provider-b": "api-key-b",
     ...

@@ -25,7 +25,7 @@ from l2m2.tools.json_mode_strategies import (
 )
 from l2m2.exceptions import LLMOperationError
 from l2m2._internal.http import llm_post, local_llm_post
-
+from l2m2.client.warnings import deprecated
 
 DEFAULT_TIMEOUT_SECONDS = 10
 
@@ -44,7 +44,7 @@ DEFAULT_PROVIDER_ENVS = {
 class BaseLLMClient:
     def __init__(
         self,
-        providers: Optional[Dict[str, str]] = None,
+        api_keys: Optional[Dict[str, str]] = None,
         memory: Optional[BaseMemory] = None,
     ) -> None:
         """Initializes the LLM Client.
@@ -80,9 +80,8 @@ class BaseLLMClient:
         self.memory = memory
         self.httpx_client = httpx.AsyncClient()
 
-        # TODO rename to api_keys
-        if providers is not None:
-            for provider, api_key in providers.items():
+        if api_keys is not None:
+            for provider, api_key in api_keys.items():
                 self.add_provider(provider, api_key)
 
         for provider, env_var in DEFAULT_PROVIDER_ENVS.items():
@@ -110,13 +109,13 @@ class BaseLLMClient:
         """
         return set(HOSTED_PROVIDERS.keys()) | set(LOCAL_PROVIDERS.keys())
 
-    # TODO deprecate
     @staticmethod
-    def get_available_models() -> Set[str]:
+    @deprecated(
+        "This set is no longer meaningful since L2M2 supports local models as of 0.0.41."
+    )
+    def get_available_models() -> Set[str]:  # pragma: no cover
         """The set of L2M2's supported models. This set includes all models, regardless of
-        whether they are currently active. IMPORTANT: this set does not include local models,
-        since local models can be arbitrary, and only includes models available from hosted
-        providers.
+        whether they are currently active.
 
         Returns:
             Set[str]: A set of available models.
@@ -218,7 +217,9 @@ class BaseLLMClient:
         http://localhost:11434, but you can override it to use a remote instance, a different port,
         etc.
 
-        TODO add instructions for injecting headers etc once this functionality exists.
+        Note - If you're hosting your own models on a remote server, you'll probably want to ensure
+        that you inject the appropriate headers to authenticate your requests. In order to do that,
+        you can use the `extra_headers` argument in the `call` method.
 
         Args:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
