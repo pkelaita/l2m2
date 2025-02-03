@@ -37,3 +37,5 @@
 | `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b` |
 
 <!--end-model-table-->
+
+Additionally, L2M2 supports all models available via [Ollama](https://ollama.ai/).

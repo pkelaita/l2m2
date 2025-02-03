@@ -6,6 +6,7 @@
 - [Multi-Provider Models](#multi-provider-models)
 - [Memory](#memory)
 - [Asynchronous Usage](#asynchronous-usage)
+- [Local Models](#local-models)
 - Tools
   - [JSON Mode](#tools-json-mode)
   - [Prompt Loader](#tools-prompt-loader)
@@ -394,6 +395,84 @@ Memory 1: Your name is Pierce, your favorite color is red, and you are 25 years 
 Memory 2: Your name is Paul, your favorite color is blue, and you are 60 years old. 😊
 ```
 
+## Local Models
+
+L2M2 supports local models via [Ollama](https://ollama.ai/), with the exact same usage and features as API-based models (memory, async, JSON mode, the works) and almost the exact same setup, with a few minor additions which we'll go through here.
+
+This guide assumed you have a working Ollama installation with at least one working model – see Ollama's [docs](https://github.com/ollama/ollama#readme) if this is not the case.
+
+To use local models, add them to your client as follows:
+
+```python
+client = LLMClient() # or AsyncLLMClient
+client.add_local_model("phi4", "ollama") # Currently ollama is the only available local provider
+```
+
+And run them as you would any other model:
+
+```python
+response = client.call(
+    model="phi4",
+    prompt="What's the capital of France?",
+    # ... system_prompt, temperature, etc.
+)
+```
+
+> [!IMPORTANT]
+> When you add and call a local model, make sure it's already running in your Ollama server. L2M2 does not run any Ollama commands like `pull`, `run`, etc. and assumes any model you're calling is available.
+
+If a model you want to run locally is already available from another provider, you can just use [preferred providers](#multi-provider-models) to specify Ollama as you would with any other provider.
+
+```python
+client.add_local_model("mistral-small", "ollama") # Also available from Mistral's API
+
+client.call(
+    model="mistral-small",
+    prompt="Hello world",
+    prefer_provider="ollama",
+)
+# Or equivalently,
+client.set_preferred_providers({"mistral-small": "ollama"})
+client.call(
+    model="mistral-small",
+    prompt="Hello world",
+)
+```
+
+### Specifying a Custom Local LLM Server
+
+By default, L2M2 will use the Ollama server running on `http://localhost:11434`. You can override this with a custom URL if you're running Ollama on a remote server, want to specify a different port, or otherwise.
+
+```python
+client = LLMClient()
+client.override_local_base_url("ollama", "https://my-ollama-webservice:1234")
+# add models and call as usual
+```
+
+For remote services, you might have some sort of authentication in the request headers. You can handle this by passing in the `extra_headers` parameter to `call`.
+
+```python
+response = client.call(
+    model="phi4",
+    prompt="What's the capital of France?",
+    extra_headers={"X-my-auth-header": "my-auth-value"},
+)
+```
+
+If for some reason you have authentication in the request body, you can pass it in the `extra_params` parameter instead.
+
+```python
+response = client.call(
+    model="phi4",
+    prompt="What's the capital of France?",
+    extra_params={"username": "AzureDiamond", "password": "hunter2"},
+)
+```
+
+Since authentication is not the intended purpose of `extra_params`, the values can only be strings, ints, or floats. However, if you really need to do auth in the body let me know and I'll add some official support for this in an update.
+
+Beyond this, everything else with local models works exactly as it does with API-based models.
+
 ## Tools: JSON Mode
 
 L2M2 provides an optional `json_mode` flag that enforces JSON formatting on LLM responses. Importantly, this flag is applicable to all models and providers, whether or not they natively support JSON output enforcement. When JSON mode is not natively supported, `json_mode` will apply strategies to maximize the likelihood of valid JSON output.
@@ -447,6 +526,8 @@ The following models natively support JSON mode via the given provider:
 - `mistral-small` (via Mistral)
 
 <!--end-json-native-->
+
+- Any local model via Ollama
 
 ### JSON Mode Non-Native Strategies
 

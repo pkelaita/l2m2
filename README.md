@@ -1,35 +1,36 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1738046272)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1738046272)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1738550687)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1738550687)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
-![](docs/assets/l2m2_demo.gif)
-
-### Features
-
-- <!--start-model-count-->31<!--end-model-count-->
-  supported models – regularly updated and with more on the way.
-- Manageable chat memory – even across multiple models or with concurrent memory streams.
-- JSON mode
-- Prompt loading tools
+![](docs/assets/l2m2-demo.gif)
 
 ### Advantages
 
 - **Simple:** Completely unified interface – just swap out the model name.
 - **Tiny:** Only one external dependency (httpx). No BS dependency graph.
+- **Private:** Compatible with self-hosted models on your own infrastructure.
 - **Fast**: Fully asynchronous and non-blocking if concurrent calls are needed.
 
-### Supported Models
+### Features
+
+- 30+ regularly updated supported models from popular hosted providers.
+- Support for self-hosted models via [Ollama](https://ollama.ai/).
+- Manageable chat memory – even across multiple models or with concurrent memory streams.
+- JSON mode
+- Prompt loading tools
+
+### Supported API-based Models
 
 L2M2 supports <!--start-model-count-->31<!--end-model-count--> models from <!--start-prov-list-->[OpenAI](https://openai.com/api/), [Google](https://ai.google.dev/), [Anthropic](https://www.anthropic.com/api), [Cohere](https://docs.cohere.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/), [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), and [Cerebras](https://inference-docs.cerebras.ai)<!--end-prov-list-->. The full list of supported models can be found [here](docs/supported_models.md).
 
-## Usage [(Full Docs)](docs/usage_guide.md)
+## Usage ([Full Docs](docs/usage_guide.md))
 
 ### Requirements
 
 - Python >= 3.9
-- At least one valid API key for a supported provider
+- At least one valid API key for a supported provider, or a working Ollama installation ([their docs](https://github.com/ollama/ollama#readme)).
 
 ### Installation
 
@@ -39,7 +40,7 @@ pip install l2m2
 
 ### Environment Setup
 
-Ensure at least one of the following environment variables is set in order for L2M2 to automatically activate the provider.
+If you plan to use an API-based model, at least one of the following environment variables is set in order for L2M2 to automatically activate the provider.
 
 | Provider                | Environment Variable  |
 | ----------------------- | --------------------- |
@@ -52,6 +53,8 @@ Ensure at least one of the following environment variables is set in order for L
 | Mistral (La Plateforme) | `MISTRAL_API_KEY`     |
 | Cerebras                | `CEREBRAS_API_KEY`    |
 
+Otherwise, ensure Ollama is running – by default L2M2 looks for it at `http://localhost:11434`, but this can be configured.
+
 ### Basic Usage
 
 ```python
@@ -63,13 +66,13 @@ response = client.call(model="gpt-4o", prompt="Hello world")
 print(response)
 ```
 
-For the full usage guide, including memory, asynchronous usage, JSON mode, and more, see [Usage Guide](docs/usage_guide.md).
+For the full usage guide, including memory, asynchronous usage, local models, JSON mode, and more, see [Usage Guide](docs/usage_guide.md).
 
 ## Planned Features
 
-- Support for self-hosted models (via LMStudio, Ollama, etc)
 - Streaming responses
 - Embeddings
+- Other self-hosted providers (GPT4all, LMStudio, etc.)
 - Basic tools for common application workflows: RAG, prompt management, search, etc.
 - Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
 - Support for batch APIs where available (OpenAI, Anthropic, etc.)
