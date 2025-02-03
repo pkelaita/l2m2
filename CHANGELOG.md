@@ -1,8 +1,24 @@
 # Changelog
 
-_Current version: 0.0.40_
+_Current version: 0.0.41_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.41 - February 3, 2025
+
+#### Added
+
+- **Big update!** Added support for running local llms via [Ollama](https://ollama.ai/). 🎉
+  See the docs for running local models [here](docs/usage_guide.md#local-models).
+
+#### Changed
+
+- The `providers` parameter to `LLMClient` and `AsyncLLMClient` has been renamed to `api_keys`.
+- L2M2 no longer depends on `typing_extensions` and now officially only has a single external dependency: `httpx`.
+
+#### Removed
+
+- The static method `get_available_models` in `LLMClient` and `AsyncLLMClient` has been deprecated as it is no longer meaningful with the addition of local models (which can be arbitrary). It will be removed in a future release.
 
 ### 0.0.40 - January 16, 2025
 
