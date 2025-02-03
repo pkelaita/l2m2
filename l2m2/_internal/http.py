@@ -2,13 +2,26 @@ from typing import Optional, Dict, Any, Union
 import httpx
 
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
-from l2m2.model_info import API_KEY, MODEL_ID, PROVIDER_INFO
+from l2m2.model_info import (
+    API_KEY,
+    MODEL_ID,
+    SERVICE_BASE_URL,
+    HOSTED_PROVIDERS,
+    LOCAL_PROVIDERS,
+)
 
 
 def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
-    provider_info = PROVIDER_INFO[provider]
+    provider_info = HOSTED_PROVIDERS[provider]
     headers = provider_info["headers"].copy()
     return {key: value.replace(API_KEY, api_key) for key, value in headers.items()}
+
+
+def _get_timeout_message(timeout: Optional[int]) -> str:
+    return (
+        f"Request timed out after {timeout} seconds. Try increasing the timeout by passing "
+        + "the timeout parameter into call, or reducing the expected size of the output."
+    )
 
 
 async def _handle_replicate_201(
@@ -44,8 +57,9 @@ async def llm_post(
     data: Dict[str, Any],
     timeout: Optional[int],
     extra_params: Optional[Dict[str, Union[str, int, float]]],
+    extra_headers: Optional[Dict[str, str]],
 ) -> Any:
-    endpoint = PROVIDER_INFO[provider]["endpoint"]
+    endpoint = HOSTED_PROVIDERS[provider]["endpoint"]
     if API_KEY in endpoint:
         endpoint = endpoint.replace(API_KEY, api_key)
     if MODEL_ID in endpoint and model_id is not None:
@@ -54,19 +68,19 @@ async def llm_post(
     if extra_params:
         data.update(extra_params)
 
+    headers = _get_headers(provider, api_key)
+    if extra_headers:
+        headers.update(extra_headers)
+
     try:
         response = await client.post(
             endpoint,
-            headers=_get_headers(provider, api_key),
+            headers=headers,
             json=data,
             timeout=timeout,
         )
     except httpx.ReadTimeout:
-        msg = (
-            f"Request timed out after {timeout} seconds. Try increasing the timeout by passing "
-            + "the timeout parameter into call, or reducing the expected size of the output."
-        )
-        raise LLMTimeoutError(msg)
+        raise LLMTimeoutError(_get_timeout_message(timeout))
 
     if provider == "replicate" and response.status_code == 201:
         return await _handle_replicate_201(client, response, api_key)
@@ -77,6 +91,48 @@ async def llm_post(
         )
 
     elif response.status_code != 200:
+        raise Exception(response.text)
+
+    return response.json()
+
+
+async def local_llm_post(
+    client: httpx.AsyncClient,
+    provider: str,
+    data: Dict[str, Any],
+    timeout: Optional[int],
+    local_provider_overrides: Dict[str, str],
+    extra_params: Optional[Dict[str, Union[str, int, float]]],
+    extra_headers: Optional[Dict[str, str]],
+) -> Any:
+    provider_info = LOCAL_PROVIDERS[provider]
+
+    endpoint = provider_info["endpoint"]
+    base_url = local_provider_overrides.get(provider, provider_info["default_base_url"])
+
+    if SERVICE_BASE_URL in endpoint:
+        endpoint = endpoint.replace(SERVICE_BASE_URL, base_url)
+
+    if extra_params:
+        data.update(extra_params)
+
+    data["stream"] = False
+
+    headers = provider_info["headers"]
+    if extra_headers:
+        headers.update(extra_headers)
+
+    try:
+        response = await client.post(
+            endpoint,
+            headers=headers,
+            json=data,
+            timeout=timeout,
+        )
+    except httpx.ReadTimeout:
+        raise LLMTimeoutError(_get_timeout_message(timeout))
+
+    if response.status_code != 200:
         raise Exception(response.text)
 
     return response.json()

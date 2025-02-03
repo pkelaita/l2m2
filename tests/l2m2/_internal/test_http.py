@@ -2,24 +2,43 @@ from l2m2._internal.http import (
     _get_headers,
     _handle_replicate_201,
     llm_post,
+    local_llm_post,
 )
 import pytest
 import httpx
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
-from l2m2.model_info import API_KEY, PROVIDER_INFO
+from l2m2.model_info import API_KEY, HOSTED_PROVIDERS, LOCAL_PROVIDERS, SERVICE_BASE_URL
+
+
+class MockTransport(httpx.AsyncBaseTransport):
+    def __init__(self, responses):
+        self.responses = responses
+        self.request_count = 0
+
+    async def handle_async_request(self, _):
+        if self.request_count >= len(self.responses):
+            raise Exception("No more mock responses available")
+        response = self.responses[self.request_count]
+        self.request_count += 1
+        if isinstance(response, Exception):
+            raise response
+        if isinstance(response, httpx.TimeoutException):
+            raise response
+        return response
+
+
+# -- Tests for headers -- #
 
 
 def test_get_headers():
-    # Test header generation with API key replacement
     test_api_key = "test_key_123"
 
-    # Mock PROVIDER_INFO for testing
-    original_provider_info = PROVIDER_INFO.copy()
-    PROVIDER_INFO["openai"] = {
+    original_HOSTED_PROVIDERS = HOSTED_PROVIDERS.copy()
+    HOSTED_PROVIDERS["openai"] = {
         "headers": {"Authorization": f"Bearer {API_KEY}"},
         "endpoint": "https://api.openai.com/v1/chat/completions",
     }
-    PROVIDER_INFO["replicate"] = {
+    HOSTED_PROVIDERS["replicate"] = {
         "headers": {"Authorization": f"Token {API_KEY}"},
         "endpoint": "https://api.replicate.com/v1/predictions",
     }
@@ -33,35 +52,20 @@ def test_get_headers():
         assert "Authorization" in headers_replicate
         assert headers_replicate["Authorization"] == f"Token {test_api_key}"
     finally:
-        # Restore original PROVIDER_INFO
-        PROVIDER_INFO.clear()
-        PROVIDER_INFO.update(original_provider_info)
+        HOSTED_PROVIDERS.clear()
+        HOSTED_PROVIDERS.update(original_HOSTED_PROVIDERS)
 
 
-class MockTransport(httpx.AsyncBaseTransport):
-    def __init__(self, responses):
-        self.responses = responses
-        self.request_count = 0
-
-    async def handle_async_request(self, request):
-        if self.request_count >= len(self.responses):
-            raise Exception("No more mock responses available")
-        response = self.responses[self.request_count]
-        self.request_count += 1
-        if isinstance(response, Exception):
-            raise response
-        if isinstance(response, httpx.TimeoutException):
-            raise response
-        return response
+# -- Tests for replicate handling -- #
 
 
 @pytest.mark.asyncio
 async def test_handle_replicate_201_success():
     responses = [
         httpx.Response(
-            200,  # Changed from 201 to 200 for the status check
+            200,
             json={
-                "status": "succeeded",  # Changed from processing to succeeded
+                "status": "succeeded",
                 "output": "test output",
             },
         ),
@@ -113,6 +117,27 @@ async def test_handle_replicate_201_invalid_response():
 
 
 @pytest.mark.asyncio
+async def test_handle_replicate_201_status_check_failure():
+    """Test case where the status check request fails"""
+    responses = [httpx.Response(400, text="Bad status check request")]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        response = httpx.Response(
+            201,
+            json={
+                "status": "processing",
+                "urls": {"get": "https://api.replicate.com/status/1"},
+            },
+        )
+        with pytest.raises(Exception) as exc_info:
+            await _handle_replicate_201(client, response, "test_key")
+        assert str(exc_info.value) == "Bad status check request"
+
+
+# -- Tests for hosted LLM posts -- #
+
+
+@pytest.mark.asyncio
 async def test_llm_post_success():
     responses = [
         httpx.Response(200, json={"result": "success"}),
@@ -127,6 +152,7 @@ async def test_llm_post_success():
             {"prompt": "test"},
             timeout=10,
             extra_params={},
+            extra_headers={},
         )
         assert result == {"result": "success"}
 
@@ -145,6 +171,7 @@ async def test_llm_post_success_with_extra_params(extra_param_value):
             {"prompt": "test"},
             timeout=10,
             extra_params={"foo": extra_param_value},
+            extra_headers={},
         )
         assert result == {"result": "success"}
 
@@ -163,6 +190,7 @@ async def test_llm_post_timeout():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
 
 
@@ -182,6 +210,7 @@ async def test_llm_post_rate_limit():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
 
 
@@ -201,6 +230,7 @@ async def test_llm_post_error():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
         assert str(exc_info.value) == "Bad request"
 
@@ -233,27 +263,10 @@ async def test_llm_post_replicate_success():
             {"prompt": "test"},
             timeout=10,
             extra_params={},
+            extra_headers={},
         )
         assert result["status"] == "succeeded"
         assert result["output"] == "test output"
-
-
-@pytest.mark.asyncio
-async def test_handle_replicate_201_status_check_failure():
-    """Test case where the status check request fails"""
-    responses = [httpx.Response(400, text="Bad status check request")]
-
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
-        response = httpx.Response(
-            201,
-            json={
-                "status": "processing",
-                "urls": {"get": "https://api.replicate.com/status/1"},
-            },
-        )
-        with pytest.raises(Exception) as exc_info:
-            await _handle_replicate_201(client, response, "test_key")
-        assert str(exc_info.value) == "Bad status check request"
 
 
 @pytest.mark.asyncio
@@ -263,9 +276,8 @@ async def test_llm_post_with_api_key_in_endpoint():
         httpx.Response(200, json={"result": "success"}),
     ]
 
-    # Mock PROVIDER_INFO with API_KEY in endpoint
-    original_provider_info = PROVIDER_INFO.copy()
-    PROVIDER_INFO["test_provider"] = {
+    original_HOSTED_PROVIDERS = HOSTED_PROVIDERS.copy()
+    HOSTED_PROVIDERS["test_provider"] = {
         "headers": {"Authorization": f"Bearer {API_KEY}"},
         "endpoint": f"https://api.test.com/{API_KEY}/v1/chat",
     }
@@ -280,9 +292,223 @@ async def test_llm_post_with_api_key_in_endpoint():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
             assert result == {"result": "success"}
     finally:
-        # Restore original PROVIDER_INFO
-        PROVIDER_INFO.clear()
-        PROVIDER_INFO.update(original_provider_info)
+        HOSTED_PROVIDERS.clear()
+        HOSTED_PROVIDERS.update(original_HOSTED_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_llm_post_with_extra_headers():
+    """Test that extra headers are properly added to the request"""
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        await llm_post(
+            client,
+            "openai",
+            "gpt-4",
+            "test_key",
+            {"prompt": "test"},
+            timeout=10,
+            extra_params={},
+            extra_headers={"X-Custom-Header": "test-value"},
+        )
+        request = client._transport.responses[0].request  # type: ignore
+        assert "X-Custom-Header" in request.headers
+        assert request.headers["X-Custom-Header"] == "test-value"
+        # Verify original headers are still present
+        assert "Authorization" in request.headers
+        assert request.headers["Authorization"] == "Bearer test_key"
+
+
+# -- Tests for local LLM posts -- #
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_success():
+    """Test successful local LLM post with default base URL"""
+    responses = [
+        httpx.Response(200, json={"result": "success"}),
+    ]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            result = await local_llm_post(
+                client,
+                "local_provider",
+                {"prompt": "test"},
+                timeout=10,
+                local_provider_overrides={},
+                extra_params={},
+                extra_headers={},
+            )
+            assert result == {"result": "success"}
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_with_override():
+    """Test local LLM post with overridden base URL"""
+    responses = [
+        httpx.Response(200, json={"result": "success"}),
+    ]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            result = await local_llm_post(
+                client,
+                "local_provider",
+                {"prompt": "test"},
+                timeout=10,
+                local_provider_overrides={"local_provider": "http://custom:8080"},
+                extra_params={"temperature": 0.7},
+                extra_headers={},
+            )
+            assert result == {"result": "success"}
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_timeout():
+    """Test timeout handling in local LLM post"""
+    responses = [httpx.ReadTimeout("Request timed out")]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            with pytest.raises(LLMTimeoutError):
+                await local_llm_post(
+                    client,
+                    "local_provider",
+                    {"prompt": "test"},
+                    timeout=10,
+                    local_provider_overrides={},
+                    extra_params={},
+                    extra_headers={},
+                )
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_error():
+    """Test error handling in local LLM post"""
+    responses = [
+        httpx.Response(400, text="Bad request"),
+    ]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            with pytest.raises(Exception) as exc_info:
+                await local_llm_post(
+                    client,
+                    "local_provider",
+                    {"prompt": "test"},
+                    timeout=10,
+                    local_provider_overrides={},
+                    extra_params={},
+                    extra_headers={},
+                )
+            assert str(exc_info.value) == "Bad request"
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("extra_param_value", ["bar", 123, 0.7])
+async def test_local_llm_post_with_extra_params(extra_param_value):
+    """Test local LLM post with various extra parameters"""
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            result = await local_llm_post(
+                client,
+                "local_provider",
+                {"prompt": "test"},
+                timeout=10,
+                local_provider_overrides={},
+                extra_params={"param": extra_param_value},
+                extra_headers={},
+            )
+            assert result == {"result": "success"}
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_with_extra_headers():
+    """Test that extra headers are properly added to the request for local providers"""
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            await local_llm_post(
+                client,
+                "local_provider",
+                {"prompt": "test"},
+                timeout=10,
+                local_provider_overrides={},
+                extra_params={},
+                extra_headers={"X-Custom-Header": "test-value"},
+            )
+            request = client._transport.responses[0].request  # type: ignore
+            assert "X-Custom-Header" in request.headers
+            assert request.headers["X-Custom-Header"] == "test-value"
+            # Verify original headers are still present
+            assert "Content-Type" in request.headers
+            assert request.headers["Content-Type"] == "application/json"
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)

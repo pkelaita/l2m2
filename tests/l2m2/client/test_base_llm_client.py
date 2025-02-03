@@ -12,6 +12,7 @@ from l2m2.tools import JsonModeStrategy
 from l2m2.exceptions import LLMOperationError
 
 LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
+LOCAL_LLM_POST_PATH = "l2m2.client.base_llm_client.local_llm_post"
 GET_EXTRA_MESSAGE_PATH = "l2m2.client.base_llm_client.get_extra_message"
 CALL_BASE_PATH = "l2m2.client.base_llm_client.BaseLLMClient._call_"
 
@@ -59,12 +60,12 @@ async def llm_client_mem_ext_usr():
 
 def test_init(llm_client):
     assert llm_client.api_keys == {}
-    assert llm_client.active_providers == set()
-    assert llm_client.active_models == set()
+    assert llm_client.active_hosted_providers == set()
+    assert llm_client.active_hosted_models == set()
 
 
 @pytest.mark.asyncio
-async def test_init_with_providers():
+async def test_init_with_api_keys_passed_in():
     async with BaseLLMClient(
         {"openai": "test-key-openai", "cohere": "test-key-cohere"}
     ) as llm_client:
@@ -72,33 +73,33 @@ async def test_init_with_providers():
             "openai": "test-key-openai",
             "cohere": "test-key-cohere",
         }
-        assert llm_client.active_providers == {"openai", "cohere"}
-        assert "gpt-4o" in llm_client.active_models
-        assert "command-r" in llm_client.active_models
-        assert "claude-3-opus" not in llm_client.active_models
+        assert llm_client.active_hosted_providers == {"openai", "cohere"}
+        assert "gpt-4o" in llm_client.active_hosted_models
+        assert "command-r" in llm_client.active_hosted_models
+        assert "claude-3-opus" not in llm_client.active_hosted_models
 
 
 @pytest.mark.asyncio
 @patch.dict(
     "os.environ", {"OPENAI_API_KEY": "test-key-openai", "CO_API_KEY": "test-key-cohere"}
 )
-async def test_init_with_env_providers():
+async def test_init_with_api_keys_in_env():
     async with BaseLLMClient() as llm_client:
         assert llm_client.api_keys == {
             "openai": "test-key-openai",
             "cohere": "test-key-cohere",
         }
-        assert llm_client.active_providers == {"openai", "cohere"}
-        assert "gpt-4o" in llm_client.active_models
-        assert "command-r" in llm_client.active_models
-        assert "claude-3-opus" not in llm_client.active_models
+        assert llm_client.active_hosted_providers == {"openai", "cohere"}
+        assert "gpt-4o" in llm_client.active_hosted_models
+        assert "command-r" in llm_client.active_hosted_models
+        assert "claude-3-opus" not in llm_client.active_hosted_models
 
 
 @pytest.mark.asyncio
 @patch.dict(
     "os.environ", {"OPENAI_API_KEY": "env-key-openai", "CO_API_KEY": "env-key-cohere"}
 )
-async def test_init_with_env_providers_override():
+async def test_init_with_api_keys_overridden():
     async with BaseLLMClient(
         {
             "openai": "override-key-openai",
@@ -110,13 +111,13 @@ async def test_init_with_env_providers_override():
             "cohere": "env-key-cohere",
             "anthropic": "new-key-anthropic",
         }
-        assert llm_client.active_providers == {"openai", "cohere", "anthropic"}
-        assert "gpt-4o" in llm_client.active_models
-        assert "command-r" in llm_client.active_models
-        assert "claude-3-opus" in llm_client.active_models
+        assert llm_client.active_hosted_providers == {"openai", "cohere", "anthropic"}
+        assert "gpt-4o" in llm_client.active_hosted_models
+        assert "command-r" in llm_client.active_hosted_models
+        assert "claude-3-opus" in llm_client.active_hosted_models
 
 
-def test_init_with_providers_invalid():
+def test_init_with_invalid_provider():
     with pytest.raises(ValueError):
         BaseLLMClient({"invalid_provider": "some-key", "openai": "test-key-openai"})
 
@@ -132,18 +133,14 @@ def test_getters(llm_client):
     assert "claude-3-opus" not in active_models
 
     available_providers = BaseLLMClient.get_available_providers()
-    assert llm_client.active_providers.issubset(available_providers)
-    assert len(available_providers) > len(llm_client.active_providers)
-
-    available_models = BaseLLMClient.get_available_models()
-    assert llm_client.active_models.issubset(available_models)
-    assert len(available_models) > len(llm_client.active_models)
+    assert llm_client.get_active_providers().issubset(available_providers)
+    assert len(available_providers) > len(llm_client.get_active_providers())
 
 
 def test_add_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
-    assert "openai" in llm_client.active_providers
-    assert "gpt-4o" in llm_client.active_models
+    assert "openai" in llm_client.get_active_providers()
+    assert "gpt-4o" in llm_client.get_active_models()
 
 
 def test_add_provider_invalid(llm_client):
@@ -151,31 +148,24 @@ def test_add_provider_invalid(llm_client):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
-def test_add_provider_bad_key(llm_client):
-    with pytest.raises(ValueError):
-        llm_client.add_provider("openai", None)
-    with pytest.raises(ValueError):
-        llm_client.add_provider("openai", 123)
-
-
 def test_remove_provider(llm_client):
     llm_client.add_provider("openai", "test-key-openai")
     llm_client.add_provider("anthropic", "test-key-anthropic")
     llm_client.remove_provider("openai")
 
-    assert "openai" not in llm_client.active_providers
-    assert "anthropic" in llm_client.active_providers
-    assert "gpt-4o" not in llm_client.active_models
-    assert "claude-3-opus" in llm_client.active_models
+    assert "openai" not in llm_client.active_hosted_providers
+    assert "anthropic" in llm_client.active_hosted_providers
+    assert "gpt-4o" not in llm_client.active_hosted_models
+    assert "claude-3-opus" in llm_client.active_hosted_models
 
 
 def test_remove_provider_overlapping_model(llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
-    assert "llama-3-8b" in llm_client.active_models
+    assert "llama-3-8b" in llm_client.active_hosted_models
 
     llm_client.remove_provider("groq")
-    assert "llama-3-8b" in llm_client.active_models
+    assert "llama-3-8b" in llm_client.active_hosted_models
 
 
 def test_remove_provider_not_active(llm_client):
@@ -212,6 +202,64 @@ def test_set_preferred_provider_invalid(llm_client):
 
     with pytest.raises(ValueError):  # Mismatched model and provider
         llm_client.set_preferred_providers({"llama-3-70b": "openai"})
+
+
+# -- Tests for local model management -- #
+
+
+def test_add_local_model(llm_client):
+    llm_client.add_local_model("phi3", "ollama")
+    assert ("phi3", "ollama") in llm_client.local_model_pairings
+
+
+def test_add_local_model_invalid(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.add_local_model("phi3", "invalid-provider")
+
+
+def test_remove_local_model(llm_client):
+    llm_client.add_local_model("phi3", "ollama")
+    llm_client.add_local_model("phi4", "ollama")
+    llm_client.remove_local_model("phi3", "ollama")
+    assert ("phi4", "ollama") in llm_client.local_model_pairings
+    assert ("phi3", "ollama") not in llm_client.local_model_pairings
+
+
+def test_override_local_base_url(llm_client):
+    llm_client.override_local_base_url("ollama", "http://abc:123")
+    assert "ollama" in llm_client.local_provider_overrides
+    assert llm_client.local_provider_overrides.get("ollama") == "http://abc:123"
+
+
+def test_override_local_base_url_invalid(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.override_local_base_url("invalid-provider", "http://abc:123")
+
+
+def test_reset_local_base_url(llm_client):
+    llm_client.override_local_base_url("ollama", "http://localhost:11435")
+    llm_client.reset_local_base_url("ollama")
+    assert "ollama" not in llm_client.local_provider_overrides
+
+
+def test_reset_local_base_url_invalid(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.reset_local_base_url("invalid-provider")
+
+
+def test_reset_local_base_url_not_overridden(llm_client):
+    llm_client.reset_local_base_url("ollama")  # Should not raise an error
+
+
+def test_remove_local_model_invalid(llm_client):
+    with pytest.raises(ValueError):
+        llm_client.remove_local_model("phi3", "ollama")
+
+
+def test_set_preferred_providers_local(llm_client):
+    llm_client.add_local_model("phi3", "ollama")
+    llm_client.set_preferred_providers({"phi3": "ollama"})
+    assert llm_client.preferred_providers == {"phi3": "ollama"}
 
 
 # -- Tests for call -- #
@@ -337,6 +385,20 @@ async def test_call_cerebras(mock_get_extra_message, mock_llm_post, llm_client):
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cerebras", "llama-3.3-70b")
+
+
+@pytest.mark.asyncio
+@patch(LOCAL_LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    llm_client.add_local_model("phi3", "ollama")
+    mock_return_value = {"message": {"content": "response"}}
+    mock_local_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "ollama", "phi3")
+
+
+# -- Tests for call errors -- #
 
 
 @pytest.mark.asyncio

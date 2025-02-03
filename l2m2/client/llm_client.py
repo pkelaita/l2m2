@@ -13,7 +13,7 @@ class LLMClient(BaseLLMClient):
         providers: Optional[Dict[str, str]] = None,
         memory: Optional[BaseMemory] = None,
     ) -> None:
-        super(LLMClient, self).__init__(providers=providers, memory=memory)
+        super(LLMClient, self).__init__(api_keys=providers, memory=memory)
 
     async def _sync_fn_wrapper(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
         async with httpx.AsyncClient() as temp_client:

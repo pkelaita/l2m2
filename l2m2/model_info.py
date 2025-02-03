@@ -7,15 +7,11 @@ PROVIDER_DEFAULT: Literal["<<PROVIDER_DEFAULT>>"] = "<<PROVIDER_DEFAULT>>"
 
 API_KEY = "<<API_KEY>>"
 MODEL_ID = "<<MODEL_ID>>"
+SERVICE_BASE_URL = "<<SERVICE_BASE_URL>>"
 
 INF: int = sys.maxsize
 
-
-class ProviderEntry(TypedDict):
-    name: str
-    homepage: str
-    endpoint: str
-    headers: Dict[str, str]
+ParamName = Literal["temperature", "max_tokens"]
 
 
 class ParamOptionalFields(TypedDict, total=False):
@@ -32,9 +28,6 @@ class IntParam(ParamOptionalFields):
     max: int
 
 
-ParamName = Literal["temperature", "max_tokens"]
-
-
 class ModelParams(TypedDict):
     temperature: FloatParam
     max_tokens: IntParam
@@ -46,7 +39,28 @@ class ModelEntry(TypedDict):
     extras: Dict[str, Any]
 
 
-PROVIDER_INFO: Dict[str, ProviderEntry] = {
+class GenericModelEntry(TypedDict):
+    params: ModelParams
+    extras: Dict[str, Any]
+
+
+class ProviderEntry(TypedDict):
+    name: str
+    homepage: str
+    endpoint: str
+    headers: Dict[str, str]
+
+
+class LocalProviderEntry(TypedDict):
+    name: str
+    homepage: str
+    endpoint: str
+    headers: Dict[str, str]
+    default_base_url: str
+    model_entry: GenericModelEntry
+
+
+HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/api/",
@@ -116,6 +130,29 @@ PROVIDER_INFO: Dict[str, ProviderEntry] = {
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
+        },
+    },
+}
+
+LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
+    "ollama": {
+        "name": "Ollama",
+        "homepage": "https://ollama.ai/",
+        "endpoint": f"{SERVICE_BASE_URL}/api/chat",
+        "headers": {"Content-Type": "application/json"},
+        "default_base_url": "http://localhost:11434",
+        "model_entry": {
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"format": "json"}},
         },
     },
 }
