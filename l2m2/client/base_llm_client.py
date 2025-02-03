@@ -414,7 +414,7 @@ class BaseLLMClient:
 
         model_entry = (
             MODEL_INFO[model][provider]
-            if model in MODEL_INFO
+            if provider in HOSTED_PROVIDERS
             else _get_local_model_entry(provider, model)
         )
 
