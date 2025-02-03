@@ -17,7 +17,7 @@ def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
     return {key: value.replace(API_KEY, api_key) for key, value in headers.items()}
 
 
-def _get_timeout_message(timeout: int) -> str:
+def _get_timeout_message(timeout: Optional[int]) -> str:
     return (
         f"Request timed out after {timeout} seconds. Try increasing the timeout by passing "
         + "the timeout parameter into call, or reducing the expected size of the output."
@@ -57,6 +57,7 @@ async def llm_post(
     data: Dict[str, Any],
     timeout: Optional[int],
     extra_params: Optional[Dict[str, Union[str, int, float]]],
+    extra_headers: Optional[Dict[str, str]],
 ) -> Any:
     endpoint = HOSTED_PROVIDERS[provider]["endpoint"]
     if API_KEY in endpoint:
@@ -67,10 +68,14 @@ async def llm_post(
     if extra_params:
         data.update(extra_params)
 
+    headers = _get_headers(provider, api_key)
+    if extra_headers:
+        headers.update(extra_headers)
+
     try:
         response = await client.post(
             endpoint,
-            headers=_get_headers(provider, api_key),
+            headers=headers,
             json=data,
             timeout=timeout,
         )
@@ -98,6 +103,7 @@ async def local_llm_post(
     timeout: Optional[int],
     local_provider_overrides: Dict[str, str],
     extra_params: Optional[Dict[str, Union[str, int, float]]],
+    extra_headers: Optional[Dict[str, str]],
 ) -> Any:
     provider_info = LOCAL_PROVIDERS[provider]
 
@@ -112,10 +118,14 @@ async def local_llm_post(
 
     data["stream"] = False
 
+    headers = provider_info["headers"]
+    if extra_headers:
+        headers.update(extra_headers)
+
     try:
         response = await client.post(
             endpoint,
-            headers=provider_info["headers"],
+            headers=headers,
             json=data,
             timeout=timeout,
         )

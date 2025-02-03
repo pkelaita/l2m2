@@ -152,6 +152,7 @@ async def test_llm_post_success():
             {"prompt": "test"},
             timeout=10,
             extra_params={},
+            extra_headers={},
         )
         assert result == {"result": "success"}
 
@@ -170,6 +171,7 @@ async def test_llm_post_success_with_extra_params(extra_param_value):
             {"prompt": "test"},
             timeout=10,
             extra_params={"foo": extra_param_value},
+            extra_headers={},
         )
         assert result == {"result": "success"}
 
@@ -188,6 +190,7 @@ async def test_llm_post_timeout():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
 
 
@@ -207,6 +210,7 @@ async def test_llm_post_rate_limit():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
 
 
@@ -226,6 +230,7 @@ async def test_llm_post_error():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
         assert str(exc_info.value) == "Bad request"
 
@@ -258,6 +263,7 @@ async def test_llm_post_replicate_success():
             {"prompt": "test"},
             timeout=10,
             extra_params={},
+            extra_headers={},
         )
         assert result["status"] == "succeeded"
         assert result["output"] == "test output"
@@ -286,11 +292,36 @@ async def test_llm_post_with_api_key_in_endpoint():
                 {"prompt": "test"},
                 timeout=10,
                 extra_params={},
+                extra_headers={},
             )
             assert result == {"result": "success"}
     finally:
         HOSTED_PROVIDERS.clear()
         HOSTED_PROVIDERS.update(original_HOSTED_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_llm_post_with_extra_headers():
+    """Test that extra headers are properly added to the request"""
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        await llm_post(
+            client,
+            "openai",
+            "gpt-4",
+            "test_key",
+            {"prompt": "test"},
+            timeout=10,
+            extra_params={},
+            extra_headers={"X-Custom-Header": "test-value"},
+        )
+        request = client._transport.responses[0].request  # type: ignore
+        assert "X-Custom-Header" in request.headers
+        assert request.headers["X-Custom-Header"] == "test-value"
+        # Verify original headers are still present
+        assert "Authorization" in request.headers
+        assert request.headers["Authorization"] == "Bearer test_key"
 
 
 # -- Tests for local LLM posts -- #
@@ -319,6 +350,7 @@ async def test_local_llm_post_success():
                 timeout=10,
                 local_provider_overrides={},
                 extra_params={},
+                extra_headers={},
             )
             assert result == {"result": "success"}
     finally:
@@ -349,6 +381,7 @@ async def test_local_llm_post_with_override():
                 timeout=10,
                 local_provider_overrides={"local_provider": "http://custom:8080"},
                 extra_params={"temperature": 0.7},
+                extra_headers={},
             )
             assert result == {"result": "success"}
     finally:
@@ -378,6 +411,7 @@ async def test_local_llm_post_timeout():
                     timeout=10,
                     local_provider_overrides={},
                     extra_params={},
+                    extra_headers={},
                 )
     finally:
         LOCAL_PROVIDERS.clear()
@@ -408,6 +442,7 @@ async def test_local_llm_post_error():
                     timeout=10,
                     local_provider_overrides={},
                     extra_params={},
+                    extra_headers={},
                 )
             assert str(exc_info.value) == "Bad request"
     finally:
@@ -437,8 +472,43 @@ async def test_local_llm_post_with_extra_params(extra_param_value):
                 timeout=10,
                 local_provider_overrides={},
                 extra_params={"param": extra_param_value},
+                extra_headers={},
             )
             assert result == {"result": "success"}
+    finally:
+        LOCAL_PROVIDERS.clear()
+        LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)
+
+
+@pytest.mark.asyncio
+async def test_local_llm_post_with_extra_headers():
+    """Test that extra headers are properly added to the request for local providers"""
+    responses = [httpx.Response(200, json={"result": "success"})]
+
+    original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
+    LOCAL_PROVIDERS["local_provider"] = {
+        "headers": {"Content-Type": "application/json"},
+        "endpoint": f"{SERVICE_BASE_URL}/v1/completions",
+        "default_base_url": "http://localhost:8000",
+    }
+
+    try:
+        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+            await local_llm_post(
+                client,
+                "local_provider",
+                {"prompt": "test"},
+                timeout=10,
+                local_provider_overrides={},
+                extra_params={},
+                extra_headers={"X-Custom-Header": "test-value"},
+            )
+            request = client._transport.responses[0].request  # type: ignore
+            assert "X-Custom-Header" in request.headers
+            assert request.headers["X-Custom-Header"] == "test-value"
+            # Verify original headers are still present
+            assert "Content-Type" in request.headers
+            assert request.headers["Content-Type"] == "application/json"
     finally:
         LOCAL_PROVIDERS.clear()
         LOCAL_PROVIDERS.update(original_LOCAL_PROVIDERS)

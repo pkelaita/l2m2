@@ -334,6 +334,7 @@ class BaseLLMClient:
         bypass_memory: bool = False,
         alt_memory: Optional[BaseMemory] = None,
         extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -364,6 +365,8 @@ class BaseLLMClient:
                 streams in parallel without risking race conditions. Defaults to `None`.
             extra_params (Dict[str, Union[str, int, float]], optional): Extra parameters to pass to the model.
                 Defaults to `None`.
+            extra_headers (Dict[str, str], optional): Extra HTTP headers to pass in the request to the service
+                hosting the model. Defaults to `None`.
 
         Raises:
             ValueError: If the provided model is not active and/or not available.
@@ -428,6 +431,7 @@ class BaseLLMClient:
             bypass_memory,
             alt_memory,
             extra_params,
+            extra_headers,
         )
 
     async def _call_impl(
@@ -444,6 +448,7 @@ class BaseLLMClient:
         bypass_memory: bool,
         alt_memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
     ) -> str:
         # Prepare memory
         memory = alt_memory if alt_memory is not None else self.memory
@@ -486,6 +491,8 @@ class BaseLLMClient:
             timeout,
             memory,
             extra_params,
+            extra_headers,
+            # Args below here are not always used
             json_mode,
             json_mode_strategy,
             model_entry["extras"],
@@ -517,6 +524,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         *_: Any,  # json_mode and json_mode_strategy, and extras are not used here
     ) -> str:
         data: Dict[str, Any] = {}
@@ -543,6 +551,7 @@ class BaseLLMClient:
             data=data,
             timeout=timeout,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         result = result["candidates"][0]
 
@@ -561,6 +570,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         _: Dict[str, Any],  # extras is not used here
@@ -585,6 +595,7 @@ class BaseLLMClient:
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         return str(result["content"][0]["text"])
 
@@ -597,6 +608,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         _: Dict[str, Any],  # extras is not used here
@@ -620,6 +632,7 @@ class BaseLLMClient:
             data={"model": model_id, "message": prompt, **params},
             timeout=timeout,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         return str(result["text"])
 
@@ -644,6 +657,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
         __: Dict[str, Any],  # extras is not used here
@@ -670,6 +684,7 @@ class BaseLLMClient:
             data={"input": {"prompt": prompt, **params}},
             timeout=timeout,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         return "".join(result["output"])
 
@@ -688,6 +703,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         _: Dict[str, Any],  # extras is not used here
@@ -706,6 +722,7 @@ class BaseLLMClient:
             timeout=timeout,
             local_provider_overrides=self.local_provider_overrides,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         return str(result["message"]["content"])
 
@@ -719,6 +736,7 @@ class BaseLLMClient:
         timeout: Optional[int],
         memory: Optional[BaseMemory],
         extra_params: Optional[Dict[str, Union[str, int, float]]],
+        extra_headers: Optional[Dict[str, str]],
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
         extras: Dict[str, Any],
@@ -751,6 +769,7 @@ class BaseLLMClient:
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
             extra_params=extra_params,
+            extra_headers=extra_headers,
         )
         return str(result["choices"][0]["message"]["content"])
 
