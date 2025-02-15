@@ -25,7 +25,7 @@ from l2m2.tools.json_mode_strategies import (
 )
 from l2m2.exceptions import LLMOperationError
 from l2m2._internal.http import llm_post, local_llm_post
-from l2m2.client.warnings import deprecated
+from l2m2.warnings import deprecated
 
 DEFAULT_TIMEOUT_SECONDS = 10
 
