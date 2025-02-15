@@ -3,7 +3,7 @@
 
 VERSION := $(shell python -c "from l2m2 import __version__; print(__version__)")
 
-default: lint typecheck test
+default: lint type test
 
 init:
 	uv pip install --upgrade uv pip
@@ -35,7 +35,7 @@ coverage:
 lint:
 	-ruff check .
 
-typecheck:
+type:
 	-mypy .
 
 build:

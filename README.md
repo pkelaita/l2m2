@@ -92,7 +92,7 @@ Contributions are welcome! Please see the below contribution guide.
   - Install dependencies: `make init`.
   - Create a feature branch and an [issue](https://github.com/pkelaita/l2m2/issues) with a description of the feature or bug fix.
 - **Develop**
-  - Run lint, typecheck and tests: `make` (`make lint`, `make typecheck`, and `make test` can also be run individually).
+  - Run lint, typecheck and tests: `make` (`make lint`, `make type`, and `make test` can also be run individually).
   - Generate test coverage: `make coverage`.
   - If you've updated the supported models, run `make update-docs` to reflect those changes in the README.
 - **Integration Test**

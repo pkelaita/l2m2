@@ -34,7 +34,7 @@ jobs:
         run: make lint
 
       - name: Run typecheck
-        run: make typecheck
+        run: make type
 
       - name: Run tests
         run: make test
