@@ -194,7 +194,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "o1": {
         "openai": {
-            "model_id": "o1",
+            "model_id": "o1-2024-12-17",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -211,7 +211,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "o1-preview": {
         "openai": {
-            "model_id": "o1-preview",
+            "model_id": "o1-preview-2024-09-12",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -228,7 +228,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "o1-mini": {
         "openai": {
-            "model_id": "o1-mini",
+            "model_id": "o1-mini-2024-09-12",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -351,7 +351,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "claude-3.5-sonnet": {
         "anthropic": {
-            "model_id": "claude-3-5-sonnet-latest",
+            "model_id": "claude-3-5-sonnet-20241022",
             "params": {
                 "temperature": {
                     "default": 0.0,
@@ -367,7 +367,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "claude-3.5-haiku": {
         "anthropic": {
-            "model_id": "claude-3-5-haiku-latest",
+            "model_id": "claude-3-5-haiku-20241022",
             "params": {
                 "temperature": {
                     "default": 0.0,
@@ -431,7 +431,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "command-r": {
         "cohere": {
-            "model_id": "command-r",
+            "model_id": "command-r-08-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -447,7 +447,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "command-r-plus": {
         "cohere": {
-            "model_id": "command-r-plus",
+            "model_id": "command-r-plus-08-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -463,7 +463,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-large": {
         "mistral": {
-            "model_id": "mistral-large-latest",
+            "model_id": "mistral-large-2411",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -479,7 +479,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "ministral-3b": {
         "mistral": {
-            "model_id": "ministral-3b-latest",
+            "model_id": "ministral-3b-2410",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -495,7 +495,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "ministral-8b": {
         "mistral": {
-            "model_id": "ministral-8b-latest",
+            "model_id": "ministral-8b-2410",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -511,7 +511,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-small": {
         "mistral": {
-            "model_id": "mistral-small-latest",
+            "model_id": "mistral-small-2501",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
