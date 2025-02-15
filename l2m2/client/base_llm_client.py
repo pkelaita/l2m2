@@ -27,7 +27,7 @@ from l2m2.exceptions import LLMOperationError
 from l2m2._internal.http import llm_post, local_llm_post
 from l2m2.warnings import deprecated
 
-DEFAULT_TIMEOUT_SECONDS = 10
+DEFAULT_TIMEOUT_SECONDS = 25
 
 DEFAULT_PROVIDER_ENVS = {
     "openai": "OPENAI_API_KEY",
