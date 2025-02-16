@@ -8,6 +8,19 @@ from l2m2.tools.json_mode_strategies import JsonModeStrategy
 from l2m2.exceptions import L2M2UsageError
 
 
+# Helper function to check if we are currently in an async context.
+def _is_async_context() -> bool:
+    try:
+        asyncio.get_running_loop()
+        return True
+    # It hurts my soul to use try-catch for control flow here, but as far as I know it's
+    # the only way to do this. If anyone knows a cleaner method, please let me know...
+    except RuntimeError as e:
+        if "no running event loop" in str(e):
+            return False
+        raise  # pragma: no cover
+
+
 class LLMClient(BaseLLMClient):
     def __init__(
         self,
@@ -34,9 +47,9 @@ class LLMClient(BaseLLMClient):
             L2M2UsageError: If an invalid provider is specified in `providers`.
             L2M2UsageError: If `LLMClient` is instantiated in an asynchronous context.
         """
-        if asyncio.get_event_loop().is_running():
+        if _is_async_context():
             raise L2M2UsageError(
-                "LLMClient cannot be used in an asynchronous context. Use AsyncLLMClient instead."
+                "LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead."
             )
 
         super(LLMClient, self).__init__(api_keys=providers, memory=memory)
@@ -109,9 +122,9 @@ class LLMClient(BaseLLMClient):
             str: The model's completion for the prompt, or an error message if the model is
                 unable to generate a completion.
         """
-        if asyncio.get_event_loop().is_running():
+        if _is_async_context():
             raise L2M2UsageError(
-                "LLMClient cannot be used in an asynchronous context. Use AsyncLLMClient instead."
+                "LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead."
             )
         result = asyncio.run(
             self._sync_fn_wrapper(
