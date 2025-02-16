@@ -39,6 +39,9 @@
 | `llama-3.1-8b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.1-8b-instant`, `llama3.1-8b` |
 | `llama-3-70b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 | `llama-3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
+| `qwen-2.5-32b` | [Groq](https://wow.groq.com/) | `qwen-2.5-32b` |
+| `deepseek-r1-distill-qwen-32b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-qwen-32b` |
+| `deepseek-r1-distill-llama-70b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-llama-70b` |
 
 <!--end-model-table-->
 

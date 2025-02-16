@@ -797,6 +797,54 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "qwen-2.5-32b": {
+        "groq": {
+            "model_id": "qwen-2.5-32b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "deepseek-r1-distill-qwen-32b": {
+        "groq": {
+            "model_id": "deepseek-r1-distill-qwen-32b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "deepseek-r1-distill-llama-70b": {
+        "groq": {
+            "model_id": "deepseek-r1-distill-llama-70b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+    },
 }
 
 
