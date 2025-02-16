@@ -279,7 +279,43 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-2.0-flash": {
         "google": {
-            "model_id": "gemini-2.0-flash-exp",
+            "model_id": "gemini-2.0-flash-001",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
+    "gemini-2.0-flash-lite": {
+        "google": {
+            "model_id": "gemini-2.0-flash-lite-preview-02-05",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
+    "gemini-2.0-pro": {
+        "google": {
+            "model_id": "gemini-2.0-pro-exp-02-05",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -297,7 +333,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-1.5-flash": {
         "google": {
-            "model_id": "gemini-1.5-flash",
+            "model_id": "gemini-1.5-flash-001",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
