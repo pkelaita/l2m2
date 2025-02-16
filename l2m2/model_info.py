@@ -294,6 +294,24 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
+    "gemini-2.0-pro": {
+        "google": {
+            "model_id": "gemini-2.0-pro-exp-02-05",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-2.0-flash": {
         "google": {
             "model_id": "gemini-2.0-flash-001",
@@ -315,24 +333,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     "gemini-2.0-flash-lite": {
         "google": {
             "model_id": "gemini-2.0-flash-lite-preview-02-05",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_output_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                    "max": 8192,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
-        },
-    },
-    "gemini-2.0-pro": {
-        "google": {
-            "model_id": "gemini-2.0-pro-exp-02-05",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -546,6 +546,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
+    "mistral-small": {
+        "mistral": {
+            "model_id": "mistral-small-2501",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
     "ministral-3b": {
         "mistral": {
             "model_id": "ministral-3b-2410",
@@ -565,22 +581,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     "ministral-8b": {
         "mistral": {
             "model_id": "ministral-8b-2410",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "mistral-small": {
-        "mistral": {
-            "model_id": "mistral-small-2501",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -626,9 +626,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3-8b": {
+    "llama-3.3-70b": {
         "groq": {
-            "model_id": "llama3-8b-8192",
+            "model_id": "llama-3.3-70b-versatile",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -636,30 +636,29 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**15,
                 },
             },
-            "extras": {},
+            "extras": {"preview": True},
         },
-        "replicate": {
-            "model_id": "meta/meta-llama-3-8b-instruct",
+        "cerebras": {
+            "model_id": "llama3.3-70b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 5.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
-                    "custom_key": "max_new_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {},
         },
     },
-    "llama-3-70b": {
+    "llama-3.2-3b": {
         "groq": {
-            "model_id": "llama3-70b-8192",
+            "model_id": "llama-3.2-3b-preview",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -667,17 +666,35 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**13,
                 },
             },
-            "extras": {},
+            "extras": {"preview": True},
         },
-        "replicate": {
-            "model_id": "meta/meta-llama-3-70b-instruct",
+    },
+    "llama-3.2-1b": {
+        "groq": {
+            "model_id": "llama-3.2-1b-preview",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 5.0,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {"preview": True},
+        },
+    },
+    "llama-3.1-405b": {
+        "replicate": {
+            "model_id": "meta/meta-llama-3.1-405b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
                 },
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
@@ -718,13 +735,27 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.1-405b": {
-        "replicate": {
-            "model_id": "meta/meta-llama-3.1-405b-instruct",
+    "llama-3-70b": {
+        "groq": {
+            "model_id": "llama3-70b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+        "replicate": {
+            "model_id": "meta/meta-llama-3-70b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 5.0,
                 },
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
@@ -735,9 +766,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.2-1b": {
+    "llama-3-8b": {
         "groq": {
-            "model_id": "llama-3.2-1b-preview",
+            "model_id": "llama3-8b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -745,53 +776,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
+                    "max": 2**16 - 1,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {},
         },
-    },
-    "llama-3.2-3b": {
-        "groq": {
-            "model_id": "llama-3.2-3b-preview",
+        "replicate": {
+            "model_id": "meta/meta-llama-3-8b-instruct",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
+                    "max": 5.0,
                 },
                 "max_tokens": {
+                    "custom_key": "max_new_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
-                },
-            },
-            "extras": {"preview": True},
-        },
-    },
-    "llama-3.3-70b": {
-        "groq": {
-            "model_id": "llama-3.3-70b-versatile",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**15,
-                },
-            },
-            "extras": {"preview": True},
-        },
-        "cerebras": {
-            "model_id": "llama3.3-70b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.5,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**31 - 1,
+                    "max": INF,
                 },
             },
             "extras": {},
