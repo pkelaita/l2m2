@@ -89,7 +89,7 @@ HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     "cohere": {
         "name": "Cohere",
         "homepage": "https://docs.cohere.com/",
-        "endpoint": "https://api.cohere.com/v1/chat",
+        "endpoint": "https://api.cohere.com/v2/chat",
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
@@ -158,6 +158,74 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
+    "o3-mini": {
+        "openai": {
+            "model_id": "o3-mini-2025-01-31",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1": {
+        "openai": {
+            "model_id": "o1-2024-12-17",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-preview": {
+        "openai": {
+            "model_id": "o1-preview-2024-09-12",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "o1-mini": {
+        "openai": {
+            "model_id": "o1-mini-2024-09-12",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
     "gpt-4o": {
         "openai": {
             "model_id": "gpt-4o-2024-11-20",
@@ -190,57 +258,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "o1": {
-        "openai": {
-            "model_id": "o1",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_completion_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {},
-        },
-    },
-    "o1-preview": {
-        "openai": {
-            "model_id": "o1-preview",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_completion_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {},
-        },
-    },
-    "o1-mini": {
-        "openai": {
-            "model_id": "o1-mini",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_completion_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {},
         },
     },
     "gpt-4-turbo": {
@@ -277,9 +294,45 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
+    "gemini-2.0-pro": {
+        "google": {
+            "model_id": "gemini-2.0-pro-exp-02-05",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-2.0-flash": {
         "google": {
-            "model_id": "gemini-2.0-flash-exp",
+            "model_id": "gemini-2.0-flash-001",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 8192,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
+    "gemini-2.0-flash-lite": {
+        "google": {
+            "model_id": "gemini-2.0-flash-lite-preview-02-05",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -297,7 +350,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-1.5-flash": {
         "google": {
-            "model_id": "gemini-1.5-flash",
+            "model_id": "gemini-1.5-flash-001",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -351,7 +404,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "claude-3.5-sonnet": {
         "anthropic": {
-            "model_id": "claude-3-5-sonnet-latest",
+            "model_id": "claude-3-5-sonnet-20241022",
             "params": {
                 "temperature": {
                     "default": 0.0,
@@ -367,7 +420,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "claude-3.5-haiku": {
         "anthropic": {
-            "model_id": "claude-3-5-haiku-latest",
+            "model_id": "claude-3-5-haiku-20241022",
             "params": {
                 "temperature": {
                     "default": 0.0,
@@ -431,7 +484,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "command-r": {
         "cohere": {
-            "model_id": "command-r",
+            "model_id": "command-r-08-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -447,7 +500,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "command-r-plus": {
         "cohere": {
-            "model_id": "command-r-plus",
+            "model_id": "command-r-plus-08-2024",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "command-r7b": {
+        "cohere": {
+            "model_id": "command-r7b-12-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -463,39 +532,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-large": {
         "mistral": {
-            "model_id": "mistral-large-latest",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "ministral-3b": {
-        "mistral": {
-            "model_id": "ministral-3b-latest",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": INF,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "ministral-8b": {
-        "mistral": {
-            "model_id": "ministral-8b-latest",
+            "model_id": "mistral-large-2411",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -511,7 +548,39 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-small": {
         "mistral": {
-            "model_id": "mistral-small-latest",
+            "model_id": "mistral-small-2501",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "ministral-3b": {
+        "mistral": {
+            "model_id": "ministral-3b-2410",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "ministral-8b": {
+        "mistral": {
+            "model_id": "ministral-8b-2410",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -557,9 +626,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3-8b": {
+    "llama-3.3-70b": {
         "groq": {
-            "model_id": "llama3-8b-8192",
+            "model_id": "llama-3.3-70b-versatile",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -567,30 +636,29 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**15,
                 },
             },
-            "extras": {},
+            "extras": {"preview": True},
         },
-        "replicate": {
-            "model_id": "meta/meta-llama-3-8b-instruct",
+        "cerebras": {
+            "model_id": "llama3.3-70b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 5.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
-                    "custom_key": "max_new_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {},
         },
     },
-    "llama-3-70b": {
+    "llama-3.2-3b": {
         "groq": {
-            "model_id": "llama3-70b-8192",
+            "model_id": "llama-3.2-3b-preview",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -598,17 +666,35 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**13,
                 },
             },
-            "extras": {},
+            "extras": {"preview": True},
         },
-        "replicate": {
-            "model_id": "meta/meta-llama-3-70b-instruct",
+    },
+    "llama-3.2-1b": {
+        "groq": {
+            "model_id": "llama-3.2-1b-preview",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 5.0,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {"preview": True},
+        },
+    },
+    "llama-3.1-405b": {
+        "replicate": {
+            "model_id": "meta/meta-llama-3.1-405b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
                 },
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
@@ -649,13 +735,27 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.1-405b": {
-        "replicate": {
-            "model_id": "meta/meta-llama-3.1-405b-instruct",
+    "llama-3-70b": {
+        "groq": {
+            "model_id": "llama3-70b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**16 - 1,
+                },
+            },
+            "extras": {},
+        },
+        "replicate": {
+            "model_id": "meta/meta-llama-3-70b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 5.0,
                 },
                 "max_tokens": {
                     "custom_key": "max_new_tokens",
@@ -666,9 +766,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.2-1b": {
+    "llama-3-8b": {
         "groq": {
-            "model_id": "llama-3.2-1b-preview",
+            "model_id": "llama3-8b-8192",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -676,15 +776,30 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
+                    "max": 2**16 - 1,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {},
+        },
+        "replicate": {
+            "model_id": "meta/meta-llama-3-8b-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 5.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_new_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
         },
     },
-    "llama-3.2-3b": {
+    "qwen-2.5-32b": {
         "groq": {
-            "model_id": "llama-3.2-3b-preview",
+            "model_id": "qwen-2.5-32b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -692,15 +807,15 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
+                    "max": 2**16 - 1,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {},
         },
     },
-    "llama-3.3-70b": {
+    "deepseek-r1-distill-qwen-32b": {
         "groq": {
-            "model_id": "llama-3.3-70b-versatile",
+            "model_id": "deepseek-r1-distill-qwen-32b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -708,24 +823,30 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**15,
+                    "max": 2**16 - 1,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {},
         },
-        "cerebras": {
-            "model_id": "llama3.3-70b",
+    },
+    "deepseek-r1-distill-llama-70b": {
+        "groq": {
+            "model_id": "deepseek-r1-distill-llama-70b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 1.5,
+                    "max": 2.0,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**31 - 1,
+                    "max": 2**16 - 1,
                 },
             },
             "extras": {},
         },
     },
 }
+
+
+def get_id(provider: str, model_id: str) -> str:
+    return MODEL_INFO[model_id][provider]["model_id"]

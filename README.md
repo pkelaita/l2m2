@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1738552841)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1738552841)](https://badge.fury.io/py/l2m2)
+[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1739668232)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1739668232)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -23,7 +23,7 @@
 
 ### Supported API-based Models
 
-L2M2 supports <!--start-model-count-->31<!--end-model-count--> models from <!--start-prov-list-->[OpenAI](https://openai.com/api/), [Google](https://ai.google.dev/), [Anthropic](https://www.anthropic.com/api), [Cohere](https://docs.cohere.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/), [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), and [Cerebras](https://inference-docs.cerebras.ai)<!--end-prov-list-->. The full list of supported models can be found [here](docs/supported_models.md).
+L2M2 supports <!--start-model-count-->38<!--end-model-count--> models from <!--start-prov-list-->[OpenAI](https://openai.com/api/), [Google](https://ai.google.dev/), [Anthropic](https://www.anthropic.com/api), [Cohere](https://docs.cohere.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/), [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), and [Cerebras](https://inference-docs.cerebras.ai)<!--end-prov-list-->. The full list of supported models can be found [here](docs/supported_models.md).
 
 ## Usage ([Full Docs](docs/usage_guide.md))
 
@@ -101,6 +101,7 @@ Contributions are welcome! Please see the below contribution guide.
   - Write your integration tests in `itests.py`.
   - Run locally with `python itests.py -l`.
     - _Note: make sure to pass the `-l` flag or else it will look for an L2M2 distribution. Additionally, make sure l2m2 is not installed with pip when running the integration tests locally._
+    - A shortcut to do this from the top-level directory is `make itl` (integration test local).
   - Once your changes are ready, from the top-level directory run `make build` to create the distribution and `make itest` to run your integration tests against the distribution.
     - _Note: in order to ensure a clean test environment, `make itest` uninstalls all third-party Python packages before running the tests, so make sure to run `make init` when you're done working on integration tests._
 - **Contribute**

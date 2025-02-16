@@ -9,7 +9,7 @@ from l2m2.memory import (
 )
 from l2m2.client.base_llm_client import BaseLLMClient
 from l2m2.tools import JsonModeStrategy
-from l2m2.exceptions import LLMOperationError
+from l2m2.exceptions import LLMOperationError, L2M2UsageError
 
 LLM_POST_PATH = "l2m2.client.base_llm_client.llm_post"
 LOCAL_LLM_POST_PATH = "l2m2.client.base_llm_client.local_llm_post"
@@ -118,7 +118,7 @@ async def test_init_with_api_keys_overridden():
 
 
 def test_init_with_invalid_provider():
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         BaseLLMClient({"invalid_provider": "some-key", "openai": "test-key-openai"})
 
 
@@ -144,7 +144,7 @@ def test_add_provider(llm_client):
 
 
 def test_add_provider_invalid(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.add_provider("invalid_provider", "some-key")
 
 
@@ -169,7 +169,7 @@ def test_remove_provider_overlapping_model(llm_client):
 
 
 def test_remove_provider_not_active(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.remove_provider("openai")
 
 
@@ -194,13 +194,13 @@ def test_set_preferred_provider(llm_client):
 
 
 def test_set_preferred_provider_invalid(llm_client):
-    with pytest.raises(ValueError):  # Invalid provider
+    with pytest.raises(L2M2UsageError):  # Invalid provider
         llm_client.set_preferred_providers({"llama-3-8b": "invalid_provider"})
 
-    with pytest.raises(ValueError):  # Invalid model
+    with pytest.raises(L2M2UsageError):  # Invalid model
         llm_client.set_preferred_providers({"invalid_model": "groq"})
 
-    with pytest.raises(ValueError):  # Mismatched model and provider
+    with pytest.raises(L2M2UsageError):  # Mismatched model and provider
         llm_client.set_preferred_providers({"llama-3-70b": "openai"})
 
 
@@ -213,7 +213,7 @@ def test_add_local_model(llm_client):
 
 
 def test_add_local_model_invalid(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.add_local_model("phi3", "invalid-provider")
 
 
@@ -232,7 +232,7 @@ def test_override_local_base_url(llm_client):
 
 
 def test_override_local_base_url_invalid(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.override_local_base_url("invalid-provider", "http://abc:123")
 
 
@@ -243,7 +243,7 @@ def test_reset_local_base_url(llm_client):
 
 
 def test_reset_local_base_url_invalid(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.reset_local_base_url("invalid-provider")
 
 
@@ -252,7 +252,7 @@ def test_reset_local_base_url_not_overridden(llm_client):
 
 
 def test_remove_local_model_invalid(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.remove_local_model("phi3", "ollama")
 
 
@@ -342,7 +342,7 @@ async def test_call_anthropic(mock_get_extra_message, mock_llm_post, llm_client)
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_cohere(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"text": "response"}
+    mock_return_value = {"message": {"content": [{"text": "response"}]}}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cohere", "command-r")
 
@@ -403,6 +403,29 @@ async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_clie
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
+async def test_call_openai_system_prompt_not_supported(mock_call_openai, llm_client):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("openai", "fake-api-key")
+
+    # First, ensure they work without a system prompt
+    response = await llm_client.call(prompt="Hello", model="o1-mini")
+    assert response == "response"
+
+    response = await llm_client.call(prompt="Hello", model="o1-preview")
+    assert response == "response"
+
+    with pytest.raises(LLMOperationError):
+        await llm_client.call(
+            prompt="Hello", model="o1-mini", system_prompt="System prompt"
+        )
+    with pytest.raises(LLMOperationError):
+        await llm_client.call(
+            prompt="Hello", model="o1-preview", system_prompt="System prompt"
+        )
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
 async def test_call_google_gemini_fails(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}
@@ -413,27 +436,27 @@ async def test_call_google_gemini_fails(mock_llm_post, llm_client):
 
 @pytest.mark.asyncio
 async def test_call_valid_model_not_active(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="gpt-4o")
 
 
 @pytest.mark.asyncio
 async def test_call_invalid_model(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="unknown-model")
 
 
 @pytest.mark.asyncio
 async def test_call_tokens_too_large(llm_client):
     llm_client.add_provider("openai", "fake-api-key")
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="gpt-4o", max_tokens=float("inf"))
 
 
 @pytest.mark.asyncio
 async def test_call_temperature_too_high(llm_client):
     llm_client.add_provider("openai", "fake-api-key")
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="gpt-4o", temperature=3.0)
 
 
@@ -495,7 +518,7 @@ async def test_multi_provider_pref_missing(_, llm_client):
     # Shouldn't raise an error
     await llm_client.call(prompt="Hello", model="mixtral-8x7b")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="llama-3-70b")
 
 
@@ -503,7 +526,7 @@ async def test_multi_provider_pref_missing(_, llm_client):
 async def test_multi_provider_pref_inactive(llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         await llm_client.call(
             prompt="Hello", model="llama-3-70b", prefer_provider="openai"
         )
@@ -542,10 +565,10 @@ async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
 
 
 def test_chat_memory_errors(llm_client):
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.get_memory()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         llm_client.clear_memory()
 
 
@@ -689,7 +712,7 @@ async def test_alt_memory(mock_call_openai, llm_client):
 async def test_json_mode_default_strategy_strip(mock_call, llm_client):
 
     # Cohere
-    mock_call.return_value = {"text": "--{response}--"}
+    mock_call.return_value = {"message": {"content": [{"text": "--{response}--"}]}}
     llm_client.add_provider("cohere", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
@@ -783,7 +806,7 @@ async def test_json_mode_strategy_prepend_anthropic(mock_call_anthropic, llm_cli
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
-    mock_call_cohere.return_value = {"text": "response"}
+    mock_call_cohere.return_value = {"message": {"content": [{"text": "response"}]}}
     llm_client.add_provider("cohere", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
@@ -794,7 +817,7 @@ async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call_cohere.call_args.kwargs["data"]["chat_history"][-1]["message"]
+        mock_call_cohere.call_args.kwargs["data"]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 

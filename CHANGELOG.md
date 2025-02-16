@@ -1,8 +1,43 @@
 # Changelog
 
-_Current version: 0.0.41_
+_Current version: 0.0.42_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.42 - February 15, 2025
+
+#### Added
+
+- Suppert for 7 new models:
+  - `o3-mini` via OpenAI
+  - `gemini-2.0-pro` and `gemini-2.0-flash-lite` via Google
+  - `qwen-2.5-32b`, `deepseek-r1-distill-qwen-32b`, and `deepseek-r1-distill-llama-70b` via Groq
+  - `command-r7b` via Cohere
+
+#### Changed
+
+- Updated the Cohere API from V1 to V2 ([their docs](https://cohere.com/blog/new-api-v2)).
+- Replaced all instances of `ValueError` being raised with a new `L2M2UsageError` exception.
+- Moved the `warnings` module to the top level (`l2m2.warnings` instead of `l2m2.client.warnings`).
+- Increased the default timeout for LLM calls from 10 seconds to 25 seconds.
+- Where possible, pinned l2m2 models to specific versions rather than an alias pointing to the latest version. This is for stability in production; however, I do plan to keep the versions up to date on a regular basis. The following model versions have been updated:
+  - `o1` → `o1-2024-12-17`
+  - `o1-preview` → `o1-preview-2024-09-12`
+  - `o1-mini` → `o1-mini-2024-09-12`
+  - `claude-3-5-sonnet-latest` → `claude-3-5-sonnet-20241022`
+  - `claude-3-5-haiku-latest` → `claude-3-5-haiku-20241022`
+  - `command-r` → `command-r-08-2024`
+  - `command-r-plus` → `command-r-plus-08-2024`
+  - `mistral-large-latest` → `mistral-large-2411`
+  - `ministral-3b-latest` → `ministral-3b-2410`
+  - `gemini-2.0-flash-exp` → `gemini-2.0-flash-001`
+  - `gemini-1.5-flash-exp` → `gemini-1.5-flash-001`
+    Note that this is _not_ a breaking change – the model IDs are purely internal. This doesn't change any behavior, just adds stability.
+
+#### Fixed
+
+- Previously, the synchronous `call` method in `LLMClient` would throw a gibberish unhandled exception when used in an async context, such as within FastAPI. This has been fixed - it is now handled by an `L2M2UsageError` with a helpful message recommending the use of `AsyncLLMClient` instead. This error is also thrown when instantiating `LLMClient` in an async context.
+- For some reason, OpenAI doesn't support either the `system` or `developer` keyword in `o1-mini` and `o1-preview`, effectively making system prompts unusable with them. While I'm not sure why this is, I've properly handled these with `L2M2UsageError` instead of throwing unhandled exceptions.
 
 ### 0.0.41 - February 3, 2025
 

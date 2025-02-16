@@ -10,6 +10,7 @@ from l2m2.model_info import (
     ModelEntry,
     ModelParams,
     ParamName,
+    get_id,
 )
 from l2m2.memory import (
     ChatMemory,
@@ -23,11 +24,11 @@ from l2m2.tools.json_mode_strategies import (
     get_extra_message,
     run_json_strats_out,
 )
-from l2m2.exceptions import LLMOperationError
+from l2m2.exceptions import LLMOperationError, L2M2UsageError
 from l2m2._internal.http import llm_post, local_llm_post
-from l2m2.client.warnings import deprecated
+from l2m2.warnings import deprecated
 
-DEFAULT_TIMEOUT_SECONDS = 10
+DEFAULT_TIMEOUT_SECONDS = 25
 
 DEFAULT_PROVIDER_ENVS = {
     "openai": "OPENAI_API_KEY",
@@ -64,7 +65,7 @@ class BaseLLMClient:
                 case memory is not enabled.
 
         Raises:
-            ValueError: If an invalid provider is specified in `providers`.
+            L2M2UsageError: If an invalid provider is specified in `providers`.
         """
         # Hosted models and providers state
         self.api_keys: Dict[str, str] = {}
@@ -148,10 +149,10 @@ class BaseLLMClient:
             api_key (str): The API key for the provider.
 
         Raises:
-            ValueError: If the provider is not one of the available providers.
+            L2M2UsageError: If the provider is not one of the available providers.
         """
         if provider not in (providers := self.get_available_providers()):
-            raise ValueError(
+            raise L2M2UsageError(
                 f"Invalid provider: {provider}. Available providers: {providers}"
             )
 
@@ -168,10 +169,10 @@ class BaseLLMClient:
             provider (str): The active provider to remove.
 
         Raises:
-            ValueError: If the given provider is not active.
+            L2M2UsageError: If the given provider is not active.
         """
         if provider_to_remove not in self.active_hosted_providers:
-            raise ValueError(f"Provider not active: {provider_to_remove}")
+            raise L2M2UsageError(f"Provider not active: {provider_to_remove}")
 
         del self.api_keys[provider_to_remove]
         self.active_hosted_providers.remove(provider_to_remove)
@@ -190,10 +191,12 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_model_pairings.add((model, local_provider))
 
@@ -205,10 +208,10 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local model is not active.
+            L2M2UsageError: If the local model is not active.
         """
         if (model, local_provider) not in self.local_model_pairings:
-            raise ValueError(f"Local {model} via {local_provider} is not active.")
+            raise L2M2UsageError(f"Local {model} via {local_provider} is not active.")
 
         self.local_model_pairings.remove((model, local_provider))
 
@@ -226,10 +229,12 @@ class BaseLLMClient:
             new_base_url (str): The new base URL to use for the local provider.
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_provider_overrides[local_provider] = base_url
 
@@ -240,10 +245,12 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_provider_overrides.pop(local_provider, None)
 
@@ -267,19 +274,19 @@ class BaseLLMClient:
                     }
 
         Raises:
-            ValueError: If an invalid model or provider is specified in `preferred_providers`.
-            ValueError: If the given provider is hosted and the given model is not available from it.
+            L2M2UsageError: If an invalid model or provider is specified in `preferred_providers`.
+            L2M2UsageError: If the given provider is hosted and the given model is not available from it.
         """
 
         for model, provider in preferred_providers.items():
             if provider is not None:
                 if provider not in self.get_available_providers():
-                    raise ValueError(f"Invalid provider: {provider}")
+                    raise L2M2UsageError(f"Invalid provider: {provider}")
 
                 if provider in HOSTED_PROVIDERS and (
                     model not in MODEL_INFO or provider not in MODEL_INFO[model].keys()
                 ):
-                    raise ValueError(
+                    raise L2M2UsageError(
                         f"Model {model} is not available from provider {provider}."
                     )
 
@@ -292,10 +299,10 @@ class BaseLLMClient:
             BaseMemory: The memory object.
 
         Raises:
-            ValueError: If memory is not enabled.
+            L2M2UsageError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError("Memory is not enabled.")
+            raise L2M2UsageError("Memory is not enabled.")
 
         return self.memory
 
@@ -303,10 +310,10 @@ class BaseLLMClient:
         """Clear the memory, if memory is enabled.
 
         Raises:
-            ValueError: If memory is not enabled.
+            L2M2UsageError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError("Memory is not enabled.")
+            raise L2M2UsageError("Memory is not enabled.")
 
         self.memory.clear()
 
@@ -370,23 +377,23 @@ class BaseLLMClient:
                 hosting the model. Defaults to `None`.
 
         Raises:
-            ValueError: If the provided model is not active and/or not available.
-            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+            L2M2UsageError: If the provided model is not active and/or not available.
+            L2M2UsageError: If the model is available from multiple active providers neither `prefer_provider`
                 nor a default provider is specified.
-            ValueError: If `prefer_provider` is specified but not active.
+            L2M2UsageError: If `prefer_provider` is specified but not active.
 
         Returns:
             str: The model's completion for the prompt, or an error message if the model is
                 unable to generate a completion.
         """
         if model not in self.get_active_models():
-            raise ValueError(f"Invalid or non-active model: {model}")
+            raise L2M2UsageError(f"Invalid or non-active model: {model}")
 
         if (
             prefer_provider is not None
             and prefer_provider not in self.get_active_providers()
         ):
-            raise ValueError(
+            raise L2M2UsageError(
                 "Argument prefer_provider must either be None or an active provider."
                 + f" Active providers are {', '.join(self.get_active_providers())}"
             )
@@ -407,7 +414,7 @@ class BaseLLMClient:
             provider = self.preferred_providers[model]
 
         else:
-            raise ValueError(
+            raise L2M2UsageError(
                 f"Model {model} is available from multiple active providers: {', '.join(providers)}."
                 + " Please specify a preferred provider with the argument prefer_provider, or set a"
                 + " default provider for the model with set_preferred_providers."
@@ -514,6 +521,16 @@ class BaseLLMClient:
         self,
         *args: Any,
     ) -> str:
+        if args[2] and args[0] in [
+            get_id("openai", "o1-mini"),
+            get_id("openai", "o1-preview"),
+        ]:
+            raise LLMOperationError(
+                "OpenAI o1-mini and o1-preview do not support system prompts. Try using "
+                + "o1, which supports them, or appending the system prompt to the user prompt. "
+                + "For discussion on this issue, see "
+                + "https://community.openai.com/t/o1-supports-system-role-o1-mini-does-not/1071954/3"
+            )
         return await self._generic_openai_spec_call("openai", *args)
 
     async def _call_google(
@@ -602,40 +619,9 @@ class BaseLLMClient:
 
     async def _call_cohere(
         self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
-        json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
-        _: Dict[str, Any],  # extras is not used here
+        *args: Any,
     ) -> str:
-        if system_prompt is not None:
-            params["preamble"] = system_prompt
-        if isinstance(memory, ChatMemory):
-            params["chat_history"] = memory.unpack("role", "message", "USER", "CHATBOT")
-
-        if json_mode:
-            append_msg = get_extra_message(json_mode_strategy)
-            if append_msg:
-                entry = {"role": "CHATBOT", "message": append_msg}
-                params.setdefault("chat_history", []).append(entry)
-
-        result = await llm_post(
-            client=self.httpx_client,
-            provider="cohere",
-            model_id=model_id,
-            api_key=self.api_keys["cohere"],
-            data={"model": model_id, "message": prompt, **params},
-            timeout=timeout,
-            extra_params=extra_params,
-            extra_headers=extra_headers,
-        )
-        return str(result["text"])
+        return await self._generic_openai_spec_call("cohere", *args)
 
     async def _call_groq(
         self,
@@ -665,7 +651,7 @@ class BaseLLMClient:
     ) -> str:
         if isinstance(memory, ChatMemory):
             raise LLMOperationError(
-                "Chat memory is not supported with Replicate."
+                "ChatMemory is not supported with Replicate."
                 + " Try using Groq, or using ExternalMemory instead."
             )
         if json_mode_strategy.strategy_name == StrategyName.PREPEND:
@@ -747,7 +733,9 @@ class BaseLLMClient:
 
         # For o1 and newer, use "developer" messages instead of "system"
         system_key = "system"
-        if provider == "openai" and model_id in ["o1", "o1-preview", "o1-mini"]:
+        if provider == "openai" and model_id in [
+            get_id("openai", "o1"),
+        ]:
             system_key = "developer"
 
         messages = []
@@ -772,6 +760,11 @@ class BaseLLMClient:
             extra_params=extra_params,
             extra_headers=extra_headers,
         )
+
+        # Cohere API v2 uses OpenAI spec, but not the same response format for some reason...
+        if provider == "cohere":
+            return str(result["message"]["content"][0]["text"])
+
         return str(result["choices"][0]["message"]["content"])
 
     # State-dependent helper methods
@@ -822,7 +815,7 @@ def _add_param(
 ) -> None:
     if value is not None and value > (max_val := param_info[name]["max"]):
         msg = f"Parameter {name} exceeds max value {max_val}"
-        raise ValueError(msg)
+        raise L2M2UsageError(msg)
 
     key = str(name) if (key := param_info[name].get("custom_key")) is None else key
 

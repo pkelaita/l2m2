@@ -27,6 +27,9 @@ itest-run:
 
 itest: clear-deps itest-run clear-deps
 
+itl:
+	python integration_tests/itests.py --local
+
 
 coverage:
 	pytest --cov=l2m2 --cov-report=html

@@ -4,6 +4,7 @@ from l2m2.memory.chat_memory import (
     CHAT_MEMORY_DEFAULT_WINDOW_SIZE,
     ChatMemoryEntry,
 )
+from l2m2.exceptions import L2M2UsageError
 
 
 def test_chat_memory():
@@ -70,5 +71,5 @@ def test_sliding_window():
 
 
 def test_bad_window_size():
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         ChatMemory(window_size=-1)
