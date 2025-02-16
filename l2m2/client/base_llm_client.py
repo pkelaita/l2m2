@@ -10,6 +10,7 @@ from l2m2.model_info import (
     ModelEntry,
     ModelParams,
     ParamName,
+    get_id,
 )
 from l2m2.memory import (
     ChatMemory,
@@ -514,6 +515,16 @@ class BaseLLMClient:
         self,
         *args: Any,
     ) -> str:
+        if args[2] and args[0] in [
+            get_id("openai", "o1-mini"),
+            get_id("openai", "o1-preview"),
+        ]:
+            raise LLMOperationError(
+                "OpenAI o1-mini and o1-preview do not support system prompts. Try using "
+                + "o1, which supports them, or appending the system prompt to the user prompt. "
+                + "For discussion on this issue, see "
+                + "https://community.openai.com/t/o1-supports-system-role-o1-mini-does-not/1071954/3"
+            )
         return await self._generic_openai_spec_call("openai", *args)
 
     async def _call_google(
@@ -665,7 +676,7 @@ class BaseLLMClient:
     ) -> str:
         if isinstance(memory, ChatMemory):
             raise LLMOperationError(
-                "Chat memory is not supported with Replicate."
+                "ChatMemory is not supported with Replicate."
                 + " Try using Groq, or using ExternalMemory instead."
             )
         if json_mode_strategy.strategy_name == StrategyName.PREPEND:
@@ -747,7 +758,9 @@ class BaseLLMClient:
 
         # For o1 and newer, use "developer" messages instead of "system"
         system_key = "system"
-        if provider == "openai" and model_id in ["o1", "o1-preview", "o1-mini"]:
+        if provider == "openai" and model_id in [
+            get_id("openai", "o1"),
+        ]:
             system_key = "developer"
 
         messages = []

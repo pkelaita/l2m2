@@ -729,3 +729,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
         },
     },
 }
+
+
+def get_id(provider: str, model_id: str) -> str:
+    return MODEL_INFO[model_id][provider]["model_id"]

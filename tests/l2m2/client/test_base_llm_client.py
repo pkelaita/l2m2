@@ -403,6 +403,29 @@ async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_clie
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
+async def test_call_openai_system_prompt_not_supported(mock_call_openai, llm_client):
+    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    llm_client.add_provider("openai", "fake-api-key")
+
+    # First, ensure they work without a system prompt
+    response = await llm_client.call(prompt="Hello", model="o1-mini")
+    assert response == "response"
+
+    response = await llm_client.call(prompt="Hello", model="o1-preview")
+    assert response == "response"
+
+    with pytest.raises(LLMOperationError):
+        await llm_client.call(
+            prompt="Hello", model="o1-mini", system_prompt="System prompt"
+        )
+    with pytest.raises(LLMOperationError):
+        await llm_client.call(
+            prompt="Hello", model="o1-preview", system_prompt="System prompt"
+        )
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
 async def test_call_google_gemini_fails(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}
