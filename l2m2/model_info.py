@@ -158,13 +158,13 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
-    "gpt-4o": {
+    "o3-mini": {
         "openai": {
-            "model_id": "gpt-4o-2024-11-20",
+            "model_id": "o3-mini-2025-01-31",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
+                    "max": 1.0,
                 },
                 "max_tokens": {
                     "custom_key": "max_completion_tokens",
@@ -172,24 +172,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "gpt-4o-mini": {
-        "openai": {
-            "model_id": "gpt-4o-mini-2024-07-18",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_completion_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {},
         },
     },
     "o1": {
@@ -241,6 +224,40 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
+        },
+    },
+    "gpt-4o": {
+        "openai": {
+            "model_id": "gpt-4o-2024-11-20",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "gpt-4o-mini": {
+        "openai": {
+            "model_id": "gpt-4o-mini-2024-07-18",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gpt-4-turbo": {
