@@ -101,6 +101,7 @@ Contributions are welcome! Please see the below contribution guide.
   - Write your integration tests in `itests.py`.
   - Run locally with `python itests.py -l`.
     - _Note: make sure to pass the `-l` flag or else it will look for an L2M2 distribution. Additionally, make sure l2m2 is not installed with pip when running the integration tests locally._
+    - A shortcut to do this from the top-level directory is `make itl` (integration test local).
   - Once your changes are ready, from the top-level directory run `make build` to create the distribution and `make itest` to run your integration tests against the distribution.
     - _Note: in order to ensure a clean test environment, `make itest` uninstalls all third-party Python packages before running the tests, so make sure to run `make init` when you're done working on integration tests._
 - **Contribute**
