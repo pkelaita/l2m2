@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import mock_open, patch
 
 from l2m2.tools import PromptLoader
+from l2m2.exceptions import L2M2UsageError
 
 
 def test_load_prompt_str():
@@ -29,7 +30,7 @@ def test_load_prompt_str_missing_variable():
         "name": "Pierce",
         "age": "24",
     }
-    with pytest.raises(ValueError):
+    with pytest.raises(L2M2UsageError):
         prompt_loader.load_prompt_str(prompt, variables)
 
 

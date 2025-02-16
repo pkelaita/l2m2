@@ -24,7 +24,7 @@ from l2m2.tools.json_mode_strategies import (
     get_extra_message,
     run_json_strats_out,
 )
-from l2m2.exceptions import LLMOperationError
+from l2m2.exceptions import LLMOperationError, L2M2UsageError
 from l2m2._internal.http import llm_post, local_llm_post
 from l2m2.warnings import deprecated
 
@@ -152,7 +152,7 @@ class BaseLLMClient:
             ValueError: If the provider is not one of the available providers.
         """
         if provider not in (providers := self.get_available_providers()):
-            raise ValueError(
+            raise L2M2UsageError(
                 f"Invalid provider: {provider}. Available providers: {providers}"
             )
 
@@ -172,7 +172,7 @@ class BaseLLMClient:
             ValueError: If the given provider is not active.
         """
         if provider_to_remove not in self.active_hosted_providers:
-            raise ValueError(f"Provider not active: {provider_to_remove}")
+            raise L2M2UsageError(f"Provider not active: {provider_to_remove}")
 
         del self.api_keys[provider_to_remove]
         self.active_hosted_providers.remove(provider_to_remove)
@@ -194,7 +194,9 @@ class BaseLLMClient:
             ValueError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_model_pairings.add((model, local_provider))
 
@@ -209,7 +211,7 @@ class BaseLLMClient:
             ValueError: If the local model is not active.
         """
         if (model, local_provider) not in self.local_model_pairings:
-            raise ValueError(f"Local {model} via {local_provider} is not active.")
+            raise L2M2UsageError(f"Local {model} via {local_provider} is not active.")
 
         self.local_model_pairings.remove((model, local_provider))
 
@@ -230,7 +232,9 @@ class BaseLLMClient:
             ValueError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_provider_overrides[local_provider] = base_url
 
@@ -244,7 +248,9 @@ class BaseLLMClient:
             ValueError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise ValueError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
+            raise L2M2UsageError(
+                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
+            )
 
         self.local_provider_overrides.pop(local_provider, None)
 
@@ -275,12 +281,12 @@ class BaseLLMClient:
         for model, provider in preferred_providers.items():
             if provider is not None:
                 if provider not in self.get_available_providers():
-                    raise ValueError(f"Invalid provider: {provider}")
+                    raise L2M2UsageError(f"Invalid provider: {provider}")
 
                 if provider in HOSTED_PROVIDERS and (
                     model not in MODEL_INFO or provider not in MODEL_INFO[model].keys()
                 ):
-                    raise ValueError(
+                    raise L2M2UsageError(
                         f"Model {model} is not available from provider {provider}."
                     )
 
@@ -296,7 +302,7 @@ class BaseLLMClient:
             ValueError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError("Memory is not enabled.")
+            raise L2M2UsageError("Memory is not enabled.")
 
         return self.memory
 
@@ -307,7 +313,7 @@ class BaseLLMClient:
             ValueError: If memory is not enabled.
         """
         if self.memory is None:
-            raise ValueError("Memory is not enabled.")
+            raise L2M2UsageError("Memory is not enabled.")
 
         self.memory.clear()
 
@@ -381,13 +387,13 @@ class BaseLLMClient:
                 unable to generate a completion.
         """
         if model not in self.get_active_models():
-            raise ValueError(f"Invalid or non-active model: {model}")
+            raise L2M2UsageError(f"Invalid or non-active model: {model}")
 
         if (
             prefer_provider is not None
             and prefer_provider not in self.get_active_providers()
         ):
-            raise ValueError(
+            raise L2M2UsageError(
                 "Argument prefer_provider must either be None or an active provider."
                 + f" Active providers are {', '.join(self.get_active_providers())}"
             )
@@ -408,7 +414,7 @@ class BaseLLMClient:
             provider = self.preferred_providers[model]
 
         else:
-            raise ValueError(
+            raise L2M2UsageError(
                 f"Model {model} is available from multiple active providers: {', '.join(providers)}."
                 + " Please specify a preferred provider with the argument prefer_provider, or set a"
                 + " default provider for the model with set_preferred_providers."
@@ -809,7 +815,7 @@ def _add_param(
 ) -> None:
     if value is not None and value > (max_val := param_info[name]["max"]):
         msg = f"Parameter {name} exceeds max value {max_val}"
-        raise ValueError(msg)
+        raise L2M2UsageError(msg)
 
     key = str(name) if (key := param_info[name].get("custom_key")) is None else key
 

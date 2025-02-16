@@ -1,5 +1,7 @@
 import re
 
+from l2m2.exceptions import L2M2UsageError
+
 
 class PromptLoader:
     """A utility class for loading prompts and inserting user-defined variables."""
@@ -32,7 +34,7 @@ class PromptLoader:
             str: The loaded prompt with variables replaced.
 
         Raises:
-            ValueError: If a variable is denoted in the prompt but not provided in the variables dictionary.
+            L2M2UsageError: If a variable is denoted in the prompt but not provided in the variables dictionary.
         """
 
         vlist = re.findall(
@@ -42,7 +44,7 @@ class PromptLoader:
 
         for var in vlist:
             if var not in variables:
-                raise ValueError(f"Variable '{var}' not provided in variables.")
+                raise L2M2UsageError(f"Variable '{var}' not provided in variables.")
 
             prompt = prompt.replace(
                 f"{self.var_open}{var}{self.var_close}", variables[var]
@@ -61,7 +63,7 @@ class PromptLoader:
             str: The loaded prompt with variables replaced.
 
         Raises:
-            ValueError: If a variable is denoted in the prompt but not provided in the variables dictionary.
+            L2M2UsageError: If a variable is denoted in the prompt but not provided in the variables dictionary.
         """
 
         prompt_path = f"{self.prompts_base_dir}/{prompt_file}"
