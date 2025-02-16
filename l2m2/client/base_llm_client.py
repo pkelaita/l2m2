@@ -65,7 +65,7 @@ class BaseLLMClient:
                 case memory is not enabled.
 
         Raises:
-            ValueError: If an invalid provider is specified in `providers`.
+            L2M2UsageError: If an invalid provider is specified in `providers`.
         """
         # Hosted models and providers state
         self.api_keys: Dict[str, str] = {}
@@ -149,7 +149,7 @@ class BaseLLMClient:
             api_key (str): The API key for the provider.
 
         Raises:
-            ValueError: If the provider is not one of the available providers.
+            L2M2UsageError: If the provider is not one of the available providers.
         """
         if provider not in (providers := self.get_available_providers()):
             raise L2M2UsageError(
@@ -169,7 +169,7 @@ class BaseLLMClient:
             provider (str): The active provider to remove.
 
         Raises:
-            ValueError: If the given provider is not active.
+            L2M2UsageError: If the given provider is not active.
         """
         if provider_to_remove not in self.active_hosted_providers:
             raise L2M2UsageError(f"Provider not active: {provider_to_remove}")
@@ -191,7 +191,7 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
             raise L2M2UsageError(
@@ -208,7 +208,7 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local model is not active.
+            L2M2UsageError: If the local model is not active.
         """
         if (model, local_provider) not in self.local_model_pairings:
             raise L2M2UsageError(f"Local {model} via {local_provider} is not active.")
@@ -229,7 +229,7 @@ class BaseLLMClient:
             new_base_url (str): The new base URL to use for the local provider.
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
             raise L2M2UsageError(
@@ -245,7 +245,7 @@ class BaseLLMClient:
             local_provider (str): The local provider name (Currently, only "ollama" is supported).
 
         Raises:
-            ValueError: If the local provider is invalid.
+            L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
             raise L2M2UsageError(
@@ -274,8 +274,8 @@ class BaseLLMClient:
                     }
 
         Raises:
-            ValueError: If an invalid model or provider is specified in `preferred_providers`.
-            ValueError: If the given provider is hosted and the given model is not available from it.
+            L2M2UsageError: If an invalid model or provider is specified in `preferred_providers`.
+            L2M2UsageError: If the given provider is hosted and the given model is not available from it.
         """
 
         for model, provider in preferred_providers.items():
@@ -299,7 +299,7 @@ class BaseLLMClient:
             BaseMemory: The memory object.
 
         Raises:
-            ValueError: If memory is not enabled.
+            L2M2UsageError: If memory is not enabled.
         """
         if self.memory is None:
             raise L2M2UsageError("Memory is not enabled.")
@@ -310,7 +310,7 @@ class BaseLLMClient:
         """Clear the memory, if memory is enabled.
 
         Raises:
-            ValueError: If memory is not enabled.
+            L2M2UsageError: If memory is not enabled.
         """
         if self.memory is None:
             raise L2M2UsageError("Memory is not enabled.")
@@ -377,10 +377,10 @@ class BaseLLMClient:
                 hosting the model. Defaults to `None`.
 
         Raises:
-            ValueError: If the provided model is not active and/or not available.
-            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+            L2M2UsageError: If the provided model is not active and/or not available.
+            L2M2UsageError: If the model is available from multiple active providers neither `prefer_provider`
                 nor a default provider is specified.
-            ValueError: If `prefer_provider` is specified but not active.
+            L2M2UsageError: If `prefer_provider` is specified but not active.
 
         Returns:
             str: The model's completion for the prompt, or an error message if the model is

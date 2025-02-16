@@ -31,7 +31,7 @@ class LLMClient(BaseLLMClient):
                 case memory is not enabled.
 
         Raises:
-            ValueError: If an invalid provider is specified in `providers`.
+            L2M2UsageError: If an invalid provider is specified in `providers`.
             L2M2UsageError: If `LLMClient` is instantiated in an asynchronous context.
         """
         if asyncio.get_event_loop().is_running():
@@ -99,10 +99,10 @@ class LLMClient(BaseLLMClient):
                 hosting the model. Defaults to `None`.
 
         Raises:
-            ValueError: If the provided model is not active and/or not available.
-            ValueError: If the model is available from multiple active providers neither `prefer_provider`
+            L2M2UsageError: If the provided model is not active and/or not available.
+            L2M2UsageError: If the model is available from multiple active providers neither `prefer_provider`
                 nor a default provider is specified.
-            ValueError: If `prefer_provider` is specified but not active.
+            L2M2UsageError: If `prefer_provider` is specified but not active.
             L2M2UsageError: If `LLMClient.call` is called in an asynchronous context.
 
         Returns:
