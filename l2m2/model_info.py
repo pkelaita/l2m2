@@ -461,6 +461,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "command-r7b": {
+        "cohere": {
+            "model_id": "command-r7b-12-2024",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4000,
+                },
+            },
+            "extras": {},
+        },
+    },
     "mistral-large": {
         "mistral": {
             "model_id": "mistral-large-2411",
