@@ -342,7 +342,7 @@ async def test_call_anthropic(mock_get_extra_message, mock_llm_post, llm_client)
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_cohere(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"text": "response"}
+    mock_return_value = {"message": {"content": [{"text": "response"}]}}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cohere", "command-r")
 
@@ -712,7 +712,7 @@ async def test_alt_memory(mock_call_openai, llm_client):
 async def test_json_mode_default_strategy_strip(mock_call, llm_client):
 
     # Cohere
-    mock_call.return_value = {"text": "--{response}--"}
+    mock_call.return_value = {"message": {"content": [{"text": "--{response}--"}]}}
     llm_client.add_provider("cohere", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
@@ -806,7 +806,7 @@ async def test_json_mode_strategy_prepend_anthropic(mock_call_anthropic, llm_cli
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
-    mock_call_cohere.return_value = {"text": "response"}
+    mock_call_cohere.return_value = {"message": {"content": [{"text": "response"}]}}
     llm_client.add_provider("cohere", "fake-api-key")
     response = await llm_client.call(
         prompt="Hello",
@@ -817,7 +817,7 @@ async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
 
     assert response == "{response"
     assert (
-        mock_call_cohere.call_args.kwargs["data"]["chat_history"][-1]["message"]
+        mock_call_cohere.call_args.kwargs["data"]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 

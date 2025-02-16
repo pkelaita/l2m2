@@ -613,40 +613,9 @@ class BaseLLMClient:
 
     async def _call_cohere(
         self,
-        model_id: str,
-        prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
-        json_mode: bool,
-        json_mode_strategy: JsonModeStrategy,
-        _: Dict[str, Any],  # extras is not used here
+        *args: Any,
     ) -> str:
-        if system_prompt is not None:
-            params["preamble"] = system_prompt
-        if isinstance(memory, ChatMemory):
-            params["chat_history"] = memory.unpack("role", "message", "USER", "CHATBOT")
-
-        if json_mode:
-            append_msg = get_extra_message(json_mode_strategy)
-            if append_msg:
-                entry = {"role": "CHATBOT", "message": append_msg}
-                params.setdefault("chat_history", []).append(entry)
-
-        result = await llm_post(
-            client=self.httpx_client,
-            provider="cohere",
-            model_id=model_id,
-            api_key=self.api_keys["cohere"],
-            data={"model": model_id, "message": prompt, **params},
-            timeout=timeout,
-            extra_params=extra_params,
-            extra_headers=extra_headers,
-        )
-        return str(result["text"])
+        return await self._generic_openai_spec_call("cohere", *args)
 
     async def _call_groq(
         self,
@@ -785,6 +754,11 @@ class BaseLLMClient:
             extra_params=extra_params,
             extra_headers=extra_headers,
         )
+
+        # Cohere API v2 uses OpenAI spec, but not the same response format for some reason...
+        if provider == "cohere":
+            return str(result["message"]["content"][0]["text"])
+
         return str(result["choices"][0]["message"]["content"])
 
     # State-dependent helper methods

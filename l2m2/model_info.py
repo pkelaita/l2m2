@@ -89,7 +89,7 @@ HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     "cohere": {
         "name": "Cohere",
         "homepage": "https://docs.cohere.com/",
-        "endpoint": "https://api.cohere.com/v1/chat",
+        "endpoint": "https://api.cohere.com/v2/chat",
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
