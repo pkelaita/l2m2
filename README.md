@@ -71,12 +71,14 @@ For the full usage guide, including memory, asynchronous usage, local models, JS
 ## Planned Features
 
 - Streaming responses
-- Embeddings
-- Other self-hosted providers (GPT4all, LMStudio, etc.)
+- Support Other self-hosted providers (vLLM, GPT4all, LMStudio, etc.)
 - Basic tools for common application workflows: RAG, prompt management, search, etc.
+- More customization with response formats
 - Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
 - Support for batch APIs where available (OpenAI, Anthropic, etc.)
+- Support for embeddings as well as inference
 - Support for structured outputs where available (Just OpenAI as far as I know)
+- Port this project over to other languages (TypeScript and Go, maybe Rust)
 - ...etc.
 
 ## Contributing
