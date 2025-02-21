@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.42_
+_Current version: 0.0.43_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.43 - February 21, 2025
+
+#### Fixed
+
+- `o3-mini` now correctly uses the `developer` system message key rather than `system` as per the OpenAI API spec.
 
 ### 0.0.42 - February 15, 2025
 
