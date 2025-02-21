@@ -735,6 +735,7 @@ class BaseLLMClient:
         system_key = "system"
         if provider == "openai" and model_id in [
             get_id("openai", "o1"),
+            get_id("openai", "o3-mini"),
         ]:
             system_key = "developer"
 
