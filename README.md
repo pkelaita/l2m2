@@ -71,7 +71,7 @@ For the full usage guide, including memory, asynchronous usage, local models, JS
 ## Planned Features
 
 - Streaming responses
-- Support Other self-hosted providers (vLLM, GPT4all, LMStudio, etc.)
+- Support Other self-hosted providers (vLLM and GPT4all)
 - Basic tools for common application workflows: RAG, prompt management, search, etc.
 - More customization with response formats
 - Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
