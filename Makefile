@@ -1,34 +1,32 @@
 .PHONY: *
 .DEFAULT_GOAL := default
 
-VERSION := $(shell python -c "from l2m2 import __version__; print(__version__)")
+VERSION := $(shell uv run python -c "from l2m2 import __version__; print(__version__)")
 
 default: lint type test
 
 init:
-	uv pip install --upgrade uv pip
-	uv pip install -r requirements.txt
-	uv pip install -r requirements-dev.txt
+	uv sync
 
 test:
-	pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
+	uv run pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
 
 tox:
 	tox -p auto
 
 clear-deps:
-	@pip uninstall -y l2m2 > /dev/null 2>&1
-	@pip freeze | xargs pip uninstall -y > /dev/null
+	@uv pip uninstall -y l2m2 > /dev/null 2>&1
+	@uv pip freeze | xargs uv pip uninstall -y > /dev/null
 
 itest-run:
 	@uv pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
-	@uv pip install -r integration_tests/requirements-itest.txt > /dev/null
-	python integration_tests/itests.py
+	@uv pip install python-dotenv > /dev/null
+	@uv run integration_tests/itests.py
 
 itest: clear-deps itest-run clear-deps
 
 itl:
-	python integration_tests/itests.py --local
+	@uv run integration_tests/itests.py --local
 
 
 coverage:
@@ -36,13 +34,13 @@ coverage:
 	open htmlcov/index.html
 
 lint:
-	-ruff check .
+	-uv run ruff check .
 
 type:
-	-mypy .
+	-uv run mypy .
 
 build:
-	python -m build
+	uv build
 
 clean:
 	@rm -rf build \

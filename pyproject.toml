@@ -1,30 +1,39 @@
-[build-system]
-requires = ["setuptools>=69.2.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-
 [project]
 name = "l2m2"
 authors = [{ name = "Pierce Kelaita", email = "pierce@kelaita.com" }]
 description = "A very simple LLM manager for Python."
-
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
 urls.Homepage = "https://github.com/pkelaita/l2m2"
 urls.Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"
 urls.Repository = "https://github.com/pkelaita/l2m2.git"
 urls.Issues = "https://github.com/pkelaita/l2m2/issues"
+dynamic = ["version"]
 
-readme = "README.md"
-license = { file = "LICENSE" }
-requires-python = ">=3.9"
-dynamic = ["dependencies", "version"]
-
+dependencies = ["httpx>=0.28.1"]
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.3",
+    "pytest-cov>=6.0.0",
+    "python-dotenv>=1.0.1",
+    "requests-mock>=1.12.1",
+    "ruff>=0.9.7",
+    "tox>=4.24.1",
+    "twine>=6.1.0",
+    "types-requests>=2.32.0.20241016",
+]
 
 [tool.setuptools]
-dynamic.dependencies = { file = ["requirements.txt"] }
 dynamic.version = { attr = "l2m2.__version__" }
 packages.find.exclude = ["tests*", "test_utils*"]
 packages.find.namespaces = false
 
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 exclude = [
