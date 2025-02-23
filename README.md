@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![Tests](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml/badge.svg?timestamp=1740338188)](https://github.com/pkelaita/l2m2/actions/workflows/tests.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1740338188)](https://badge.fury.io/py/l2m2)
+[![CI](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml/badge.svg?timestamp=1740347286)](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1740347286)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API. This is useful for evaluation, demos, production applications etc. that need to easily be model-agnostic.
 
@@ -87,7 +87,7 @@ Contributions are welcome! Please see the below contribution guide.
 
 - **Requirements**
   - Python >= 3.13
-  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.5.26
+  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.6.2
   - [GNU Make](https://www.gnu.org/software/make/)
 - **Setup**
   - Clone this repository and create a Python virtual environment.
