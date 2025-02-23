@@ -97,6 +97,7 @@ Contributions are welcome! Please see the below contribution guide.
   - Run lint, typecheck and tests: `make` (`make lint`, `make type`, and `make test` can also be run individually).
   - Generate test coverage: `make coverage`.
   - If you've updated the supported models, run `make update-docs` to reflect those changes in the README.
+  - Make sure to run `make tox` regularly to backtest your changes back to 3.9.
 - **Integration Test**
   - `cd` into `integration_tests`.
   - Create a `.env` file with your API keys, and copy `itests.example.py` to `itests.py`.

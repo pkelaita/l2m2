@@ -12,11 +12,11 @@ test:
 	uv run pytest -v --cov=l2m2 --cov-report=term-missing --failed-first --durations=0
 
 tox:
-	tox -p auto
+	uv run tox -p auto
 
 clear-deps:
-	@uv pip uninstall -y l2m2 > /dev/null 2>&1
-	@uv pip freeze | xargs uv pip uninstall -y > /dev/null
+	@uv pip uninstall l2m2 > /dev/null 2>&1
+	@uv pip freeze | xargs uv pip uninstall > /dev/null
 
 itest-run:
 	@uv pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
@@ -28,9 +28,8 @@ itest: clear-deps itest-run clear-deps
 itl:
 	@uv run integration_tests/itests.py --local
 
-
 coverage:
-	pytest --cov=l2m2 --cov-report=html
+	uv run pytest --cov=l2m2 --cov-report=html
 	open htmlcov/index.html
 
 lint:
@@ -54,7 +53,7 @@ clean:
 	@find . -type d -name __pycache__ -exec rm -r {} +
 
 publish: clean build
-	twine upload dist/*
+	uv run twine upload dist/*
 
 update-docs:
 	cd scripts && ./update_badges.sh
