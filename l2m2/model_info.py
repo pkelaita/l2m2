@@ -402,6 +402,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
+    "claude-3.7-sonnet": {
+        "anthropic": {
+            "model_id": "claude-3-7-sonnet-20250219",
+            "params": {
+                "temperature": {
+                    "default": 0.0,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 1000,  # L2M2 default, field is required
+                    "max": 4096,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-3.5-sonnet": {
         "anthropic": {
             "model_id": "claude-3-5-sonnet-20241022",

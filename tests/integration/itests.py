@@ -15,7 +15,7 @@ if any(arg in os.sys.argv for arg in ["--local", "-l"]):
     from pathlib import Path
 
     file = Path(__file__).resolve()
-    root = file.parents[1]
+    root = file.parents[2]
     sys.path.append(str(root))
     print("Running in local mode")
 
