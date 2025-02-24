@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "claude-3.7-sonnet"
+test_model = "gpt-4o"
 test_provider = None
 
 LOCAL = False
@@ -35,11 +35,11 @@ DELAY = False
 
 TESTS = [
     "basic",
-    # "memory",
-    # "json",
-    # "bypass_memory",
-    # "concurrent",
-    # "concurrent_memory",
+    "memory",
+    "json",
+    "bypass_memory",
+    "concurrent",
+    "concurrent_memory",
 ]
 
 
