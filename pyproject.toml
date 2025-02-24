@@ -36,15 +36,7 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
-exclude = [
-    "build",
-    "dist",
-    "venv",
-    "integration_tests",
-    "scripts",
-    "tests",
-    "playground",
-]
+exclude = ["build", "dist", "venv", "scripts", "tests", "playground"]
 ignore_missing_imports = true
 explicit_package_bases = true
 namespace_packages = true
@@ -56,6 +48,6 @@ warn_return_any = true
 python_version = "3.13"
 
 [tool.ruff]
-exclude = ["integration_tests", "scripts"]
+exclude = ["scripts"]
 line-length = 120
 lint.extend-select = ["T201"]
