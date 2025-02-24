@@ -21,12 +21,12 @@ clear-deps:
 itest-run:
 	@uv pip install dist/l2m2-$(VERSION)-py3-none-any.whl > /dev/null
 	@uv pip install python-dotenv > /dev/null
-	@uv run integration_tests/itests.py
+	@uv run tests/integration/itests.py
 
 itest: clear-deps itest-run clear-deps
 
 itl:
-	@uv run integration_tests/itests.py --local
+	@uv run tests/integration/itests.py --local
 
 coverage:
 	uv run pytest --cov=l2m2 --cov-report=html

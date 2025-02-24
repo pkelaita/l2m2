@@ -1,5 +1,4 @@
 .DS_Store
-integration_tests/itests.py
 playground/
 
 # Workspace settings
