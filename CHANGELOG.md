@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.43_
+_Current version: 0.0.44_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.44 - February 24, 2025
+
+#### Added
+
+- Support for Anthropic's [Claude 3.7 Sonnet](https://www.anthropic.com/news/claude-3-7-sonnet) released today.
 
 ### 0.0.43 - February 21, 2025
 
