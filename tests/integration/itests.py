@@ -73,7 +73,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=1000,
+            max_tokens=100,
             timeout=25,
         )
     )

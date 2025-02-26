@@ -615,7 +615,11 @@ class BaseLLMClient:
             extra_params=extra_params,
             extra_headers=extra_headers,
         )
-        return str(result["content"][0]["text"])
+        if "text" in result["content"][0]:
+            return str(result["content"][0]["text"])
+        else:
+            # Account for thinking with claude 3.7+: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+            return str(result["content"][1]["text"])
 
     async def _call_cohere(
         self,
