@@ -653,7 +653,7 @@ Your name is Pierce and you are a software engineer.
 
 ## Other Capabilities: Extra Parameters
 
-You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series) by passing in the `extra_params` parameter to `call`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
+You can pass in extra parameters to the provider's API (For example, [reasoning_effort](https://platform.openai.com/docs/api-reference/chat/create#chat-create-reasoning_effort) on OpenAI's o1 series, or [thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) on Anthropic's claude 3.7+) by passing in the `extra_params` parameter to `call`. These parameters are passed in as a dictionary of key-value pairs, where the values are of type `str`, `int`, or `float`. Using `extra_params` does not guarantee correctness or well-defined behavior, and you should refer to the provider's documentation for correct usage.
 
 ```python
 response = client.call(
@@ -661,5 +661,38 @@ response = client.call(
     prompt="<prompt>",
     extra_params={"foo": "bar", "baz": 123},
     ...
+)
+```
+
+Example usage with Claude 3.7 Sonnet:
+
+```python
+response = client.call(
+    model="claude-3.7-sonnet",
+    prompt=f"Reverse engineer a business plan for this company: {company_description}",
+    max_tokens=20000,
+    extra_params={
+        "thinking": {
+            "type": "enabled",
+            "budget_tokens": 16000,
+        },
+    },
+)
+```
+
+Additionally, you can pass in extra headers to access the beta [128k extended output](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) for this:
+
+```python
+response = client.call(
+    model="claude-3.7-sonnet",
+    prompt=f"Reverse engineer a business plan for this company: {company_description}",
+    extra_headers={"anthropic-beta": "output-128k-2025-02-19"},
+    max_tokens=128000,
+    extra_params={
+        "thinking": {
+            "type": "enabled",
+            "budget_tokens": 32000,
+        },
+    },
 )
 ```

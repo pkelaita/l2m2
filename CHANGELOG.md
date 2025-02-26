@@ -1,8 +1,19 @@
 # Changelog
 
-_Current version: 0.0.44_
+_Current version: 0.0.45_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.45 - February 26, 2025
+
+#### Fixed
+
+- Patched an error where calls to Anthropic's `claude-3.7-sonnet` with [extended thinking](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking) would fail.
+- Updated the max tokens for `claude-3.7-sonnet` to 128000 and `claude-3.5-sonnet` and `claude-3.5-haiku` to 8192 as per the [Anthropic docs](https://docs.anthropic.com/en/docs/about-claude/models/all-models).
+
+#### Changed
+
+- Updated the default max tokens for the claude 3.5 and 3.7 models to 4096 and the claude 3 models to 2048 to be more reasonable given the max allowed values.
 
 ### 0.0.44 - February 24, 2025
 
