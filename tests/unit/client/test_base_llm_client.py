@@ -398,6 +398,30 @@ async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_clie
     await _generic_test_call(llm_client, "ollama", "phi3")
 
 
+# Special case for claude 3.7+ thinking: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_anthropic_thinking(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {
+        "content": [
+            {
+                "type": "thinking",
+                "thinking": "To approach this, let's think about what we know about prime numbers...",
+                "signature": "zbbJhbGciOiJFU8zI1NiIsImtakcjsu38219c0.eyJoYXNoIjoiYWJjMTIzIiwiaWFxxxjoxNjE0NTM0NTY3fQ....",
+            },
+            {"type": "text", "text": "thinking response"},
+        ]
+    }
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(
+        llm_client, "anthropic", "claude-3.7-sonnet", "thinking response"
+    )
+
+
 # -- Tests for call errors -- #
 
 
