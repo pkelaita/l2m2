@@ -411,8 +411,8 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
-                    "max": 4096,
+                    "default": 4096,  # L2M2 default, field is required
+                    "max": 128000,
                 },
             },
             "extras": {},
@@ -427,8 +427,8 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
-                    "max": 4096,
+                    "default": 4096,  # L2M2 default, field is required
+                    "max": 8192,
                 },
             },
             "extras": {},
@@ -443,8 +443,8 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
-                    "max": 4096,
+                    "default": 4096,  # L2M2 default, field is required
+                    "max": 8192,
                 },
             },
             "extras": {},
@@ -459,7 +459,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
+                    "default": 2048,  # L2M2 default, field is required
                     "max": 4096,
                 },
             },
@@ -475,7 +475,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
+                    "default": 2048,  # L2M2 default, field is required
                     "max": 4096,
                 },
             },
@@ -491,7 +491,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 1000,  # L2M2 default, field is required
+                    "default": 2048,  # L2M2 default, field is required
                     "max": 4096,
                 },
             },
