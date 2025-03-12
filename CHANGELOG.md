@@ -1,8 +1,18 @@
 # Changelog
 
-_Current version: 0.0.45_
+_Current version: 0.0.46_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.46 - March 11, 2025
+
+#### Added
+
+- Support for [GPT-4.5](https://openai.com/index/introducing-gpt-4-5/) released on February 27, 2025.
+
+#### Fixed
+
+- `o1` and `o3-mini` now correctly support native JSON mode.
 
 ### 0.0.45 - February 26, 2025
 
