@@ -4,6 +4,7 @@
 
 | Model Name | Provider(s) | Model Version(s) |
 | --- | --- | --- |
+| `gpt-4.5` | [OpenAI](https://openai.com/api/) | `gpt-4.5-preview-2025-02-27` |
 | `o3-mini` | [OpenAI](https://openai.com/api/) | `o3-mini-2025-01-31` |
 | `o1` | [OpenAI](https://openai.com/api/) | `o1-2024-12-17` |
 | `o1-preview` | [OpenAI](https://openai.com/api/) | `o1-preview-2024-09-12` |

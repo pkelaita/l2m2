@@ -78,15 +78,22 @@ with open(readme_path, "r") as f:
     out = f.read()
 out = replace_between(out, start_model_count, end_model_count, len(MODEL_INFO))
 out = replace_between(out, start_prov_list, end_prov_list, provider_list)
-out = replace_between(out, start_json_native, end_json_native, json_native)
 with open(readme_path, "w") as f:
     f.write(out)
 print("Updated README.md")
 
+usage_guide_path = "../docs/usage_guide.md"
+with open(usage_guide_path, "r") as f:
+    out = f.read()
+out = replace_between(out, start_json_native, end_json_native, json_native)
+with open(usage_guide_path, "w") as f:
+    f.write(out)
+print("Updated usage_guide.md")
+
 supported_models_path = "../docs/supported_models.md"
 with open(supported_models_path, "r") as f:
     out = f.read()
-    out = replace_between(out, start_model_table, end_model_table, model_table)
+out = replace_between(out, start_model_table, end_model_table, model_table)
 with open(supported_models_path, "w") as f:
     f.write(out)
 print("Updated supported_models.md")

@@ -158,6 +158,23 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
+    "gpt-4.5": {
+        "openai": {
+            "model_id": "gpt-4.5-preview-2025-02-27",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_completion_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**14,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
     "o3-mini": {
         "openai": {
             "model_id": "o3-mini-2025-01-31",
@@ -172,7 +189,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
-            "extras": {},
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "o1": {
@@ -189,7 +206,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 4096,
                 },
             },
-            "extras": {},
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "o1-preview": {

@@ -512,18 +512,23 @@ The following models natively support JSON mode via the given provider:
 
 <!--start-json-native-->
 
+- `gpt-4.5` (via Openai)
+- `o3-mini` (via Openai)
+- `o1` (via Openai)
 - `gpt-4o` (via Openai)
 - `gpt-4o-mini` (via Openai)
 - `gpt-4-turbo` (via Openai)
 - `gpt-3.5-turbo` (via Openai)
+- `gemini-2.0-pro` (via Google)
 - `gemini-2.0-flash` (via Google)
+- `gemini-2.0-flash-lite` (via Google)
 - `gemini-1.5-flash` (via Google)
 - `gemini-1.5-flash-8b` (via Google)
 - `gemini-1.5-pro` (via Google)
 - `mistral-large` (via Mistral)
+- `mistral-small` (via Mistral)
 - `ministral-3b` (via Mistral)
 - `ministral-8b` (via Mistral)
-- `mistral-small` (via Mistral)
 
 <!--end-json-native-->
 
