@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.46_
+_Current version: 0.0.47_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.47 - March 13, 2025
+
+#### Added
+
+- Support for [Command-A](https://cohere.com/blog/command-a), Cohere's latest model released today.
 
 ### 0.0.46 - March 11, 2025
 

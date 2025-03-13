@@ -515,9 +515,25 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "command-r": {
+    "command-a": {
         "cohere": {
-            "model_id": "command-r-08-2024",
+            "model_id": "command-a-03-2025",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**13,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "command-r-plus": {
+        "cohere": {
+            "model_id": "command-r-plus-08-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -531,9 +547,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "command-r-plus": {
+    "command-r": {
         "cohere": {
-            "model_id": "command-r-plus-08-2024",
+            "model_id": "command-r-08-2024",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,

@@ -25,8 +25,9 @@
 | `claude-3-opus` | [Anthropic](https://www.anthropic.com/api) | `claude-3-opus-20240229` |
 | `claude-3-sonnet` | [Anthropic](https://www.anthropic.com/api) | `claude-3-sonnet-20240229` |
 | `claude-3-haiku` | [Anthropic](https://www.anthropic.com/api) | `claude-3-haiku-20240307` |
-| `command-r` | [Cohere](https://docs.cohere.com/) | `command-r-08-2024` |
+| `command-a` | [Cohere](https://docs.cohere.com/) | `command-a-03-2025` |
 | `command-r-plus` | [Cohere](https://docs.cohere.com/) | `command-r-plus-08-2024` |
+| `command-r` | [Cohere](https://docs.cohere.com/) | `command-r-08-2024` |
 | `command-r7b` | [Cohere](https://docs.cohere.com/) | `command-r7b-12-2024` |
 | `mistral-large` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-large-2411` |
 | `mistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-small-2501` |
