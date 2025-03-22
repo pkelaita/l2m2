@@ -782,6 +782,7 @@ class BaseLLMClient:
         if provider == "openai":
             if model_id in [
                 get_id("openai", "o3-mini"),
+                get_id("openai", "o1-pro"),
                 get_id("openai", "o1"),
                 get_id("openai", "o1-mini"),
                 get_id("openai", "o1-preview"),

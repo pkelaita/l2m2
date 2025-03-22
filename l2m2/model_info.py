@@ -175,6 +175,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "o1-pro": {
+        "openai": {
+            "model_id": "o1-pro-2025-03-19",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
     "o1": {
         "openai": {
             "model_id": "o1-2024-12-17",
