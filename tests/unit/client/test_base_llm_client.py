@@ -299,7 +299,7 @@ async def _generic_test_call(
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_return_value = {"output": [{"content": [{"text": "response"}]}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "openai", "gpt-4o")
 
@@ -312,7 +312,9 @@ async def test_call_openai_o1_or_newer(
     mock_get_extra_message, mock_llm_post, llm_client
 ):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "openai", "o1")
 
@@ -428,7 +430,9 @@ async def test_call_anthropic_thinking(
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_call_openai_system_prompt_not_supported(mock_call_openai, llm_client):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     llm_client.add_provider("openai", "fake-api-key")
 
     # First, ensure they work without a system prompt
@@ -562,7 +566,7 @@ async def test_multi_provider_pref_inactive(llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {"output": [{"content": [{"text": "response"}]}]}
 
     llm_client_mem_chat.add_provider("openai", "fake-api-key")
 
@@ -607,7 +611,7 @@ async def test_chat_memory_unsupported_provider(llm_client_mem_chat):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ext_sys):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {"output": [{"content": [{"text": "response"}]}]}
     llm_client_mem_ext_sys.add_provider("openai", "fake-api-key")
 
     memory = llm_client_mem_ext_sys.get_memory()
@@ -616,7 +620,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
     memory.set_contents("stuff")
 
     await llm_client_mem_ext_sys.call(prompt="Hello", model="gpt-4o")
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "system", "content": "stuff"},
         {"role": "user", "content": "Hello"},
     ]
@@ -624,7 +628,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
     await llm_client_mem_ext_sys.call(
         system_prompt="system-123", prompt="Hello", model="gpt-4o"
     )
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "system", "content": "system-123\nstuff"},
         {"role": "user", "content": "Hello"},
     ]
@@ -633,7 +637,9 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_usr):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     llm_client_mem_ext_usr.add_provider("openai", "fake-api-key")
 
     memory = llm_client_mem_ext_usr.get_memory()
@@ -642,14 +648,14 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
     memory.set_contents("stuff")
 
     await llm_client_mem_ext_usr.call(prompt="Hello", model="gpt-4o")
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
     await llm_client_mem_ext_usr.call(
         system_prompt="system-123", prompt="Hello", model="gpt-4o"
     )
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "system", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
@@ -658,13 +664,15 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     llm_client_mem_chat.add_provider("openai", "fake-api-key")
     llm_client_mem_chat.get_memory().add_user_message("A")
     llm_client_mem_chat.get_memory().add_agent_message("B")
 
     await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o", bypass_memory=True)
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "Hello"},
     ]
     assert llm_client_mem_chat.get_memory().unpack(
@@ -675,7 +683,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
     ]
 
     await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o")
-    assert mock_call_openai.call_args.kwargs["data"]["messages"] == [
+    assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
         {"role": "user", "content": "Hello"},
@@ -693,7 +701,9 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_alt_memory(mock_call_openai, llm_client):
-    mock_call_openai.return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     llm_client.add_provider("openai", "fake-api-key")
 
     m1 = ChatMemory()

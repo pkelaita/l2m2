@@ -512,9 +512,10 @@ The following models natively support JSON mode via the given provider:
 
 <!--start-json-native-->
 
-- `gpt-4.5` (via Openai)
 - `o3-mini` (via Openai)
+- `o1-pro` (via Openai)
 - `o1` (via Openai)
+- `gpt-4.5` (via Openai)
 - `gpt-4o` (via Openai)
 - `gpt-4o-mini` (via Openai)
 - `gpt-4-turbo` (via Openai)

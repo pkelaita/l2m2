@@ -1,8 +1,18 @@
 # Changelog
 
-_Current version: 0.0.47_
+_Current version: 0.0.48_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.48 - March 21, 2025
+
+#### Added
+
+- Support for OpenAI's [o1-pro](https://platform.openai.com/docs/models/o1-pro) model released this week.
+
+#### Changed
+
+- Migrated OpenAI calls from the legacy Chat Completion API to the new [Responses API](https://community.openai.com/t/introducing-the-responses-api/1140929).
 
 ### 0.0.47 - March 13, 2025
 

@@ -755,12 +755,20 @@ class BaseLLMClient:
             if append_msg:
                 messages.append({"role": "assistant", "content": append_msg})
 
+        # For compatibility with OpenAI's responses API
+        messages_key = "input" if provider == "openai" else "messages"
+
+        # OpenAI defaults to storing responses; default to not storing here
+        if provider == "openai":
+            extra_params = extra_params or {}
+            extra_params.setdefault("store", False)
+
         result = await llm_post(
             client=self.httpx_client,
             provider=provider,
             model_id=model_id,
             api_key=self.api_keys[provider],
-            data={"model": model_id, "messages": messages, **params},
+            data={"model": model_id, messages_key: messages, **params},
             timeout=timeout,
             extra_params=extra_params,
             extra_headers=extra_headers,
@@ -769,6 +777,22 @@ class BaseLLMClient:
         # Cohere API v2 uses OpenAI spec, but not the same response format for some reason...
         if provider == "cohere":
             return str(result["message"]["content"][0]["text"])
+
+        # For compatibility with OpenAI's responses API
+        if provider == "openai":
+            if model_id in [
+                get_id("openai", "o3-mini"),
+                get_id("openai", "o1-pro"),
+                get_id("openai", "o1"),
+                get_id("openai", "o1-mini"),
+                get_id("openai", "o1-preview"),
+            ]:
+                outputs = result["output"]
+                for output in outputs:
+                    if output["type"] == "message":
+                        return str(output["content"][0]["text"])
+            else:
+                return str(result["output"][0]["content"][0]["text"])
 
         return str(result["choices"][0]["message"]["content"])
 
