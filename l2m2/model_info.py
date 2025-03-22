@@ -64,7 +64,7 @@ HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/api/",
-        "endpoint": "https://api.openai.com/v1/chat/completions",
+        "endpoint": "https://api.openai.com/v1/responses",
         "headers": {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
@@ -158,23 +158,6 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
-    "gpt-4.5": {
-        "openai": {
-            "model_id": "gpt-4.5-preview-2025-02-27",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2,
-                },
-                "max_tokens": {
-                    "custom_key": "max_completion_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**14,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
     "o3-mini": {
         "openai": {
             "model_id": "o3-mini-2025-01-31",
@@ -184,12 +167,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "o1": {
@@ -201,12 +184,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "o1-preview": {
@@ -218,7 +201,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
@@ -235,12 +218,29 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
             "extras": {},
+        },
+    },
+    "gpt-4.5": {
+        "openai": {
+            "model_id": "gpt-4.5-preview-2025-02-27",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**14,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "gpt-4o": {
@@ -252,12 +252,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "gpt-4o-mini": {
@@ -269,12 +269,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "gpt-4-turbo": {
@@ -286,12 +286,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "gpt-3.5-turbo": {
@@ -303,12 +303,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2.0,
                 },
                 "max_tokens": {
-                    "custom_key": "max_completion_tokens",
+                    "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 4096,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
     "gemini-2.0-pro": {
