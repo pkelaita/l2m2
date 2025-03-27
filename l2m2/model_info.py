@@ -328,6 +328,24 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "gemini-2.5-pro": {
+        "google": {
+            "model_id": "gemini-2.5-pro-exp-03-25",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-2.0-pro": {
         "google": {
             "model_id": "gemini-2.0-pro-exp-02-05",
@@ -340,7 +358,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                    "max": 8192,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
