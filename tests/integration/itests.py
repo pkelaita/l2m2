@@ -27,8 +27,8 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "mistral-saba"
-test_provider = "mistral"
+test_model = "gpt-4o"
+test_provider = None
 
 LOCAL = False
 DELAY = False
@@ -73,7 +73,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=2**15,
+            max_tokens=1000,
             timeout=25,
         )
     )

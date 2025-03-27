@@ -14,6 +14,7 @@
 | `gpt-4o-mini` | [OpenAI](https://openai.com/api/) | `gpt-4o-mini-2024-07-18` |
 | `gpt-4-turbo` | [OpenAI](https://openai.com/api/) | `gpt-4-turbo-2024-04-09` |
 | `gpt-3.5-turbo` | [OpenAI](https://openai.com/api/) | `gpt-3.5-turbo-0125` |
+| `gemini-2.5-pro` | [Google](https://ai.google.dev/) | `gemini-2.5-pro-exp-03-25` |
 | `gemini-2.0-pro` | [Google](https://ai.google.dev/) | `gemini-2.0-pro-exp-02-05` |
 | `gemini-2.0-flash` | [Google](https://ai.google.dev/) | `gemini-2.0-flash-001` |
 | `gemini-2.0-flash-lite` | [Google](https://ai.google.dev/) | `gemini-2.0-flash-lite-preview-02-05` |
@@ -34,7 +35,8 @@
 | `mistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-small-2501` |
 | `ministral-3b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-3b-2410` |
 | `ministral-8b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-8b-2410` |
-| `mixtral-8x7b` | [Groq](https://wow.groq.com/) | `mixtral-8x7b-32768` |
+| `qwen-qwq-32b` | [Groq](https://wow.groq.com/) | `qwen-qwq-32b` |
+| `mistral-saba` | [Groq](https://wow.groq.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-saba-24b`, `mistral-saba-2502` |
 | `gemma-2-9b` | [Groq](https://wow.groq.com/) | `gemma2-9b-it` |
 | `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b` |
 | `llama-3.2-3b` | [Groq](https://wow.groq.com/) | `llama-3.2-3b-preview` |
