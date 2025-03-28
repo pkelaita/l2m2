@@ -544,7 +544,7 @@ async def test_multi_provider_pref_missing(_, llm_client):
     llm_client.add_provider("replicate", "test-key-replicate")
 
     # Shouldn't raise an error
-    await llm_client.call(prompt="Hello", model="mixtral-8x7b")
+    await llm_client.call(prompt="Hello", model="qwen-qwq-32b")
 
     with pytest.raises(L2M2UsageError):
         await llm_client.call(prompt="Hello", model="llama-3-70b")

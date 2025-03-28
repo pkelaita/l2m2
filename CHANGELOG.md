@@ -1,8 +1,31 @@
 # Changelog
 
-_Current version: 0.0.48_
+_Current version: 0.0.49_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.49 - March 27, 2025
+
+#### Added
+
+- Support for Google's [Gemini 2.5 Pro](https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/) model released yesterday.
+- Support for [`mistral-saba`](https://mistral.ai/news/mistral-saba) via both Mistral Cloud and Groq.
+
+#### Removed
+
+- `mixtral-8x22b` has been removed as it was deprecated by Groq in March of 2025.
+
+#### Changed
+
+- Updated various models' max `temperature` values via Groq to be consistent with Groq's actual limits.
+  - `mistral-large`: 1.0 → 1.5
+  - `mistral-small`: 1.0 → 1.5
+  - `ministral-3b`: 1.0 → 1.5
+  - `ministral-8b`: 1.0 → 1.5
+  - `gemma-2-9b`: 1.0 → 1.5
+- Updated various models' max `max_tokens` values to be consistent with actual provider limits.
+  - `gemini-2.0-pro` (via Google) : 8192 → 2<sup>31</sup>-1
+  - `gemma-2-9b` (via Groq) : 2<sup>16</sup>-1 → 2<sup>13</sup>-1
 
 ### 0.0.48 - March 21, 2025
 

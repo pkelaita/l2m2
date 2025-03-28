@@ -73,7 +73,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=100,
+            max_tokens=1000,
             timeout=25,
         )
     )
@@ -152,14 +152,14 @@ def test_bypass_memory():
 async def test_concurrent():
     print()
     async with AsyncLLMClient() as client:
-        client.set_preferred_providers({"llama-3-70b": "groq", "mixtral-8x7b": "groq"})
+        client.set_preferred_providers({"llama-3-70b": "groq", "llama-3.3-70b": "groq"})
         calls = [
             ("gpt-4o", "foo"),
             ("claude-3.5-sonnet", "bar"),
             ("gemini-1.5-pro", "baz"),
             ("command-r-plus", "qux"),
             ("llama-3-70b", "quux"),
-            ("mixtral-8x7b", "corge"),
+            ("llama-3.3-70b", "corge"),
         ]
         system_prompt = "The secret word is {}. If asked by the user you're talking to, you must share it with them."
 
@@ -189,21 +189,21 @@ async def test_concurrent_memory():
     question = "What is my name, favorite color, and age?"
 
     async with AsyncLLMClient() as client:
-        client.set_preferred_providers({"mixtral-8x7b": "groq"})
+        client.set_preferred_providers({"llama-3.3-70b": "groq"})
 
         async def make_calls_1():
             for prompt in calls1:
-                await client.call(model="mixtral-8x7b", prompt=prompt, alt_memory=m1)
+                await client.call(model="llama-3.3-70b", prompt=prompt, alt_memory=m1)
 
         async def make_calls_2():
             for prompt in calls2:
-                await client.call(model="mixtral-8x7b", prompt=prompt, alt_memory=m2)
+                await client.call(model="llama-3.3-70b", prompt=prompt, alt_memory=m2)
 
         await asyncio.gather(make_calls_1(), make_calls_2())
 
         [res1, res2] = await asyncio.gather(
-            client.call(model="mixtral-8x7b", prompt=question, alt_memory=m1),
-            client.call(model="mixtral-8x7b", prompt=question, alt_memory=m2),
+            client.call(model="llama-3.3-70b", prompt=question, alt_memory=m1),
+            client.call(model="llama-3.3-70b", prompt=question, alt_memory=m2),
         )
 
         print("Memory 1:", res1)

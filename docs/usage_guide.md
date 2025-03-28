@@ -520,6 +520,7 @@ The following models natively support JSON mode via the given provider:
 - `gpt-4o-mini` (via Openai)
 - `gpt-4-turbo` (via Openai)
 - `gpt-3.5-turbo` (via Openai)
+- `gemini-2.5-pro` (via Google)
 - `gemini-2.0-pro` (via Google)
 - `gemini-2.0-flash` (via Google)
 - `gemini-2.0-flash-lite` (via Google)
@@ -530,6 +531,7 @@ The following models natively support JSON mode via the given provider:
 - `mistral-small` (via Mistral)
 - `ministral-3b` (via Mistral)
 - `ministral-8b` (via Mistral)
+- `mistral-saba` (via Mistral)
 
 <!--end-json-native-->
 

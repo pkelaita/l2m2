@@ -328,6 +328,24 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "gemini-2.5-pro": {
+        "google": {
+            "model_id": "gemini-2.5-pro-exp-03-25",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-2.0-pro": {
         "google": {
             "model_id": "gemini-2.0-pro-exp-02-05",
@@ -340,7 +358,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models
-                    "max": 8192,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
@@ -602,7 +620,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -618,7 +636,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -634,7 +652,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -650,7 +668,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
+                    "max": 1.5,
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
@@ -660,9 +678,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
-    "mixtral-8x7b": {
+    "qwen-qwq-32b": {
         "groq": {
-            "model_id": "mixtral-8x7b-32768",
+            "model_id": "qwen-qwq-32b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -670,10 +688,40 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**17,
                 },
             },
             "extras": {},
+        },
+    },
+    "mistral-saba": {
+        "groq": {
+            "model_id": "mistral-saba-24b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {},
+        },
+        "mistral": {
+            "model_id": "mistral-saba-2502",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
         },
     },
     "gemma-2-9b": {
@@ -686,7 +734,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
+                    "max": 2**13,
                 },
             },
             "extras": {},
