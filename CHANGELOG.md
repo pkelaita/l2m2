@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.49_
+_Current version: 0.0.50_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.50 - March 29, 2025
+
+#### Added
+
+- Support for OpenAI's [updated `gpt-4o` model](https://help.openai.com/en/articles/6825453-chatgpt-release-notes).
 
 ### 0.0.49 - March 27, 2025
 

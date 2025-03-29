@@ -3,7 +3,8 @@ name = "l2m2"
 authors = [{ name = "Pierce Kelaita", email = "pierce@kelaita.com" }]
 description = "A very simple LLM manager for Python."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.9"
 urls.Homepage = "https://github.com/pkelaita/l2m2"
 urls.Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"

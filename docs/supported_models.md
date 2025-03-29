@@ -10,7 +10,7 @@
 | `o1-preview` | [OpenAI](https://openai.com/api/) | `o1-preview-2024-09-12` |
 | `o1-mini` | [OpenAI](https://openai.com/api/) | `o1-mini-2024-09-12` |
 | `gpt-4.5` | [OpenAI](https://openai.com/api/) | `gpt-4.5-preview-2025-02-27` |
-| `gpt-4o` | [OpenAI](https://openai.com/api/) | `gpt-4o-2024-11-20` |
+| `gpt-4o` | [OpenAI](https://openai.com/api/) | `chatgpt-4o-latest` |
 | `gpt-4o-mini` | [OpenAI](https://openai.com/api/) | `gpt-4o-mini-2024-07-18` |
 | `gpt-4-turbo` | [OpenAI](https://openai.com/api/) | `gpt-4-turbo-2024-04-09` |
 | `gpt-3.5-turbo` | [OpenAI](https://openai.com/api/) | `gpt-3.5-turbo-0125` |
