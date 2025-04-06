@@ -741,6 +741,38 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "llama-4-maverick": {
+        "groq": {
+            "model_id": "meta-llama/llama-4-maverick-17b-128e-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"preview": True},
+        },
+    },
+    "llama-4-scout": {
+        "groq": {
+            "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"preview": True},
+        },
+    },
     "llama-3.3-70b": {
         "groq": {
             "model_id": "llama-3.3-70b-versatile",
