@@ -692,7 +692,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**17,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "mistral-saba": {
@@ -708,7 +710,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**15,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
         "mistral": {
             "model_id": "mistral-saba-2502",
@@ -738,7 +742,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**13,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-4-maverick": {
@@ -754,7 +760,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**15,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-4-scout": {
@@ -770,7 +779,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**15,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.3-70b": {
@@ -786,7 +798,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**15,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
         "cerebras": {
             "model_id": "llama3.3-70b",
@@ -816,7 +831,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**13,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.2-1b": {
@@ -832,7 +850,10 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**13,
                 },
             },
-            "extras": {"preview": True},
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.1-405b": {
@@ -865,7 +886,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 8000,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
         "cerebras": {
             "model_id": "llama3.1-8b",
@@ -895,7 +918,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
         "replicate": {
             "model_id": "meta/meta-llama-3-70b-instruct",
@@ -926,7 +951,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
         "replicate": {
             "model_id": "meta/meta-llama-3-8b-instruct",
@@ -957,7 +984,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "deepseek-r1-distill-qwen-32b": {
@@ -973,7 +1002,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "deepseek-r1-distill-llama-70b": {
@@ -989,7 +1020,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**16 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
 }
