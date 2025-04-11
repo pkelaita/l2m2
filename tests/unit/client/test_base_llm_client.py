@@ -755,16 +755,6 @@ async def test_json_mode_default_strategy_strip(mock_call, llm_client):
     )
     assert response == "{response}"
 
-    # Groq
-    mock_call.return_value = {"choices": [{"message": {"content": "--{response}--"}}]}
-    llm_client.add_provider("groq", "fake-api-key")
-    response = await llm_client.call(
-        prompt="Hello",
-        model="llama-3-70b",
-        json_mode=True,
-    )
-    assert response == "{response}"
-
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
@@ -852,25 +842,6 @@ async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
     assert response == "{response"
     assert (
         mock_call_cohere.call_args.kwargs["data"]["messages"][-1]["content"]
-        == "Here is the JSON response: {"
-    )
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-async def test_json_mode_strategy_prepend_groq(mock_call_groq, llm_client):
-    mock_call_groq.return_value = {"choices": [{"message": {"content": "response"}}]}
-    llm_client.add_provider("groq", "fake-api-key")
-    response = await llm_client.call(
-        prompt="Hello",
-        model="llama-3-70b",
-        json_mode=True,
-        json_mode_strategy=JsonModeStrategy.prepend(),
-    )
-
-    assert response == "{response"
-    assert (
-        mock_call_groq.call_args.kwargs["data"]["messages"][-1]["content"]
         == "Here is the JSON response: {"
     )
 
