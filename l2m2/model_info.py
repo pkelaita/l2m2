@@ -784,6 +784,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
+        "cerebras": {
+            "model_id": "llama-4-scout-17b-16e-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {},
+        },
     },
     "llama-3.3-70b": {
         "groq": {
