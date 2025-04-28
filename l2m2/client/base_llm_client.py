@@ -521,16 +521,6 @@ class BaseLLMClient:
         self,
         *args: Any,
     ) -> str:
-        if args[2] and args[0] in [
-            get_id("openai", "o1-mini"),
-            get_id("openai", "o1-preview"),
-        ]:
-            raise LLMOperationError(
-                "OpenAI o1-mini and o1-preview do not support system prompts. Try using "
-                + "o1, which supports them, or appending the system prompt to the user prompt. "
-                + "For discussion on this issue, see "
-                + "https://community.openai.com/t/o1-supports-system-role-o1-mini-does-not/1071954/3"
-            )
         return await self._generic_openai_spec_call("openai", *args)
 
     async def _call_google(
@@ -784,8 +774,6 @@ class BaseLLMClient:
                 get_id("openai", "o3-mini"),
                 get_id("openai", "o1-pro"),
                 get_id("openai", "o1"),
-                get_id("openai", "o1-mini"),
-                get_id("openai", "o1-preview"),
             ]:
                 outputs = result["output"]
                 for output in outputs:

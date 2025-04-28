@@ -7,8 +7,6 @@
 | `o3-mini` | [OpenAI](https://openai.com/api/) | `o3-mini-2025-01-31` |
 | `o1-pro` | [OpenAI](https://openai.com/api/) | `o1-pro-2025-03-19` |
 | `o1` | [OpenAI](https://openai.com/api/) | `o1-2024-12-17` |
-| `o1-preview` | [OpenAI](https://openai.com/api/) | `o1-preview-2024-09-12` |
-| `o1-mini` | [OpenAI](https://openai.com/api/) | `o1-mini-2024-09-12` |
 | `gpt-4.5` | [OpenAI](https://openai.com/api/) | `gpt-4.5-preview-2025-02-27` |
 | `gpt-4o` | [OpenAI](https://openai.com/api/) | `chatgpt-4o-latest` |
 | `gpt-4o-mini` | [OpenAI](https://openai.com/api/) | `gpt-4o-mini-2024-07-18` |
@@ -39,16 +37,12 @@
 | `mistral-saba` | [Groq](https://wow.groq.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-saba-24b`, `mistral-saba-2502` |
 | `gemma-2-9b` | [Groq](https://wow.groq.com/) | `gemma2-9b-it` |
 | `llama-4-maverick` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-maverick-17b-128e-instruct` |
-| `llama-4-scout` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-scout-17b-16e-instruct` |
+| `llama-4-scout` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `meta-llama/llama-4-scout-17b-16e-instruct`, `llama-4-scout-17b-16e-instruct` |
 | `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b` |
-| `llama-3.2-3b` | [Groq](https://wow.groq.com/) | `llama-3.2-3b-preview` |
-| `llama-3.2-1b` | [Groq](https://wow.groq.com/) | `llama-3.2-1b-preview` |
 | `llama-3.1-405b` | [Replicate](https://replicate.com/) | `meta/meta-llama-3.1-405b-instruct` |
 | `llama-3.1-8b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.1-8b-instant`, `llama3.1-8b` |
 | `llama-3-70b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 | `llama-3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
-| `qwen-2.5-32b` | [Groq](https://wow.groq.com/) | `qwen-2.5-32b` |
-| `deepseek-r1-distill-qwen-32b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-qwen-32b` |
 | `deepseek-r1-distill-llama-70b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-llama-70b` |
 
 <!--end-model-table-->
