@@ -531,7 +531,21 @@ The following models natively support JSON mode via the given provider:
 - `mistral-small` (via Mistral)
 - `ministral-3b` (via Mistral)
 - `ministral-8b` (via Mistral)
+- `qwen-qwq-32b` (via Groq)
+- `mistral-saba` (via Groq)
 - `mistral-saba` (via Mistral)
+- `gemma-2-9b` (via Groq)
+- `llama-4-maverick` (via Groq)
+- `llama-4-scout` (via Groq)
+- `llama-3.3-70b` (via Groq)
+- `llama-3.2-3b` (via Groq)
+- `llama-3.2-1b` (via Groq)
+- `llama-3.1-8b` (via Groq)
+- `llama-3-70b` (via Groq)
+- `llama-3-8b` (via Groq)
+- `qwen-2.5-32b` (via Groq)
+- `deepseek-r1-distill-qwen-32b` (via Groq)
+- `deepseek-r1-distill-llama-70b` (via Groq)
 
 <!--end-json-native-->
 

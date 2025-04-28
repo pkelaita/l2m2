@@ -38,6 +38,8 @@
 | `qwen-qwq-32b` | [Groq](https://wow.groq.com/) | `qwen-qwq-32b` |
 | `mistral-saba` | [Groq](https://wow.groq.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-saba-24b`, `mistral-saba-2502` |
 | `gemma-2-9b` | [Groq](https://wow.groq.com/) | `gemma2-9b-it` |
+| `llama-4-maverick` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-maverick-17b-128e-instruct` |
+| `llama-4-scout` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-scout-17b-16e-instruct` |
 | `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b` |
 | `llama-3.2-3b` | [Groq](https://wow.groq.com/) | `llama-3.2-3b-preview` |
 | `llama-3.2-1b` | [Groq](https://wow.groq.com/) | `llama-3.2-1b-preview` |
