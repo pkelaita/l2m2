@@ -818,44 +818,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "llama-3.2-3b": {
-        "groq": {
-            "model_id": "llama-3.2-3b-preview",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
-                },
-            },
-            "extras": {
-                "preview": True,
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
-    "llama-3.2-1b": {
-        "groq": {
-            "model_id": "llama-3.2-1b-preview",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
-                },
-            },
-            "extras": {
-                "preview": True,
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
     "llama-3.1-405b": {
         "replicate": {
             "model_id": "meta/meta-llama-3.1-405b-instruct",
@@ -969,42 +931,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
-        },
-    },
-    "qwen-2.5-32b": {
-        "groq": {
-            "model_id": "qwen-2.5-32b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
-    "deepseek-r1-distill-qwen-32b": {
-        "groq": {
-            "model_id": "deepseek-r1-distill-qwen-32b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
         },
     },
     "deepseek-r1-distill-llama-70b": {

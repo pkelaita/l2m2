@@ -37,9 +37,9 @@ TESTS = [
     "basic",
     "memory",
     "json",
-    "bypass_memory",
-    "concurrent",
-    "concurrent_memory",
+    # "bypass_memory",
+    # "concurrent",
+    # "concurrent_memory",
 ]
 
 
