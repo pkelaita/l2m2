@@ -666,6 +666,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "codestral": {
+        "mistral": {
+            "model_id": "codestral-2501",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
     "mistral-large": {
         "mistral": {
             "model_id": "mistral-large-2411",
@@ -684,7 +700,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-small": {
         "mistral": {
-            "model_id": "mistral-small-2501",
+            "model_id": "mistral-small-2503",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -750,7 +766,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-saba": {
         "groq": {
-            "model_id": "mistral-saba-24b",
+            "model_id": "mistral-saba-2502",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
