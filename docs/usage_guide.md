@@ -83,7 +83,7 @@ from l2m2.client import LLMClient
 client = LLMClient()
 
 response = client.call(
-    model="gpt-4o",
+    model="gpt-4.1",
     prompt="How's the weather today?",
     system_prompt="Respond as if you were a pirate.",
 )
@@ -99,32 +99,32 @@ Arrr, matey! The skies be clear as the Caribbean waters today, with the sun blaz
 
 ## Multi-Provider Models
 
-Some models are available from multiple providers, such as `llama-3-70b` from both Groq and Replicate. When multiple of such providers are active, you can use the parameter `prefer_provider` to specify which provider to use for a given inference.
+Some models are available from multiple providers, such as `llama-4-scout` from both Groq and Cerebras. When multiple of such providers are active, you can use the parameter `prefer_provider` to specify which provider to use for a given inference.
 
 ```python
 response1 = client.call(
-    model="llama-3-70b",
+    model="llama-4-scout",
     prompt="Hello there",
     prefer_provider="groq",
 ) # Uses Groq
 
 response2 = client.call(
-    model="llama-3-70b",
+    model="llama-4-scout",
     prompt="General Kenobi!",
-    prefer_provider="replicate",
-) # Uses Replicate
+    prefer_provider="cerebras",
+) # Uses Cerebras
 ```
 
 You can also set default preferred providers for the client using `set_preferred_providers`, to avoid having to specify `prefer_provider` for each call.
 
 ```python
 client.set_preferred_providers({
-    "llama-3-70b": "groq",
-    "llama-3-8b": "replicate",
+    "llama-4-scout": "groq",
+    "llama-3.3-70b": "cerebras",
 })
 
-response1 = client.call(model="llama-3-70b", prompt="Hello there") # Uses Groq
-response2 = client.call(model="llama-3-8b", prompt="General Kenobi!") # Uses Replicate
+response1 = client.call(model="llama-4-scout", prompt="Hello there") # Uses Groq
+response2 = client.call(model="llama-3.3-70b", prompt="General Kenobi!") # Uses Cerebras
 ```
 
 ## Memory
@@ -137,7 +137,7 @@ from l2m2.memory import ChatMemory
 
 client = LLMClient(memory=ChatMemory())
 
-print(client.call(model="gpt-4o", prompt="My name is Pierce"))
+print(client.call(model="gpt-4.1", prompt="My name is Pierce"))
 print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
 print(client.call(model="llama-3-8b", prompt="What's my name?"))
 print(client.call(model="llama-3.3-70b", prompt="What's my job?"))
@@ -162,9 +162,9 @@ memory.add_user_message("My least favorite color is green.")
 memory.add_agent_message("Ok, noted.")
 
 client = LLMClient(memory=memory)
-print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-4.1", prompt="What are my favorite and least favorite colors?"))
 memory.clear()
-print(client.call(model="gpt-4o", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-4.1", prompt="What are my favorite and least favorite colors?"))
 ```
 
 ```
@@ -190,8 +190,8 @@ m2.add_agent_message("Got it.")
 
 client = LLMClient(memory=m1)
 prompt = "What are my favorite and least favorite colors?"
-print(client.call(model="gpt-4o", prompt=prompt)
-print(client.call(model="gpt-4o", prompt=prompt, alt_memory=m2))
+print(client.call(model="gpt-4.1", prompt=prompt)
+print(client.call(model="gpt-4.1", prompt=prompt, alt_memory=m2))
 ```
 
 ```
@@ -203,14 +203,14 @@ Finally, memory can be bypassed for a single call by passing `bypass_memory=True
 
 ```python
 client = LLMClient(memory=ChatMemory())
-client.call(model="gpt-4o", prompt="My name is Pierce")
-client.call(model="gpt-4o", prompt="I am 25 years old")
+client.call(model="gpt-4.1", prompt="My name is Pierce")
+client.call(model="gpt-4.1", prompt="I am 25 years old")
 
-print(client.call(model="gpt-4o", prompt="What is my name?"))
-print(client.call(model="gpt-4o", prompt="What is my name?", bypass_memory=True))
+print(client.call(model="gpt-4.1", prompt="What is my name?"))
+print(client.call(model="gpt-4.1", prompt="What is my name?", bypass_memory=True))
 
-client.call(model="gpt-4o", prompt="I am a software engineer", bypass_memory=True)
-print(client.call(model="gpt-4o", prompt="What is my profession?"))
+client.call(model="gpt-4.1", prompt="I am a software engineer", bypass_memory=True)
+print(client.call(model="gpt-4.1", prompt="What is my profession?"))
 ```
 
 ```
@@ -249,7 +249,7 @@ def update_memory(user_input, model_output):
     memory.set_contents(contents)
 
 for message in messages:
-    response = client.call(model="gpt-4o", prompt=message)
+    response = client.call(model="gpt-4.1", prompt=message)
     print(response)
     update_memory(message, response)
 ```
@@ -305,7 +305,7 @@ async def call_concurrent():
     async with AsyncLLMClient() as client:
         # Assumes no conflicts between active providers
         calls = [
-            ("gpt-4o", "foo"),
+            ("gpt-4.1", "foo"),
             ("claude-3.5-sonnet", "bar"),
             ("gemini-1.5-pro", "baz"),
             ("command-r-plus", "qux"),
@@ -337,7 +337,7 @@ asyncio.run(call_concurrent())
 
 llama-3-70b: The secret word is quux. (0.21s)
 llama-3.3-70b: The secret word is corge. (0.26s)
-gpt-4o: foo (0.62s)
+gpt-4.1: foo (0.62s)
 command-r-plus: The secret word is qux. (0.66s)
 claude-3.5-sonnet: The secret word is bar. (0.70s)
 gemini-1.5-pro: baz (0.73s)
@@ -481,7 +481,7 @@ L2M2 provides an optional `json_mode` flag that enforces JSON formatting on LLM 
 # example_json_mode.py
 
 response = client.call(
-    model="gpt-4o",
+    model="gpt-4.1",
     prompt="What are the capitals of each state of Australia?",
     system_prompt="Respond with the JSON format {'region': 'capital'}",
     json_mode=True,
