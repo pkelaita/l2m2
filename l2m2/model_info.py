@@ -158,6 +158,40 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
+    "o4-mini": {
+        "openai": {
+            "model_id": "o4-mini-2025-04-16",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "o3": {
+        "openai": {
+            "model_id": "o3-2025-04-16",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
     "o3-mini": {
         "openai": {
             "model_id": "o3-mini-2025-01-31",
@@ -221,6 +255,57 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 2**14,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1": {
+        "openai": {
+            "model_id": "gpt-4.1-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1-mini": {
+        "openai": {
+            "model_id": "gpt-4.1-mini-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1-nano": {
+        "openai": {
+            "model_id": "gpt-4.1-nano-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -932,7 +1017,3 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
         },
     },
 }
-
-
-def get_id(provider: str, model_id: str) -> str:
-    return MODEL_INFO[model_id][provider]["model_id"]

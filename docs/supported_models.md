@@ -4,10 +4,15 @@
 
 | Model Name | Provider(s) | Model Version(s) |
 | --- | --- | --- |
+| `o4-mini` | [OpenAI](https://openai.com/api/) | `o4-mini-2025-04-16` |
+| `o3` | [OpenAI](https://openai.com/api/) | `o3-2025-04-16` |
 | `o3-mini` | [OpenAI](https://openai.com/api/) | `o3-mini-2025-01-31` |
 | `o1-pro` | [OpenAI](https://openai.com/api/) | `o1-pro-2025-03-19` |
 | `o1` | [OpenAI](https://openai.com/api/) | `o1-2024-12-17` |
 | `gpt-4.5` | [OpenAI](https://openai.com/api/) | `gpt-4.5-preview-2025-02-27` |
+| `gpt-4.1` | [OpenAI](https://openai.com/api/) | `gpt-4.1-2025-04-14` |
+| `gpt-4.1-mini` | [OpenAI](https://openai.com/api/) | `gpt-4.1-mini-2025-04-14` |
+| `gpt-4.1-nano` | [OpenAI](https://openai.com/api/) | `gpt-4.1-nano-2025-04-14` |
 | `gpt-4o` | [OpenAI](https://openai.com/api/) | `chatgpt-4o-latest` |
 | `gpt-4o-mini` | [OpenAI](https://openai.com/api/) | `gpt-4o-mini-2024-07-18` |
 | `gpt-4-turbo` | [OpenAI](https://openai.com/api/) | `gpt-4-turbo-2024-04-09` |

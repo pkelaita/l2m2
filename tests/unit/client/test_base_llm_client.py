@@ -7,7 +7,7 @@ from l2m2.memory import (
     ExternalMemory,
     ExternalMemoryLoadingType,
 )
-from l2m2.client.base_llm_client import BaseLLMClient
+from l2m2.client.base_llm_client import BaseLLMClient, _is_o_series_model
 from l2m2.tools import JsonModeStrategy
 from l2m2.exceptions import LLMOperationError, L2M2UsageError
 
@@ -852,3 +852,20 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
         mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "custom-prefix-123{"
     )
+
+
+# --- Misc tests for helpers --- #
+
+
+def test_is_o_series_model():
+    assert _is_o_series_model("o4-mini")
+    assert _is_o_series_model("o4")
+    assert _is_o_series_model("o3-mini")
+    assert _is_o_series_model("o3")
+    assert not _is_o_series_model("gpt-4o")
+    assert not _is_o_series_model("claude-3-opus")
+    assert not _is_o_series_model("asdf")
+    assert not _is_o_series_model("test-o1")
+    assert not _is_o_series_model("oasdf")
+    assert not _is_o_series_model("")
+    assert not _is_o_series_model(None)

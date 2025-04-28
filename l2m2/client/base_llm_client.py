@@ -10,7 +10,6 @@ from l2m2.model_info import (
     ModelEntry,
     ModelParams,
     ParamName,
-    get_id,
 )
 from l2m2.memory import (
     ChatMemory,
@@ -727,10 +726,7 @@ class BaseLLMClient:
 
         # For o1 and newer, use "developer" messages instead of "system"
         system_key = "system"
-        if provider == "openai" and model_id in [
-            get_id("openai", "o1"),
-            get_id("openai", "o3-mini"),
-        ]:
+        if provider == "openai" and _is_o_series_model(model_id):
             system_key = "developer"
 
         messages = []
@@ -770,11 +766,7 @@ class BaseLLMClient:
 
         # For compatibility with OpenAI's responses API
         if provider == "openai":
-            if model_id in [
-                get_id("openai", "o3-mini"),
-                get_id("openai", "o1-pro"),
-                get_id("openai", "o1"),
-            ]:
+            if _is_o_series_model(model_id):
                 outputs = result["output"]
                 for output in outputs:
                     if output["type"] == "message":
@@ -801,6 +793,15 @@ class BaseLLMClient:
 
 
 # Non-state-dependent helper methods
+
+
+def _is_o_series_model(model_id: str) -> bool:
+    return (
+        bool(model_id)
+        and len(model_id) > 1
+        and model_id[0] == "o"
+        and model_id[1].isdigit()
+    )
 
 
 def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:
