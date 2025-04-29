@@ -1034,4 +1034,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
         },
     },
+    "allam-2-7b": {
+        "groq": {
+            "model_id": "allam-2-7b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**12,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
 }

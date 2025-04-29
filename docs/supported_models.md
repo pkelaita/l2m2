@@ -34,12 +34,13 @@
 | `command-r-plus` | [Cohere](https://docs.cohere.com/) | `command-r-plus-08-2024` |
 | `command-r` | [Cohere](https://docs.cohere.com/) | `command-r-08-2024` |
 | `command-r7b` | [Cohere](https://docs.cohere.com/) | `command-r7b-12-2024` |
+| `codestral` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `codestral-2501` |
 | `mistral-large` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-large-2411` |
-| `mistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-small-2501` |
+| `mistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-small-2503` |
 | `ministral-3b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-3b-2410` |
 | `ministral-8b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-8b-2410` |
 | `qwen-qwq-32b` | [Groq](https://wow.groq.com/) | `qwen-qwq-32b` |
-| `mistral-saba` | [Groq](https://wow.groq.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-saba-24b`, `mistral-saba-2502` |
+| `mistral-saba` | [Groq](https://wow.groq.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-saba-2502`, `mistral-saba-2502` |
 | `gemma-2-9b` | [Groq](https://wow.groq.com/) | `gemma2-9b-it` |
 | `llama-4-maverick` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-maverick-17b-128e-instruct` |
 | `llama-4-scout` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `meta-llama/llama-4-scout-17b-16e-instruct`, `llama-4-scout-17b-16e-instruct` |
@@ -49,6 +50,7 @@
 | `llama-3-70b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 | `llama-3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
 | `deepseek-r1-distill-llama-70b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-llama-70b` |
+| `allam-2-7b` | [Groq](https://wow.groq.com/) | `allam-2-7b` |
 
 <!--end-model-table-->
 

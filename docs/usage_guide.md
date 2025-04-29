@@ -532,6 +532,7 @@ The following models natively support JSON mode via the given provider:
 - `gemini-1.5-flash` (via Google)
 - `gemini-1.5-flash-8b` (via Google)
 - `gemini-1.5-pro` (via Google)
+- `codestral` (via Mistral)
 - `mistral-large` (via Mistral)
 - `mistral-small` (via Mistral)
 - `ministral-3b` (via Mistral)
@@ -547,6 +548,7 @@ The following models natively support JSON mode via the given provider:
 - `llama-3-70b` (via Groq)
 - `llama-3-8b` (via Groq)
 - `deepseek-r1-distill-llama-70b` (via Groq)
+- `allam-2-7b` (via Groq)
 
 <!--end-json-native-->
 

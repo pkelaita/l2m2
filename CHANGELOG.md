@@ -10,6 +10,7 @@ _Current version: 0.0.51_
 
 - Support for [o4-mini](https://platform.openai.com/docs/models/o4-mini), [o3](https://platform.openai.com/docs/models/o3), [gpt-4.1](https://platform.openai.com/docs/models/gpt-4.1), [gpt-4.1-mini](https://platform.openai.com/docs/models/gpt-4.1-mini), and [gpt-4.1-nano](https://platform.openai.com/docs/models/gpt-4.1-nano) via OpenAI.
 - Support for [Llama 4](https://ai.meta.com/blog/llama-4-multimodal-intelligence/) with Maverick available via Groq and Scout available via both Groq and Cerebras.
+- Support for [Allam 2 70b](https://arxiv.org/html/2407.15390v1) via Groq.
 - Support for Llama 3.3 70b via Cerebras (was already previously supported via Groq).
 - Support for [Codestral](https://mistral.ai/news/codestral) via Mistral.
 - Support for native JSON mode on any model via Groq.
