@@ -1,8 +1,34 @@
 # Changelog
 
-_Current version: 0.0.50_
+_Current version: 0.0.51_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.51 - April 28, 2025
+
+#### Added
+
+- Support for [o4-mini](https://platform.openai.com/docs/models/o4-mini), [o3](https://platform.openai.com/docs/models/o3), [gpt-4.1](https://platform.openai.com/docs/models/gpt-4.1), [gpt-4.1-mini](https://platform.openai.com/docs/models/gpt-4.1-mini), and [gpt-4.1-nano](https://platform.openai.com/docs/models/gpt-4.1-nano) via OpenAI.
+- Support for [Llama 4](https://ai.meta.com/blog/llama-4-multimodal-intelligence/) with Maverick available via Groq and Scout available via both Groq and Cerebras.
+- Support for [Allam 2 70b](https://arxiv.org/html/2407.15390v1) via Groq.
+- Support for Llama 3.3 70b via Cerebras (was already previously supported via Groq).
+- Support for [Codestral](https://mistral.ai/news/codestral) via Mistral.
+- Support for native JSON mode on any model via Groq.
+
+#### Changed
+
+- Updated the versions of the following models from Mistral:
+  - `mistral-small`: `mistral-small-2501` → `mistral-small-2503`
+  - `mistral-saba`: `mistral-saba-24b` → `mistral-saba-2502`
+
+#### Removed
+
+- Support `o1-mini` and `o1-preview` from OpenAI following their [deprecation](https://platform.openai.com/docs/deprecations).
+- Support for the following models via Groq following their [deprecations](https://console.groq.com/docs/deprecations):
+  - `llama-3.2-3b`
+  - `llama-3.2-1b`
+  - `qwen-2.5-32b`
+  - `deepseek-r1-distill-qwen-32b`
 
 ### 0.0.50 - March 29, 2025
 

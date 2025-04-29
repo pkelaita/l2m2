@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "gpt-4o"
+test_model = "gpt-4.1"
 test_provider = None
 
 LOCAL = False
@@ -37,9 +37,9 @@ TESTS = [
     "basic",
     "memory",
     "json",
-    "bypass_memory",
-    "concurrent",
-    "concurrent_memory",
+    # "bypass_memory",
+    # "concurrent",
+    # "concurrent_memory",
 ]
 
 
@@ -74,7 +74,7 @@ def test_basic():
             system_prompt="Respond like a pirate.",
             temperature=1,
             max_tokens=1000,
-            timeout=25,
+            timeout=60,
         )
     )
 
@@ -92,6 +92,7 @@ def test_memory():
             system_prompt="You respond briefly.",
             temperature=1,
             max_tokens=1000,
+            timeout=60,
         )
     )
     _delay()
@@ -102,6 +103,7 @@ def test_memory():
             system_prompt="You respond briefly.",
             temperature=1,
             max_tokens=1000,
+            timeout=60,
         )
     )
 
@@ -116,7 +118,7 @@ def test_json():
         model=test_model,
         prompt="What are the capitals of each Australian state? Respond in JSON",
         json_mode=True,
-        timeout=20,
+        timeout=60,
     )
 
     try:

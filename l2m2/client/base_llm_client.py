@@ -10,7 +10,6 @@ from l2m2.model_info import (
     ModelEntry,
     ModelParams,
     ParamName,
-    get_id,
 )
 from l2m2.memory import (
     ChatMemory,
@@ -521,16 +520,6 @@ class BaseLLMClient:
         self,
         *args: Any,
     ) -> str:
-        if args[2] and args[0] in [
-            get_id("openai", "o1-mini"),
-            get_id("openai", "o1-preview"),
-        ]:
-            raise LLMOperationError(
-                "OpenAI o1-mini and o1-preview do not support system prompts. Try using "
-                + "o1, which supports them, or appending the system prompt to the user prompt. "
-                + "For discussion on this issue, see "
-                + "https://community.openai.com/t/o1-supports-system-role-o1-mini-does-not/1071954/3"
-            )
         return await self._generic_openai_spec_call("openai", *args)
 
     async def _call_google(
@@ -737,10 +726,7 @@ class BaseLLMClient:
 
         # For o1 and newer, use "developer" messages instead of "system"
         system_key = "system"
-        if provider == "openai" and model_id in [
-            get_id("openai", "o1"),
-            get_id("openai", "o3-mini"),
-        ]:
+        if provider == "openai" and _is_o_series_model(model_id):
             system_key = "developer"
 
         messages = []
@@ -780,13 +766,7 @@ class BaseLLMClient:
 
         # For compatibility with OpenAI's responses API
         if provider == "openai":
-            if model_id in [
-                get_id("openai", "o3-mini"),
-                get_id("openai", "o1-pro"),
-                get_id("openai", "o1"),
-                get_id("openai", "o1-mini"),
-                get_id("openai", "o1-preview"),
-            ]:
+            if _is_o_series_model(model_id):
                 outputs = result["output"]
                 for output in outputs:
                     if output["type"] == "message":
@@ -813,6 +793,15 @@ class BaseLLMClient:
 
 
 # Non-state-dependent helper methods
+
+
+def _is_o_series_model(model_id: str) -> bool:
+    return (
+        bool(model_id)
+        and len(model_id) > 1
+        and model_id[0] == "o"
+        and model_id[1].isdigit()
+    )
 
 
 def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:

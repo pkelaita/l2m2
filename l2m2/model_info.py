@@ -158,6 +158,40 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
+    "o4-mini": {
+        "openai": {
+            "model_id": "o4-mini-2025-04-16",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "o3": {
+        "openai": {
+            "model_id": "o3-2025-04-16",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 4096,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
     "o3-mini": {
         "openai": {
             "model_id": "o3-mini-2025-01-31",
@@ -209,40 +243,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
-    "o1-preview": {
-        "openai": {
-            "model_id": "o1-preview-2024-09-12",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_output_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {},
-        },
-    },
-    "o1-mini": {
-        "openai": {
-            "model_id": "o1-mini-2024-09-12",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.0,
-                },
-                "max_tokens": {
-                    "custom_key": "max_output_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {},
-        },
-    },
     "gpt-4.5": {
         "openai": {
             "model_id": "gpt-4.5-preview-2025-02-27",
@@ -255,6 +255,57 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
                     "max": 2**14,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1": {
+        "openai": {
+            "model_id": "gpt-4.1-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1-mini": {
+        "openai": {
+            "model_id": "gpt-4.1-mini-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-4.1-nano": {
+        "openai": {
+            "model_id": "gpt-4.1-nano-2025-04-14",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -615,6 +666,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "codestral": {
+        "mistral": {
+            "model_id": "codestral-2501",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
     "mistral-large": {
         "mistral": {
             "model_id": "mistral-large-2411",
@@ -633,7 +700,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-small": {
         "mistral": {
-            "model_id": "mistral-small-2501",
+            "model_id": "mistral-small-2503",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -693,13 +760,14 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {
+                "preview": True,
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
     },
     "mistral-saba": {
         "groq": {
-            "model_id": "mistral-saba-24b",
+            "model_id": "mistral-saba-2502",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -711,6 +779,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {
+                "preview": True,
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
@@ -784,6 +853,20 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
+        "cerebras": {
+            "model_id": "llama-4-scout-17b-16e-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {},
+        },
     },
     "llama-3.3-70b": {
         "groq": {
@@ -799,7 +882,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {
-                "preview": True,
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
@@ -816,44 +898,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
-        },
-    },
-    "llama-3.2-3b": {
-        "groq": {
-            "model_id": "llama-3.2-3b-preview",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
-                },
-            },
-            "extras": {
-                "preview": True,
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
-    "llama-3.2-1b": {
-        "groq": {
-            "model_id": "llama-3.2-1b-preview",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
-                },
-            },
-            "extras": {
-                "preview": True,
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
         },
     },
     "llama-3.1-405b": {
@@ -971,42 +1015,6 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "qwen-2.5-32b": {
-        "groq": {
-            "model_id": "qwen-2.5-32b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
-    "deepseek-r1-distill-qwen-32b": {
-        "groq": {
-            "model_id": "deepseek-r1-distill-qwen-32b",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2.0,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**16 - 1,
-                },
-            },
-            "extras": {
-                "json_mode_arg": {"response_format": {"type": "json_object"}},
-            },
-        },
-    },
     "deepseek-r1-distill-llama-70b": {
         "groq": {
             "model_id": "deepseek-r1-distill-llama-70b",
@@ -1021,12 +1029,28 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "allam-2-7b": {
+        "groq": {
+            "model_id": "allam-2-7b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**12,
+                },
+            },
+            "extras": {
+                "preview": True,
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
     },
 }
-
-
-def get_id(provider: str, model_id: str) -> str:
-    return MODEL_INFO[model_id][provider]["model_id"]

@@ -7,7 +7,7 @@ from l2m2.memory import (
     ExternalMemory,
     ExternalMemoryLoadingType,
 )
-from l2m2.client.base_llm_client import BaseLLMClient
+from l2m2.client.base_llm_client import BaseLLMClient, _is_o_series_model
 from l2m2.tools import JsonModeStrategy
 from l2m2.exceptions import LLMOperationError, L2M2UsageError
 
@@ -425,31 +425,6 @@ async def test_call_anthropic_thinking(
 
 
 # -- Tests for call errors -- #
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-async def test_call_openai_system_prompt_not_supported(mock_call_openai, llm_client):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
-    llm_client.add_provider("openai", "fake-api-key")
-
-    # First, ensure they work without a system prompt
-    response = await llm_client.call(prompt="Hello", model="o1-mini")
-    assert response == "response"
-
-    response = await llm_client.call(prompt="Hello", model="o1-preview")
-    assert response == "response"
-
-    with pytest.raises(LLMOperationError):
-        await llm_client.call(
-            prompt="Hello", model="o1-mini", system_prompt="System prompt"
-        )
-    with pytest.raises(LLMOperationError):
-        await llm_client.call(
-            prompt="Hello", model="o1-preview", system_prompt="System prompt"
-        )
 
 
 @pytest.mark.asyncio
@@ -877,3 +852,20 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
         mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "custom-prefix-123{"
     )
+
+
+# --- Misc tests for helpers --- #
+
+
+def test_is_o_series_model():
+    assert _is_o_series_model("o4-mini")
+    assert _is_o_series_model("o4")
+    assert _is_o_series_model("o3-mini")
+    assert _is_o_series_model("o3")
+    assert not _is_o_series_model("gpt-4o")
+    assert not _is_o_series_model("claude-3-opus")
+    assert not _is_o_series_model("asdf")
+    assert not _is_o_series_model("test-o1")
+    assert not _is_o_series_model("oasdf")
+    assert not _is_o_series_model("")
+    assert not _is_o_series_model(None)
