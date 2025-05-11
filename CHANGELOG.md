@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.51_
+_Current version: 0.0.52_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.52 - May 11, 2025
+
+#### Added
+
+- Support for [Gemini 2.5 Flash](https://developers.googleblog.com/en/start-building-with-gemini-25-flash/).
 
 ### 0.0.51 - April 28, 2025
 

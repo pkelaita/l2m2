@@ -18,6 +18,7 @@
 | `gpt-4-turbo` | [OpenAI](https://openai.com/api/) | `gpt-4-turbo-2024-04-09` |
 | `gpt-3.5-turbo` | [OpenAI](https://openai.com/api/) | `gpt-3.5-turbo-0125` |
 | `gemini-2.5-pro` | [Google](https://ai.google.dev/) | `gemini-2.5-pro-exp-03-25` |
+| `gemini-2.5-flash` | [Google](https://ai.google.dev/) | `gemini-2.5-flash-preview-04-17` |
 | `gemini-2.0-pro` | [Google](https://ai.google.dev/) | `gemini-2.0-pro-exp-02-05` |
 | `gemini-2.0-flash` | [Google](https://ai.google.dev/) | `gemini-2.0-flash-001` |
 | `gemini-2.0-flash-lite` | [Google](https://ai.google.dev/) | `gemini-2.0-flash-lite-preview-02-05` |

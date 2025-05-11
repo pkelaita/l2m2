@@ -526,6 +526,7 @@ The following models natively support JSON mode via the given provider:
 - `gpt-4-turbo` (via Openai)
 - `gpt-3.5-turbo` (via Openai)
 - `gemini-2.5-pro` (via Google)
+- `gemini-2.5-flash` (via Google)
 - `gemini-2.0-pro` (via Google)
 - `gemini-2.0-flash` (via Google)
 - `gemini-2.0-flash-lite` (via Google)

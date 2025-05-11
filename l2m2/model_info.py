@@ -398,6 +398,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
+    "gemini-2.5-flash": {
+        "google": {
+            "model_id": "gemini-2.5-flash-preview-04-17",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
+        },
+    },
     "gemini-2.0-pro": {
         "google": {
             "model_id": "gemini-2.0-pro-exp-02-05",
