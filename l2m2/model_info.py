@@ -382,7 +382,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-2.5-pro": {
         "google": {
-            "model_id": "gemini-2.5-pro-exp-03-25",
+            "model_id": "gemini-2.5-pro-preview-05-06",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
