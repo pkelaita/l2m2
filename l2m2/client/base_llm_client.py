@@ -806,7 +806,7 @@ def _is_o_series_model(model_id: str) -> bool:
 
 def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:
     generic_model_entry = LOCAL_PROVIDERS[provider]["model_entry"]
-    return {**generic_model_entry, "model_id": model_id}
+    return {**generic_model_entry, "model_id": model_id}  # ty: ignore
 
 
 def _get_external_memory_prompts(

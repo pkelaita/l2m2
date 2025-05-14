@@ -7,7 +7,7 @@ def deprecated(message: str) -> Callable[..., Any]:  # pragma: no cover
         def deprecated_func(*args: Any, **kwargs: Any) -> Any:
             warnings.warn(
                 "{} is deprecated and will be removed in a future version. {}".format(
-                    func.__name__, message
+                    func.__name__, message  # ty: ignore
                 ),
                 category=DeprecationWarning,
                 stacklevel=2,
