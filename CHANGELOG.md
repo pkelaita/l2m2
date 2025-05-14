@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.52_
+_Current version: 0.0.53_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.53 - May 14, 2025
+
+#### Added
+
+- Updated Gemini 2.5 Pro from `gemini-2.5-pro-exp-03-25` (which is now deprecated) to `gemini-2.5-pro-preview-05-06`.
 
 ### 0.0.52 - May 11, 2025
 
