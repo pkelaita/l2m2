@@ -30,7 +30,7 @@ class JsonModeStrategy:
 def get_extra_message(strategy: JsonModeStrategy) -> Optional[str]:
     if strategy.strategy_name == StrategyName.PREPEND:
         assert strategy.prefix is not None
-        return strategy.prefix + "{"
+        return strategy.prefix + "{"  # ty: ignore
 
     return None
 
@@ -38,7 +38,7 @@ def get_extra_message(strategy: JsonModeStrategy) -> Optional[str]:
 def run_json_strats_out(
     strategy: JsonModeStrategy,
     output: str,
-) -> str:
+) -> str:  # ty: ignore
     if strategy.strategy_name == StrategyName.PREPEND:
         return "{" + output
 

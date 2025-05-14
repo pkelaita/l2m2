@@ -36,6 +36,9 @@ lint:
 	-uv run ruff check .
 
 type:
+	-uv run ty check l2m2
+
+type-mypy:
 	-uv run mypy .
 
 build:

@@ -24,6 +24,7 @@ dev = [
     "ruff>=0.9.7",
     "tox>=4.24.1",
     "twine>=6.1.0",
+    "ty>=0.0.1a1",
     "types-requests>=2.32.0.20241016",
 ]
 
@@ -35,6 +36,9 @@ packages.find.namespaces = false
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.ty.environment]
+python = "./.venv"
 
 [tool.mypy]
 exclude = ["build", "dist", "venv", "scripts", "tests", "playground"]
