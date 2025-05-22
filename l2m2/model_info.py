@@ -523,17 +523,49 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
+    "claude-opus-4": {
+        "anthropic": {
+            "model_id": "claude-opus-4-20250514",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 4096,  # L2M2 default, field is required,
+                    "max": 32000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "claude-sonnet-4": {
+        "anthropic": {
+            "model_id": "claude-sonnet-4-20250514",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 4096,  # L2M2 default, field is required,
+                    "max": 64000,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-3.7-sonnet": {
         "anthropic": {
             "model_id": "claude-3-7-sonnet-20250219",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {
                     "default": 4096,  # L2M2 default, field is required
-                    "max": 128000,
+                    "max": 64000,
                 },
             },
             "extras": {},
@@ -544,7 +576,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "model_id": "claude-3-5-sonnet-20241022",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {
@@ -560,7 +592,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "model_id": "claude-3-5-haiku-20241022",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {
@@ -576,7 +608,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "model_id": "claude-3-opus-20240229",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {
@@ -592,7 +624,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "model_id": "claude-3-sonnet-20240229",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {
@@ -608,7 +640,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "model_id": "claude-3-haiku-20240307",
             "params": {
                 "temperature": {
-                    "default": 0.0,
+                    "default": PROVIDER_DEFAULT,
                     "max": 1.0,
                 },
                 "max_tokens": {

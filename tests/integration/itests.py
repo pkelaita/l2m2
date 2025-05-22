@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "gpt-4.1"
+test_model = "claude-sonnet-4"
 test_provider = None
 
 LOCAL = False

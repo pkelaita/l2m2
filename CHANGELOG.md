@@ -1,8 +1,19 @@
 # Changelog
 
-_Current version: 0.0.53_
+_Current version: 0.0.54_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.54 - May 22, 2025
+
+#### Added
+
+- Support for Claude Opus 4 and Claude Sonnet 4 [released today](https://www.anthropic.com/news/claude-4).
+
+#### Fixed
+
+- Updated the maximum `max_tokens` value for `claude-3.7-sonnet` from 128000 to 64000 to match its actual limit.
+- Switched the default temperature for previous Claude models (`claude-3.7-sonnet`, `claude-3.5-sonnet`, `claude-3.5-haiku`, `claude-3-opus`, `claude-3-sonnet`, and `claude-3-haiku`) from L2M2-imposed default of 0.0 to the provider fallback value from Anthropic's platform.
 
 ### 0.0.53 - May 14, 2025
 

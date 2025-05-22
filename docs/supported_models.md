@@ -25,6 +25,8 @@
 | `gemini-1.5-flash` | [Google](https://ai.google.dev/) | `gemini-1.5-flash-001` |
 | `gemini-1.5-flash-8b` | [Google](https://ai.google.dev/) | `gemini-1.5-flash-8b` |
 | `gemini-1.5-pro` | [Google](https://ai.google.dev/) | `gemini-1.5-pro` |
+| `claude-opus-4` | [Anthropic](https://www.anthropic.com/api) | `claude-opus-4-20250514` |
+| `claude-sonnet-4` | [Anthropic](https://www.anthropic.com/api) | `claude-sonnet-4-20250514` |
 | `claude-3.7-sonnet` | [Anthropic](https://www.anthropic.com/api) | `claude-3-7-sonnet-20250219` |
 | `claude-3.5-sonnet` | [Anthropic](https://www.anthropic.com/api) | `claude-3-5-sonnet-20241022` |
 | `claude-3.5-haiku` | [Anthropic](https://www.anthropic.com/api) | `claude-3-5-haiku-20241022` |
