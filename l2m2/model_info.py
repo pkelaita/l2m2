@@ -1064,6 +1064,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
+    "qwen-3-32b": {
+        "cerebras": {
+            "model_id": "qwen-3-32b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {},
+        },
+    },
     "deepseek-r1-distill-llama-70b": {
         "groq": {
             "model_id": "deepseek-r1-distill-llama-70b",
