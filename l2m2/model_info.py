@@ -816,7 +816,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-saba": {
         "groq": {
-            "model_id": "mistral-saba-2502",
+            "model_id": "mistral-saba-24b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
