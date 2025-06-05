@@ -1,8 +1,23 @@
 # Changelog
 
-_Current version: 0.0.54_
+_Current version: 0.0.55_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.55 - June 5, 2025
+
+#### Added
+
+- Support for [Qwen 3.3 32B](https://huggingface.co/Qwen/Qwen2.5-32B-Instruct) via Cerebras.
+- Support for [native JSON mode](https://inference-docs.cerebras.ai/capabilities/structured-outputs) on all models via Cerebras.
+
+#### Changed
+
+- Updated Gemini 2.5 Pro from `gemini-2.5-pro-preview-05-06` to `gemini-2.5-pro-preview-06-05`.
+
+#### Fixed
+
+- Changed mistral-saba's model ID for groq from `mistral-saba-2502` (which no longer works) to `mistral-saba-24b`.
 
 ### 0.0.54 - May 22, 2025
 

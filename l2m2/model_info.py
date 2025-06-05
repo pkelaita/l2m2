@@ -382,7 +382,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gemini-2.5-pro": {
         "google": {
-            "model_id": "gemini-2.5-pro-preview-05-06",
+            "model_id": "gemini-2.5-pro-preview-06-05",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -816,7 +816,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-saba": {
         "groq": {
-            "model_id": "mistral-saba-2502",
+            "model_id": "mistral-saba-24b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -914,7 +914,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.3-70b": {
@@ -946,7 +948,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.1-405b": {
@@ -995,7 +999,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3-70b": {
@@ -1062,6 +1068,24 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
+        },
+    },
+    "qwen-3-32b": {
+        "cerebras": {
+            "model_id": "qwen-3-32b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "deepseek-r1-distill-llama-70b": {
