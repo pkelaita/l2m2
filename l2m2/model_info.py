@@ -914,7 +914,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.3-70b": {
@@ -946,7 +948,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3.1-405b": {
@@ -995,7 +999,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "llama-3-70b": {
@@ -1074,10 +1080,12 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**31 - 1,
                 },
             },
-            "extras": {},
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "deepseek-r1-distill-llama-70b": {
