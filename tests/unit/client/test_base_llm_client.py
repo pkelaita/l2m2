@@ -80,10 +80,9 @@ async def test_init_with_api_keys_passed_in():
 
 
 @pytest.mark.asyncio
-@patch.dict(
-    "os.environ", {"OPENAI_API_KEY": "test-key-openai", "CO_API_KEY": "test-key-cohere"}
-)
-async def test_init_with_api_keys_in_env():
+async def test_init_with_api_keys_in_env(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key-openai")
+    monkeypatch.setenv("CO_API_KEY", "test-key-cohere")
     async with BaseLLMClient() as llm_client:
         assert llm_client.api_keys == {
             "openai": "test-key-openai",
@@ -96,10 +95,9 @@ async def test_init_with_api_keys_in_env():
 
 
 @pytest.mark.asyncio
-@patch.dict(
-    "os.environ", {"OPENAI_API_KEY": "env-key-openai", "CO_API_KEY": "env-key-cohere"}
-)
-async def test_init_with_api_keys_overridden():
+async def test_init_with_api_keys_overridden(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "env-key-openai")
+    monkeypatch.setenv("CO_API_KEY", "env-key-cohere")
     async with BaseLLMClient(
         {
             "openai": "override-key-openai",
