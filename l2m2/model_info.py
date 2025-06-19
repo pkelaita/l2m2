@@ -732,9 +732,9 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {},
         },
     },
-    "codestral": {
+    "magistral-medium": {
         "mistral": {
-            "model_id": "codestral-2501",
+            "model_id": "magistral-medium-2506",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -742,7 +742,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "magistral-small": {
+        "mistral": {
+            "model_id": "magistral-small-2506",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
@@ -758,7 +774,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "mistral-medium": {
+        "mistral": {
+            "model_id": "mistral-medium-2505",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
@@ -774,7 +806,39 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "codestral": {
+        "mistral": {
+            "model_id": "codestral-2501",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "devstral-small": {
+        "mistral": {
+            "model_id": "devstral-small-2505",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
@@ -790,7 +854,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**63 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
@@ -806,7 +870,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": INF,
+                    "max": 2**63 - 1,
                 },
             },
             "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
