@@ -1,8 +1,20 @@
 # Changelog
 
-_Current version: 0.0.55_
+_Current version: 0.0.56_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.56 - June 19, 2025
+
+#### Added
+
+- Support for OpenAI's [o3-pro](https://platform.openai.com/docs/models/o3-pro).
+- Support for [Magistral-small and medium](https://mistral.ai/news/magistral), [Devstral-small](https://mistral.ai/news/devstral), and [Codestral-mamba](https://mistral.ai/news/codestral-mamba) via Mistral.
+- Support for [Qwen 3 32B](https://console.groq.com/docs/model/qwen/qwen3-32b) via Groq (was already available via Cerebras).
+
+#### Fixed
+
+- Added correct max token limits for `ministral-3b` and `ministral-8b` (both 2<sup>16</sup> - 1).
 
 ### 0.0.55 - June 5, 2025
 

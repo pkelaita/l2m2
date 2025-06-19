@@ -5,6 +5,7 @@
 | Model Name | Provider(s) | Model Version(s) |
 | --- | --- | --- |
 | `o4-mini` | [OpenAI](https://openai.com/api/) | `o4-mini-2025-04-16` |
+| `o3-pro` | [OpenAI](https://openai.com/api/) | `o3-pro-2025-06-10` |
 | `o3` | [OpenAI](https://openai.com/api/) | `o3-2025-04-16` |
 | `o3-mini` | [OpenAI](https://openai.com/api/) | `o3-mini-2025-01-31` |
 | `o1-pro` | [OpenAI](https://openai.com/api/) | `o1-pro-2025-03-19` |
@@ -37,9 +38,13 @@
 | `command-r-plus` | [Cohere](https://docs.cohere.com/) | `command-r-plus-08-2024` |
 | `command-r` | [Cohere](https://docs.cohere.com/) | `command-r-08-2024` |
 | `command-r7b` | [Cohere](https://docs.cohere.com/) | `command-r7b-12-2024` |
-| `codestral` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `codestral-2501` |
+| `magistral-medium` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `magistral-medium-2506` |
+| `magistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `magistral-small-2506` |
 | `mistral-large` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-large-2411` |
+| `mistral-medium` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-medium-2505` |
 | `mistral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `mistral-small-2503` |
+| `codestral` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `codestral-2501` |
+| `devstral-small` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `devstral-small-2505` |
 | `ministral-3b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-3b-2410` |
 | `ministral-8b` | [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/) | `ministral-8b-2410` |
 | `qwen-qwq-32b` | [Groq](https://wow.groq.com/) | `qwen-qwq-32b` |
@@ -47,12 +52,12 @@
 | `gemma-2-9b` | [Groq](https://wow.groq.com/) | `gemma2-9b-it` |
 | `llama-4-maverick` | [Groq](https://wow.groq.com/) | `meta-llama/llama-4-maverick-17b-128e-instruct` |
 | `llama-4-scout` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `meta-llama/llama-4-scout-17b-16e-instruct`, `llama-4-scout-17b-16e-instruct` |
-| `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama3.3-70b` |
+| `llama-3.3-70b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.3-70b-versatile`, `llama-3.3-70b` |
 | `llama-3.1-405b` | [Replicate](https://replicate.com/) | `meta/meta-llama-3.1-405b-instruct` |
 | `llama-3.1-8b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `llama-3.1-8b-instant`, `llama3.1-8b` |
 | `llama-3-70b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-70b-8192`, `meta/meta-llama-3-70b-instruct` |
 | `llama-3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
-| `qwen-3-32b` | [Cerebras](https://inference-docs.cerebras.ai) | `qwen-3-32b` |
+| `qwen-3-32b` | [Cerebras](https://inference-docs.cerebras.ai), [Groq](https://wow.groq.com/) | `qwen-3-32b`, `qwen/qwen3-32b` |
 | `deepseek-r1-distill-llama-70b` | [Groq](https://wow.groq.com/) | `deepseek-r1-distill-llama-70b` |
 | `allam-2-7b` | [Groq](https://wow.groq.com/) | `allam-2-7b` |
 
