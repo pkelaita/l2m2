@@ -1018,7 +1018,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             },
         },
         "cerebras": {
-            "model_id": "llama3.3-70b",
+            "model_id": "llama-3.3-70b",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
