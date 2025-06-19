@@ -513,6 +513,7 @@ The following models natively support JSON mode via the given provider:
 <!--start-json-native-->
 
 - `o4-mini` (via Openai)
+- `o3-pro` (via Openai)
 - `o3` (via Openai)
 - `o3-mini` (via Openai)
 - `o1-pro` (via Openai)
@@ -533,9 +534,13 @@ The following models natively support JSON mode via the given provider:
 - `gemini-1.5-flash` (via Google)
 - `gemini-1.5-flash-8b` (via Google)
 - `gemini-1.5-pro` (via Google)
-- `codestral` (via Mistral)
+- `magistral-medium` (via Mistral)
+- `magistral-small` (via Mistral)
 - `mistral-large` (via Mistral)
+- `mistral-medium` (via Mistral)
 - `mistral-small` (via Mistral)
+- `codestral` (via Mistral)
+- `devstral-small` (via Mistral)
 - `ministral-3b` (via Mistral)
 - `ministral-8b` (via Mistral)
 - `qwen-qwq-32b` (via Groq)
@@ -552,6 +557,7 @@ The following models natively support JSON mode via the given provider:
 - `llama-3-70b` (via Groq)
 - `llama-3-8b` (via Groq)
 - `qwen-3-32b` (via Cerebras)
+- `qwen-3-32b` (via Groq)
 - `deepseek-r1-distill-llama-70b` (via Groq)
 - `allam-2-7b` (via Groq)
 
