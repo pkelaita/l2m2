@@ -1168,6 +1168,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
+        "groq": {
+            "model_id": "qwen/qwen3-32b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 40960,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
     },
     "deepseek-r1-distill-llama-70b": {
         "groq": {
