@@ -72,13 +72,12 @@ For the full usage guide, including memory, asynchronous usage, local models, JS
 
 - Streaming responses
 - Support for AWS Bedrock, Azure OpenAI, and Google Vertex APIs.
-- Support Other self-hosted providers (vLLM and GPT4all)
-- More customization with response formats
-- Basic agent & multi-agent system features (a lightweight version of something like [LangGraph](https://www.langchain.com/langgraph) but with stuff I want)
-- Support for batch APIs where available (OpenAI, Anthropic, etc.)
+- Support for structured outputs where available (OpenAI, Google, Cohere, Groq, Mistral, Cerebras)
+- Response format customization: i.e., token use, cost, etc.
+- Support other self-hosted providers (vLLM and GPT4all) outside of Ollama
+- Support for batch APIs where available (OpenAI, Anthropic, Google, Groq, Mistral)
 - Support for embeddings as well as inference
-- Support for structured outputs where available (Just OpenAI as far as I know)
-- Port this project over to other languages (TypeScript and Go, maybe Rust)
+- Port this project over to TypeScript
 - ...etc.
 
 ## Contributing
@@ -87,7 +86,7 @@ Contributions are welcome! Please see the below contribution guide.
 
 - **Requirements**
   - Python >= 3.13
-  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.6.2
+  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.7.11
   - [GNU Make](https://www.gnu.org/software/make/)
 - **Setup**
   - Clone this repository and create a Python virtual environment.
@@ -97,10 +96,10 @@ Contributions are welcome! Please see the below contribution guide.
   - Run lint, typecheck and tests: `make` (`make lint`, `make type`, and `make test` can also be run individually).
   - Generate test coverage: `make coverage`.
   - If you've updated the supported models, run `make update-docs` to reflect those changes in the README.
-  - Make sure to run `make tox` regularly to backtest your changes back to 3.9.
+  - Make sure to run `make tox` regularly to backtest your changes back to 3.9 (you'll need to have all versions of Python between 3.9 and 3.13 installed to do this locally. If you don't, this project's CI will still be able to backtest on all of these versions once you push your changes).
 - **Integration Test**
   - Create a `.env` file at the project root with your API keys for all of the supported providers (`OPENAI_API_KEY`, etc.).
-  - Integration test your local changes by running `make itl`.
+  - Integration test your local changes by running `make itl` ("integration test local").
   - Once your changes are ready to build, run `make build` (make sure you uninstall any existing distributions).
   - Run the integration tests against the distribution with `make itest`.
 - **Contribute**
