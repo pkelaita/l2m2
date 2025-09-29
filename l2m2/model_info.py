@@ -381,8 +381,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "gpt-4o": {
         "openai": {
-            # This tag is temporary: see https://help.openai.com/en/articles/6825453-chatgpt-release-notes
-            "model_id": "chatgpt-4o-latest",
+            "model_id": "gpt-4o-2024-11-20",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
