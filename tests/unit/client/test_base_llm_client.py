@@ -322,7 +322,11 @@ async def test_call_openai_bad_response(
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_google(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
+    mock_return_value = {
+        "candidates": [
+            {"content": {"parts": [{"text": "response"}]}, "finishReason": "STOP"}
+        ]
+    }
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "google", "gemini-2.0-flash")
 

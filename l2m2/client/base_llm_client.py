@@ -562,8 +562,7 @@ class BaseLLMClient:
         )
         result = result["candidates"][0]
 
-        # Will sometimes fail due to safety filters
-        if "content" in result:
+        if "content" in result and result.get("finishReason") == "STOP":
             return str(result["content"]["parts"][0]["text"])
         else:
             return str(result)
