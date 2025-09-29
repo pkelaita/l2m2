@@ -435,7 +435,7 @@ async def test_call_google_gemini_fails(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}
     mock_llm_post.return_value = mock_return_value
-    response = await llm_client.call(prompt="Hello", model="gemini-1.5-pro")
+    response = await llm_client.call(prompt="Hello", model="gemini-2.5-pro")
     assert response == "{'error': '123'}"
 
 
