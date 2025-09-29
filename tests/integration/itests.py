@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "gemini-2.5-pro"
+test_model = "gemini-2.0-flash-lite"
 test_provider = None
 
 LOCAL = False
@@ -73,7 +73,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=100,
+            max_tokens=1000,
             timeout=60,
         )
     )
