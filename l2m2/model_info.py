@@ -793,7 +793,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "magistral-medium": {
         "mistral": {
-            "model_id": "magistral-medium-2506",
+            "model_id": "magistral-medium-2509",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -804,12 +804,14 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**63 - 1,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            # JSON mode is technically supported on magistral models, but is incredibly
+            # buggy so I'm choosing to not support it here...
+            "extras": {},
         },
     },
     "magistral-small": {
         "mistral": {
-            "model_id": "magistral-small-2506",
+            "model_id": "magistral-small-2509",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -820,7 +822,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                     "max": 2**63 - 1,
                 },
             },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+            "extras": {},
         },
     },
     "mistral-large": {
@@ -841,7 +843,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-medium": {
         "mistral": {
-            "model_id": "mistral-medium-2505",
+            "model_id": "mistral-medium-2508",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -857,7 +859,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "mistral-small": {
         "mistral": {
-            "model_id": "mistral-small-2503",
+            "model_id": "mistral-small-2506",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -873,7 +875,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "codestral": {
         "mistral": {
-            "model_id": "codestral-2501",
+            "model_id": "codestral-2508",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "devstral-medium": {
+        "mistral": {
+            "model_id": "devstral-medium-2507",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -889,23 +907,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     },
     "devstral-small": {
         "mistral": {
-            "model_id": "devstral-small-2505",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 1.5,
-                },
-                "max_tokens": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**63 - 1,
-                },
-            },
-            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
-        },
-    },
-    "ministral-3b": {
-        "mistral": {
-            "model_id": "ministral-3b-2410",
+            "model_id": "devstral-small-2507",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -922,6 +924,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
     "ministral-8b": {
         "mistral": {
             "model_id": "ministral-8b-2410",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "ministral-3b": {
+        "mistral": {
+            "model_id": "ministral-3b-2410",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,

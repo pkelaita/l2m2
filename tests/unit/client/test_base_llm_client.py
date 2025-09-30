@@ -361,6 +361,20 @@ async def test_call_mistral(mock_get_extra_message, mock_llm_post, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_mistral_reasoning(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {
+        "choices": [{"message": {"content": [{"type": "text", "text": "response"}]}}]
+    }
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "mistral", "magistral-medium")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_groq(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
@@ -460,6 +474,19 @@ async def test_call_cohere_bad_response(
     mock_llm_post.return_value = mock_return_value
     with pytest.raises(LLMOperationError):
         await _generic_test_call(llm_client, "cohere", "command-a-reasoning")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_mistral_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": []}}]}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "mistral", "magistral-medium")
 
 
 @pytest.mark.asyncio

@@ -759,7 +759,18 @@ class BaseLLMClient:
             extra_headers=extra_headers,
         )
 
-        if provider == "cohere":
+        ### Handle reasoning outputs where needed
+
+        # OpenAI
+        if provider == "openai":
+            outputs = result["output"]
+            for output in outputs:
+                if output["type"] == "message":
+                    return str(output["content"][0]["text"])
+            raise LLMOperationError(f"Unexpected response format from OpenAI: {result}")
+
+        # Cohere
+        elif provider == "cohere":
             content = result["message"]["content"]
             if "command-a-reasoning" in model_id:
                 for output in content:
@@ -772,12 +783,17 @@ class BaseLLMClient:
             else:
                 return str(result["message"]["content"][0]["text"])
 
-        elif provider == "openai":
-            outputs = result["output"]
-            for output in outputs:
-                if output["type"] == "message":
-                    return str(output["content"][0]["text"])
-            raise LLMOperationError(f"Unexpected response format from OpenAI: {result}")
+        # Mistral
+        elif provider == "mistral":
+            if "magistral" in model_id:
+                for output in result["choices"][0]["message"]["content"]:
+                    if output.get("type") == "text":
+                        return str(output["text"])
+                raise LLMOperationError(
+                    f"Unexpected response format from Mistral: {result}"
+                )
+            else:
+                return str(result["choices"][0]["message"]["content"])
 
         else:
             return str(result["choices"][0]["message"]["content"])

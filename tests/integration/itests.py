@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "command-a"
+test_model = "devstral-medium"
 test_provider = None
 
 LOCAL = False
