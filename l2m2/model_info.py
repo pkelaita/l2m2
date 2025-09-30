@@ -1278,6 +1278,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {
+                "preview": True,
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
