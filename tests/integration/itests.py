@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "o1"
+test_model = "gpt-5"
 test_provider = None
 
 LOCAL = False
