@@ -83,7 +83,7 @@ from l2m2.client import LLMClient
 client = LLMClient()
 
 response = client.call(
-    model="gpt-4.1",
+    model="gpt-5",
     prompt="How's the weather today?",
     system_prompt="Respond as if you were a pirate.",
 )
@@ -137,7 +137,7 @@ from l2m2.memory import ChatMemory
 
 client = LLMClient(memory=ChatMemory())
 
-print(client.call(model="gpt-4.1", prompt="My name is Pierce"))
+print(client.call(model="gpt-5", prompt="My name is Pierce"))
 print(client.call(model="claude-3-haiku", prompt="I am a software engineer."))
 print(client.call(model="llama-3-8b", prompt="What's my name?"))
 print(client.call(model="llama-3.3-70b", prompt="What's my job?"))
@@ -162,9 +162,9 @@ memory.add_user_message("My least favorite color is green.")
 memory.add_agent_message("Ok, noted.")
 
 client = LLMClient(memory=memory)
-print(client.call(model="gpt-4.1", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-5", prompt="What are my favorite and least favorite colors?"))
 memory.clear()
-print(client.call(model="gpt-4.1", prompt="What are my favorite and least favorite colors?"))
+print(client.call(model="gpt-5", prompt="What are my favorite and least favorite colors?"))
 ```
 
 ```
@@ -190,8 +190,8 @@ m2.add_agent_message("Got it.")
 
 client = LLMClient(memory=m1)
 prompt = "What are my favorite and least favorite colors?"
-print(client.call(model="gpt-4.1", prompt=prompt)
-print(client.call(model="gpt-4.1", prompt=prompt, alt_memory=m2))
+print(client.call(model="gpt-5", prompt=prompt)
+print(client.call(model="gpt-5", prompt=prompt, alt_memory=m2))
 ```
 
 ```
@@ -203,14 +203,14 @@ Finally, memory can be bypassed for a single call by passing `bypass_memory=True
 
 ```python
 client = LLMClient(memory=ChatMemory())
-client.call(model="gpt-4.1", prompt="My name is Pierce")
-client.call(model="gpt-4.1", prompt="I am 25 years old")
+client.call(model="gpt-5", prompt="My name is Pierce")
+client.call(model="gpt-5", prompt="I am 25 years old")
 
-print(client.call(model="gpt-4.1", prompt="What is my name?"))
-print(client.call(model="gpt-4.1", prompt="What is my name?", bypass_memory=True))
+print(client.call(model="gpt-5", prompt="What is my name?"))
+print(client.call(model="gpt-5", prompt="What is my name?", bypass_memory=True))
 
-client.call(model="gpt-4.1", prompt="I am a software engineer", bypass_memory=True)
-print(client.call(model="gpt-4.1", prompt="What is my profession?"))
+client.call(model="gpt-5", prompt="I am a software engineer", bypass_memory=True)
+print(client.call(model="gpt-5", prompt="What is my profession?"))
 ```
 
 ```
@@ -249,7 +249,7 @@ def update_memory(user_input, model_output):
     memory.set_contents(contents)
 
 for message in messages:
-    response = client.call(model="gpt-4.1", prompt=message)
+    response = client.call(model="gpt-5", prompt=message)
     print(response)
     update_memory(message, response)
 ```
@@ -296,23 +296,22 @@ Under the hood, each `AsyncLLMClient` manages its own async http client, so call
 ```python
 # example_async.py
 
-import os
 import asyncio
 import timeit
 from l2m2.client import AsyncLLMClient
 
 async def call_concurrent():
     async with AsyncLLMClient() as client:
-        # Assumes no conflicts between active providers
+        # Assumes API keys are set, and no conflicts between active providers
         calls = [
-            ("gpt-4.1", "foo"),
-            ("claude-3.5-sonnet", "bar"),
-            ("gemini-1.5-pro", "baz"),
-            ("command-r-plus", "qux"),
-            ("llama-3-70b", "quux"),
+            ("gpt-5", "foo"),
+            ("claude-sonnet-4.5", "bar"),
+            ("gemini-2.5-flash", "baz"),
+            ("command-a", "qux"),
+            ("llama-4-scout", "quux"),
             ("llama-3.3-70b", "corge"),
         ]
-        system_prompt = "The secret word is {}"
+        system_prompt = "The secret word is {}."
 
         async def call_and_print(model, secret_word):
             start_time = timeit.default_timer()
@@ -320,7 +319,6 @@ async def call_concurrent():
                 model=model,
                 prompt="What is the secret word? Respond briefly.",
                 system_prompt=system_prompt.format(secret_word),
-                temperature=0.2,
             )
             time = timeit.default_timer() - start_time
             print(f"{model}: {response} ({time:.2f}s)")
@@ -335,12 +333,12 @@ asyncio.run(call_concurrent())
 ```
 >> python3 example_async.py
 
-llama-3-70b: The secret word is quux. (0.21s)
-llama-3.3-70b: The secret word is corge. (0.26s)
-gpt-4.1: foo (0.62s)
-command-r-plus: The secret word is qux. (0.66s)
-claude-3.5-sonnet: The secret word is bar. (0.70s)
-gemini-1.5-pro: baz (0.73s)
+llama-3.3-70b: Corge (0.32s)
+llama-4-scout: quux (0.35s)
+command-a: The secret word is **qux**. (0.38s)
+gemini-2.5-flash: baz (0.83s)
+claude-sonnet-4.5: Bar. (2.37s)
+gpt-5: foo (2.37s)
 ```
 
 As a general rule, I typically find it's best to use the synchronous `LLMClient` for research and demos, and `AsyncLLMClient` for apps.
@@ -481,7 +479,7 @@ L2M2 provides an optional `json_mode` flag that enforces JSON formatting on LLM 
 # example_json_mode.py
 
 response = client.call(
-    model="gpt-4.1",
+    model="gpt-5",
     prompt="What are the capitals of each state of Australia?",
     system_prompt="Respond with the JSON format {'region': 'capital'}",
     json_mode=True,

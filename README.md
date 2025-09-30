@@ -62,7 +62,7 @@ from l2m2.client import LLMClient
 
 client = LLMClient()
 
-response = client.call(model="gpt-4.1", prompt="Hello world")
+response = client.call(model="gpt-5", prompt="Hello world")
 print(response)
 ```
 
