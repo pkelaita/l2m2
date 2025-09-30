@@ -4,6 +4,48 @@ _Current version: 0.0.56_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
+### 0.0.57 - September 29, 2025
+
+> [!CAUTION]
+> This release has breaking changes! Please read the changelog carefully.
+
+Sorry it took me so long to get to this! Work has been pretty busy and I've mostly been using typescript
+so haven't had an excuse to work on this in a while. It's been 3 months... so LOTS of updates here.
+
+#### Added
+
+- Support for [GPT-5, GPT-5-mini, and GPT-5-nano](https://openai.com/index/introducing-gpt-5/) via OpenAI.
+- Support for [Claude Opus 4.1](https://www.anthropic.com/news/claude-opus-4-1) and [Claude Sonnet 4.5](https://www.anthropic.com/news/claude-sonnet-4-5) via Anthropic.
+- Support for [Commmand-A Reasoning](https://cohere.com/blog/command-a-reasoning) and [Commmand-A Translate](https://cohere.com/blog/command-a-translate) via Cohere.
+- Support for [Devstral Medium](https://mistral.ai/news/devstral-2507) via Mistral.
+- Support for [GPT-OSS](https://openai.com/index/introducing-gpt-oss/), with the 120b version available via Groq and Cerebras and the 20b version available via Groq.
+- Support for [Kimi K2](https://github.com/MoonshotAI/Kimi-K2) via Groq.
+- Support for the following additional models via Cerebras:
+  - [Llama 4 Maverick](https://ai.meta.com/blog/llama-4-multimodal-intelligence/) (also supported via Groq)
+  - [Qwen 3 Coder](https://github.com/QwenLM/Qwen3-Coder) in versions 480b, 235b, and 235b-thinking.
+- Updated the following model tags on Mistral to their latest versions:
+  - Magistral Small: `magistral-small-2506` → `magistral-small-2509`
+  - Mistral Medium: `mistral-medium-2505` → `mistral-medium-2508`
+  - Mistral Small: `mistral-small-2503` → `mistral-small-2506`
+  - Codestral: `codestral-2501` → `codestral-2508`
+
+#### Removed
+
+- Support for the following Gemini models which have been deprecated:
+  - Gemini 2.0 Pro
+  - Gemini 1.5 Pro
+  - Gemini 1.5 Flash
+  - Gemini 1.5 Flash 8B
+
+#### Fixed
+
+- Switched from preview tags to production tags for all Gemini models, as recommended by Google AI Studio's [documentation](https://ai.google.dev/gemini-api/docs/models#preview).
+- Fixed a bug where gemini models would throw an error when parsing some non-standard responses (such as those when exceeding the max token limit).
+
+#### Fixed
+
+- Added correct max token limits for `ministral-3b` and `ministral-8b` (both 2<sup>16</sup> - 1).
+
 ### 0.0.56 - June 19, 2025
 
 #### Added

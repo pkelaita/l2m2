@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "claude-sonnet-4"
+test_model = "o1"
 test_provider = None
 
 LOCAL = False
@@ -73,7 +73,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=1000,
+            max_tokens=4000,
             timeout=60,
         )
     )
@@ -156,9 +156,9 @@ async def test_concurrent():
     async with AsyncLLMClient() as client:
         client.set_preferred_providers({"llama-3-70b": "groq", "llama-3.3-70b": "groq"})
         calls = [
-            ("gpt-4o", "foo"),
+            ("gpt-5", "foo"),
             ("claude-3.5-sonnet", "bar"),
-            ("gemini-1.5-pro", "baz"),
+            ("gemini-2.5-pro", "baz"),
             ("command-r-plus", "qux"),
             ("llama-3-70b", "quux"),
             ("llama-3.3-70b", "corge"),

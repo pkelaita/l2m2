@@ -7,7 +7,7 @@ from l2m2.memory import (
     ExternalMemory,
     ExternalMemoryLoadingType,
 )
-from l2m2.client.base_llm_client import BaseLLMClient, _is_o_series_model
+from l2m2.client.base_llm_client import BaseLLMClient
 from l2m2.tools import JsonModeStrategy
 from l2m2.exceptions import LLMOperationError, L2M2UsageError
 
@@ -297,24 +297,11 @@ async def _generic_test_call(
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"output": [{"content": [{"text": "response"}]}]}
-    mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "openai", "gpt-4o")
-
-
-# Need to test this separately because of the different system prompt handling
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-@patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_openai_o1_or_newer(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
-    mock_get_extra_message.return_value = "extra message"
     mock_return_value = {
         "output": [{"type": "message", "content": [{"text": "response"}]}]
     }
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(llm_client, "openai", "o1")
+    await _generic_test_call(llm_client, "openai", "gpt-5")
 
 
 @pytest.mark.asyncio
@@ -322,7 +309,11 @@ async def test_call_openai_o1_or_newer(
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_google(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}}]}
+    mock_return_value = {
+        "candidates": [
+            {"content": {"parts": [{"text": "response"}]}, "finishReason": "STOP"}
+        ]
+    }
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "google", "gemini-2.0-flash")
 
@@ -350,11 +341,35 @@ async def test_call_cohere(mock_get_extra_message, mock_llm_post, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cohere_reasoning(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"message": {"content": [{"type": "text", "text": "response"}]}}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "cohere", "command-a-reasoning")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_mistral(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": "response"}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "mistral", "mistral-large")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_mistral_reasoning(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {
+        "choices": [{"message": {"content": [{"type": "text", "text": "response"}]}}]
+    }
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "mistral", "magistral-medium")
 
 
 @pytest.mark.asyncio
@@ -427,18 +442,57 @@ async def test_call_anthropic_thinking(
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_google_gemini_fails(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_openai_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"output": []}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "openai", "gpt-5")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_call_google_bad_response(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}
     mock_llm_post.return_value = mock_return_value
-    response = await llm_client.call(prompt="Hello", model="gemini-1.5-pro")
+    response = await llm_client.call(prompt="Hello", model="gemini-2.5-pro")
     assert response == "{'error': '123'}"
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cohere_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"message": {"content": []}}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "cohere", "command-a-reasoning")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_mistral_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": []}}]}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "mistral", "magistral-medium")
 
 
 @pytest.mark.asyncio
 async def test_call_valid_model_not_active(llm_client):
     with pytest.raises(L2M2UsageError):
-        await llm_client.call(prompt="Hello", model="gpt-4o")
+        await llm_client.call(prompt="Hello", model="gpt-5")
 
 
 @pytest.mark.asyncio
@@ -451,14 +505,14 @@ async def test_call_invalid_model(llm_client):
 async def test_call_tokens_too_large(llm_client):
     llm_client.add_provider("openai", "fake-api-key")
     with pytest.raises(L2M2UsageError):
-        await llm_client.call(prompt="Hello", model="gpt-4o", max_tokens=float("inf"))
+        await llm_client.call(prompt="Hello", model="gpt-5", max_tokens=float("inf"))
 
 
 @pytest.mark.asyncio
 async def test_call_temperature_too_high(llm_client):
     llm_client.add_provider("openai", "fake-api-key")
     with pytest.raises(L2M2UsageError):
-        await llm_client.call(prompt="Hello", model="gpt-4o", temperature=3.0)
+        await llm_client.call(prompt="Hello", model="gpt-5", temperature=3.0)
 
 
 # -- Tests for multi provider -- #
@@ -539,7 +593,9 @@ async def test_multi_provider_pref_inactive(llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
-    mock_call_openai.return_value = {"output": [{"content": [{"text": "response"}]}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
 
     llm_client_mem_chat.add_provider("openai", "fake-api-key")
 
@@ -549,7 +605,7 @@ async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
     memory.add_user_message("A")
     memory.add_agent_message("B")
 
-    response = await llm_client_mem_chat.call(prompt="C", model="gpt-4o")
+    response = await llm_client_mem_chat.call(prompt="C", model="gpt-5")
     assert response == "response"
     assert memory.unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
@@ -584,7 +640,9 @@ async def test_chat_memory_unsupported_provider(llm_client_mem_chat):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ext_sys):
-    mock_call_openai.return_value = {"output": [{"content": [{"text": "response"}]}]}
+    mock_call_openai.return_value = {
+        "output": [{"type": "message", "content": [{"text": "response"}]}]
+    }
     llm_client_mem_ext_sys.add_provider("openai", "fake-api-key")
 
     memory = llm_client_mem_ext_sys.get_memory()
@@ -592,17 +650,17 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
 
     memory.set_contents("stuff")
 
-    await llm_client_mem_ext_sys.call(prompt="Hello", model="gpt-4o")
+    await llm_client_mem_ext_sys.call(prompt="Hello", model="gpt-5")
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
-        {"role": "system", "content": "stuff"},
+        {"role": "developer", "content": "stuff"},
         {"role": "user", "content": "Hello"},
     ]
 
     await llm_client_mem_ext_sys.call(
-        system_prompt="system-123", prompt="Hello", model="gpt-4o"
+        system_prompt="system-123", prompt="Hello", model="gpt-5"
     )
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
-        {"role": "system", "content": "system-123\nstuff"},
+        {"role": "developer", "content": "system-123\nstuff"},
         {"role": "user", "content": "Hello"},
     ]
 
@@ -620,16 +678,16 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
 
     memory.set_contents("stuff")
 
-    await llm_client_mem_ext_usr.call(prompt="Hello", model="gpt-4o")
+    await llm_client_mem_ext_usr.call(prompt="Hello", model="gpt-5")
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
     await llm_client_mem_ext_usr.call(
-        system_prompt="system-123", prompt="Hello", model="gpt-4o"
+        system_prompt="system-123", prompt="Hello", model="gpt-5"
     )
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
-        {"role": "system", "content": "system-123"},
+        {"role": "developer", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
@@ -644,7 +702,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
     llm_client_mem_chat.get_memory().add_user_message("A")
     llm_client_mem_chat.get_memory().add_agent_message("B")
 
-    await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o", bypass_memory=True)
+    await llm_client_mem_chat.call(prompt="Hello", model="gpt-5", bypass_memory=True)
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "Hello"},
     ]
@@ -655,7 +713,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
         {"role": "assistant", "content": "B"},
     ]
 
-    await llm_client_mem_chat.call(prompt="Hello", model="gpt-4o")
+    await llm_client_mem_chat.call(prompt="Hello", model="gpt-5")
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
@@ -683,12 +741,12 @@ async def test_alt_memory(mock_call_openai, llm_client):
     m2 = ChatMemory()
     llm_client.load_memory(ChatMemory())
 
-    await llm_client.call(prompt="A", model="gpt-4o", alt_memory=m1)
-    await llm_client.call(prompt="X", model="gpt-4o", alt_memory=m2)
-    await llm_client.call(prompt="B", model="gpt-4o", alt_memory=m1)
-    await llm_client.call(prompt="Y", model="gpt-4o", alt_memory=m2)
-    await llm_client.call(prompt="C", model="gpt-4o", alt_memory=m1)
-    await llm_client.call(prompt="Z", model="gpt-4o", alt_memory=m2)
+    await llm_client.call(prompt="A", model="gpt-5", alt_memory=m1)
+    await llm_client.call(prompt="X", model="gpt-5", alt_memory=m2)
+    await llm_client.call(prompt="B", model="gpt-5", alt_memory=m1)
+    await llm_client.call(prompt="Y", model="gpt-5", alt_memory=m2)
+    await llm_client.call(prompt="C", model="gpt-5", alt_memory=m1)
+    await llm_client.call(prompt="Z", model="gpt-5", alt_memory=m2)
 
     assert m1.unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
@@ -850,20 +908,3 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
         mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
         == "custom-prefix-123{"
     )
-
-
-# --- Misc tests for helpers --- #
-
-
-def test_is_o_series_model():
-    assert _is_o_series_model("o4-mini")
-    assert _is_o_series_model("o4")
-    assert _is_o_series_model("o3-mini")
-    assert _is_o_series_model("o3")
-    assert not _is_o_series_model("gpt-4o")
-    assert not _is_o_series_model("claude-3-opus")
-    assert not _is_o_series_model("asdf")
-    assert not _is_o_series_model("test-o1")
-    assert not _is_o_series_model("oasdf")
-    assert not _is_o_series_model("")
-    assert not _is_o_series_model(None)

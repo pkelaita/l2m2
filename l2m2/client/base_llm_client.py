@@ -562,8 +562,7 @@ class BaseLLMClient:
         )
         result = result["candidates"][0]
 
-        # Will sometimes fail due to safety filters
-        if "content" in result:
+        if "content" in result and result.get("finishReason") == "STOP":
             return str(result["content"]["parts"][0]["text"])
         else:
             return str(result)
@@ -724,9 +723,9 @@ class BaseLLMClient:
         """Generic call method for providers who follow the OpenAI API spec."""
         supports_native_json_mode = "json_mode_arg" in extras
 
-        # For o1 and newer, use "developer" messages instead of "system"
+        # For openai reasoning models, use "developer" messages instead of "system"
         system_key = "system"
-        if provider == "openai" and _is_o_series_model(model_id):
+        if provider == "openai":
             system_key = "developer"
 
         messages = []
@@ -760,21 +759,44 @@ class BaseLLMClient:
             extra_headers=extra_headers,
         )
 
-        # Cohere API v2 uses OpenAI spec, but not the same response format for some reason...
-        if provider == "cohere":
-            return str(result["message"]["content"][0]["text"])
+        ### Handle reasoning outputs where needed
 
-        # For compatibility with OpenAI's responses API
+        # OpenAI
         if provider == "openai":
-            if _is_o_series_model(model_id):
-                outputs = result["output"]
-                for output in outputs:
-                    if output["type"] == "message":
-                        return str(output["content"][0]["text"])
-            else:
-                return str(result["output"][0]["content"][0]["text"])
+            outputs = result["output"]
+            for output in outputs:
+                if output["type"] == "message":
+                    return str(output["content"][0]["text"])
+            raise LLMOperationError(f"Unexpected response format from OpenAI: {result}")
 
-        return str(result["choices"][0]["message"]["content"])
+        # Cohere
+        elif provider == "cohere":
+            content = result["message"]["content"]
+            if "command-a-reasoning" in model_id:
+                for output in content:
+                    if output["type"] == "text":
+                        return str(output["text"])
+                raise LLMOperationError(
+                    f"Unexpected response format from Cohere: {result}"
+                )
+
+            else:
+                return str(result["message"]["content"][0]["text"])
+
+        # Mistral
+        elif provider == "mistral":
+            if "magistral" in model_id:
+                for output in result["choices"][0]["message"]["content"]:
+                    if output.get("type") == "text":
+                        return str(output["text"])
+                raise LLMOperationError(
+                    f"Unexpected response format from Mistral: {result}"
+                )
+            else:
+                return str(result["choices"][0]["message"]["content"])
+
+        else:
+            return str(result["choices"][0]["message"]["content"])
 
     # State-dependent helper methods
 
@@ -793,15 +815,6 @@ class BaseLLMClient:
 
 
 # Non-state-dependent helper methods
-
-
-def _is_o_series_model(model_id: str) -> bool:
-    return (
-        bool(model_id)
-        and len(model_id) > 1
-        and model_id[0] == "o"
-        and model_id[1].isdigit()
-    )
 
 
 def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:
