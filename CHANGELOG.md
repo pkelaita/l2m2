@@ -42,10 +42,6 @@ so haven't had an excuse to work on this in a while. It's been 3 months... so LO
 - Switched from preview tags to production tags for all Gemini models, as recommended by Google AI Studio's [documentation](https://ai.google.dev/gemini-api/docs/models#preview).
 - Fixed a bug where gemini models would throw an error when parsing some non-standard responses (such as those when exceeding the max token limit).
 
-#### Fixed
-
-- Added correct max token limits for `ministral-3b` and `ministral-8b` (both 2<sup>16</sup> - 1).
-
 ### 0.0.56 - June 19, 2025
 
 #### Added
