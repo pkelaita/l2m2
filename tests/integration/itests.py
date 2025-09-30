@@ -27,8 +27,8 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "kimi-k2"
-test_provider = "groq"
+test_model = "qwen-3-480b"
+test_provider = "cerebras"
 
 LOCAL = False
 DELAY = False

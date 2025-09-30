@@ -1041,6 +1041,23 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
+        "cerebras": {
+            "model_id": "llama-4-maverick-17b-128e-instruct",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
     },
     "llama-4-scout": {
         "groq": {
@@ -1245,6 +1262,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },
+        "cerebras": {
+            "model_id": "gpt-oss-120b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
     },
     "gpt-oss-20b": {
         "groq": {
@@ -1275,6 +1308,63 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": 2**14,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "qwen-3-480b": {
+        "cerebras": {
+            "model_id": "qwen-3-coder-480b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "qwen-3-235b": {
+        "cerebras": {
+            "model_id": "qwen-3-235b-a22b-instruct-2507",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "qwen-3-235b-thinking": {
+        "cerebras": {
+            "model_id": "qwen-3-235b-a22b-thinking-2507",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
                 },
             },
             "extras": {
