@@ -27,8 +27,8 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "qwen-3-480b"
-test_provider = "cerebras"
+test_model = "o1"
+test_provider = None
 
 LOCAL = False
 DELAY = False
