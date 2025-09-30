@@ -1,6 +1,6 @@
 # Changelog
 
-_Current version: 0.0.56_
+_Current version: 0.0.57_
 
 [PyPi link](https://pypi.org/project/l2m2/)
 
