@@ -27,8 +27,8 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "devstral-medium"
-test_provider = None
+test_model = "kimi-k2"
+test_provider = "groq"
 
 LOCAL = False
 DELAY = False

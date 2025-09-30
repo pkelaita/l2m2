@@ -1138,7 +1138,7 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 8000,
+                    "max": 2**17,
                 },
             },
             "extras": {
@@ -1226,6 +1226,60 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
             },
             "extras": {},
+        },
+    },
+    "gpt-oss-120b": {
+        "groq": {
+            "model_id": "openai/gpt-oss-120b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**17,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "gpt-oss-20b": {
+        "groq": {
+            "model_id": "openai/gpt-oss-20b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**17,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "kimi-k2": {
+        "groq": {
+            "model_id": "moonshotai/kimi-k2-instruct-0905",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**14,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
         },
     },
     "qwen-3-32b": {
