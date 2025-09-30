@@ -535,6 +535,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
+    "claude-opus-4.1": {
+        "anthropic": {
+            "model_id": "claude-opus-4-1-20250805",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 4096,  # L2M2 default, field is required,
+                    "max": 32000,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-opus-4": {
         "anthropic": {
             "model_id": "claude-opus-4-20250514",
@@ -546,6 +562,22 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": 4096,  # L2M2 default, field is required,
                     "max": 32000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "claude-sonnet-4.5": {
+        "anthropic": {
+            "model_id": "claude-sonnet-4-20250514",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 4096,  # L2M2 default, field is required,
+                    "max": 64000,
                 },
             },
             "extras": {},

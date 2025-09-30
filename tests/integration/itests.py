@@ -27,7 +27,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "gemini-2.0-flash-lite"
+test_model = "claude-sonnet-4.5"
 test_provider = None
 
 LOCAL = False
