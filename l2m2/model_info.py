@@ -705,7 +705,39 @@ MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
                 },
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**13,
+                    "max": 8000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "command-a-reasoning": {
+        "cohere": {
+            "model_id": "command-a-reasoning-08-2025",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 32000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "command-a-translate": {
+        "cohere": {
+            "model_id": "command-a-translate-08-2025",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 8000,
                 },
             },
             "extras": {},

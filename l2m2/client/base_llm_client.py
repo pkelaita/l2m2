@@ -760,7 +760,17 @@ class BaseLLMClient:
         )
 
         if provider == "cohere":
-            return str(result["message"]["content"][0]["text"])
+            content = result["message"]["content"]
+            if "command-a-reasoning" in model_id:
+                for output in content:
+                    if output["type"] == "text":
+                        return str(output["text"])
+                raise LLMOperationError(
+                    f"Unexpected response format from Cohere: {result}"
+                )
+
+            else:
+                return str(result["message"]["content"][0]["text"])
 
         elif provider == "openai":
             outputs = result["output"]
