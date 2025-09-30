@@ -307,19 +307,6 @@ async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_openai_bad_response(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
-    mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {"output": []}
-    mock_llm_post.return_value = mock_return_value
-    with pytest.raises(LLMOperationError):
-        await _generic_test_call(llm_client, "openai", "gpt-5")
-
-
-@pytest.mark.asyncio
-@patch(LLM_POST_PATH)
-@patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_google(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {
@@ -349,6 +336,16 @@ async def test_call_cohere(mock_get_extra_message, mock_llm_post, llm_client):
     mock_return_value = {"message": {"content": [{"text": "response"}]}}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "cohere", "command-r")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cohere_reasoning(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"message": {"content": [{"type": "text", "text": "response"}]}}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "cohere", "command-a-reasoning")
 
 
 @pytest.mark.asyncio
@@ -431,12 +428,38 @@ async def test_call_anthropic_thinking(
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_call_google_gemini_fails(mock_llm_post, llm_client):
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_openai_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"output": []}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "openai", "gpt-5")
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+async def test_call_google_bad_response(mock_llm_post, llm_client):
     llm_client.add_provider("google", "fake-api-key")
     mock_return_value = {"candidates": [{"error": "123"}]}
     mock_llm_post.return_value = mock_return_value
     response = await llm_client.call(prompt="Hello", model="gemini-2.5-pro")
     assert response == "{'error': '123'}"
+
+
+@pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_cohere_bad_response(
+    mock_get_extra_message, mock_llm_post, llm_client
+):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"message": {"content": []}}
+    mock_llm_post.return_value = mock_return_value
+    with pytest.raises(LLMOperationError):
+        await _generic_test_call(llm_client, "cohere", "command-a-reasoning")
 
 
 @pytest.mark.asyncio
