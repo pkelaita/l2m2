@@ -1,17 +1,18 @@
 # ruff: noqa: T201
 
-import os
-from dotenv import load_dotenv
+from typing import Optional, List
+import sys
 import json
 import asyncio
 import timeit
 import time
 
+from dotenv import load_dotenv
+
 # Not passing this flag assumes l2m2 has been installed locally from dist/
 # If this is not the case, run `make build` in the root directory and
 # pip install the built package
-if any(arg in os.sys.argv for arg in ["--local", "-l"]):
-    import sys
+if any(arg in sys.argv for arg in ["--local", "-l"]):
     from pathlib import Path
 
     file = Path(__file__).resolve()
@@ -27,13 +28,13 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model = "gpt-5"
-test_provider = None
+test_model: str = "gpt-5"
+test_provider: Optional[str] = None
 
-LOCAL = False
-DELAY = False
+LOCAL: bool = False
+DELAY: bool = False
 
-TESTS = [
+TESTS: List[str] = [
     "basic",
     "memory",
     "json",
@@ -57,7 +58,7 @@ def _delay():
 
 def _setup(client: LLMClient):
     if LOCAL:
-        client.add_local_model(test_model, test_provider)
+        client.add_local_model(test_model, test_provider or "ollama")
     if test_provider:
         client.set_preferred_providers({test_model: test_provider})
 
