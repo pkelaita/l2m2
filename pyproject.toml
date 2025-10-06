@@ -23,6 +23,7 @@ dev = [
     "requests-mock>=1.12.1",
     "ruff>=0.9.7",
     "tox>=4.24.1",
+    "tox-uv>=1.28.0",
     "twine>=6.1.0",
     "ty>=0.0.1a1",
     "types-requests>=2.32.0.20241016",
