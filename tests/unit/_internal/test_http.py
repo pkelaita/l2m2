@@ -287,7 +287,7 @@ async def test_llm_post_with_api_key_in_endpoint():
             result = await llm_post(
                 client,
                 "test_provider",
-                None,
+                "test_model",
                 "test_key_123",
                 {"prompt": "test"},
                 timeout=10,
