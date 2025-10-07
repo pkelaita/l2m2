@@ -33,10 +33,14 @@ coverage:
 	open htmlcov/index.html
 
 lint:
-	-uv run ruff check .
+	-uv run ruff check l2m2
+	-uv run ruff check . --exclude l2m2 --target-version py314
 
+# TODO: change to --python-version when issue is fixed
+# Issue: https://github.com/astral-sh/ty/issues/1320
 type:
-	-uv run ty check l2m2
+	-uv run ty check l2m2/
+	-uv run ty check . --exclude l2m2 --config environment.python-version='"3.14"'
 
 type-mypy:
 	-uv run mypy .
