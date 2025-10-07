@@ -1,8 +1,14 @@
 # Changelog
 
-_Current version: 0.0.57_
+_Current version: 0.0.58_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.58 - October 7, 2025
+
+#### Added
+
+- Compatibility with [Python 3.14](https://www.python.org/downloads/release/python-3140/).
 
 ### 0.0.57 - September 29, 2025
 
