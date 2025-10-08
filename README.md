@@ -86,7 +86,7 @@ Contributions are welcome! Please see the below contribution guide.
 
 - **Requirements**
   - Python >= 3.14
-  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.8.24
+  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.9.0
   - [GNU Make](https://www.gnu.org/software/make/)
 - **Setup**
   - Clone this repository and create a Python virtual environment.
