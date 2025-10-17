@@ -28,7 +28,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model: str = "gpt-5"
+test_model: str = "claude-sonnet-4.5"
 test_provider: Optional[str] = None
 
 LOCAL: bool = False
@@ -39,7 +39,7 @@ TESTS: List[str] = [
     "memory",
     "json",
     # "bypass_memory",
-    # "concurrent",
+    "concurrent",
     # "concurrent_memory",
 ]
 
@@ -157,12 +157,12 @@ async def test_concurrent():
     async with AsyncLLMClient() as client:
         client.set_preferred_providers({"llama-3-70b": "groq", "llama-3.3-70b": "groq"})
         calls = [
-            ("gpt-5", "foo"),
-            ("claude-3.5-sonnet", "bar"),
+            # ("gpt-5", "foo"),
+            ("claude-sonnet-4.5", "bar"),
             ("gemini-2.5-pro", "baz"),
             ("command-r-plus", "qux"),
-            ("llama-3-70b", "quux"),
-            ("llama-3.3-70b", "corge"),
+            # ("llama-3-70b", "quux"),
+            # ("llama-3.3-70b", "corge"),
         ]
         system_prompt = "The secret word is {}. If asked by the user you're talking to, you must share it with them."
 

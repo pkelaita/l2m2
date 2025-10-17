@@ -1,5 +1,7 @@
-from typing import Optional, Dict, Any, Union
-import httpx
+from typing import Optional, Dict, Any, Union, Protocol
+
+import asyncio
+import aiohttp
 
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
 from l2m2.model_info import (
@@ -9,6 +11,13 @@ from l2m2.model_info import (
     HOSTED_PROVIDERS,
     LOCAL_PROVIDERS,
 )
+
+
+class AiohttpResponseLike(Protocol):
+    status: int
+
+    async def json(self) -> Any: ...
+    async def text(self) -> str: ...
 
 
 def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
@@ -25,11 +34,11 @@ def _get_timeout_message(timeout: Optional[int]) -> str:
 
 
 async def _handle_replicate_201(
-    client: httpx.AsyncClient,
-    response: httpx.Response,
+    client: aiohttp.ClientSession,
+    response: AiohttpResponseLike,
     api_key: str,
 ) -> Any:
-    resource = response.json()
+    resource = await response.json()
     if "status" in resource and "urls" in resource and "get" in resource["urls"]:
         while resource["status"] != "succeeded":
             if resource["status"] == "failed" or resource["status"] == "cancelled":
@@ -40,9 +49,9 @@ async def _handle_replicate_201(
                 headers=_get_headers("replicate", api_key),
             )
 
-            if next_response.status_code != 200:
-                raise Exception(next_response.text)
-            resource = next_response.json()
+            if next_response.status != 200:
+                raise Exception(await next_response.text())
+            resource = await next_response.json()
 
         return resource
     else:
@@ -50,7 +59,7 @@ async def _handle_replicate_201(
 
 
 async def llm_post(
-    client: httpx.AsyncClient,
+    client: aiohttp.ClientSession,
     provider: str,
     model_id: str,
     api_key: str,
@@ -73,31 +82,34 @@ async def llm_post(
         headers.update(extra_headers)
 
     try:
+        request_timeout = (
+            None if timeout is None else aiohttp.ClientTimeout(total=timeout)
+        )
         response = await client.post(
             endpoint,
             headers=headers,
             json=data,
-            timeout=timeout,
+            timeout=request_timeout,
         )
-    except httpx.ReadTimeout:
+    except asyncio.TimeoutError:
         raise LLMTimeoutError(_get_timeout_message(timeout))
 
-    if provider == "replicate" and response.status_code == 201:
+    if provider == "replicate" and response.status == 201:
         return await _handle_replicate_201(client, response, api_key)
 
-    if response.status_code == 429:
+    if response.status == 429:
         raise LLMRateLimitError(
             f"Reached rate limit for provider {provider} with model {model_id}."
         )
 
-    elif response.status_code != 200:
-        raise Exception(response.text)
+    elif response.status != 200:
+        raise Exception(await response.text())
 
-    return response.json()
+    return await response.json()
 
 
 async def local_llm_post(
-    client: httpx.AsyncClient,
+    client: aiohttp.ClientSession,
     provider: str,
     data: Dict[str, Any],
     timeout: Optional[int],
@@ -123,16 +135,19 @@ async def local_llm_post(
         headers.update(extra_headers)
 
     try:
+        request_timeout = (
+            None if timeout is None else aiohttp.ClientTimeout(total=timeout)
+        )
         response = await client.post(
             endpoint,
             headers=headers,
             json=data,
-            timeout=timeout,
+            timeout=request_timeout,
         )
-    except httpx.ReadTimeout:
+    except asyncio.TimeoutError:
         raise LLMTimeoutError(_get_timeout_message(timeout))
 
-    if response.status_code != 200:
-        raise Exception(response.text)
+    if response.status != 200:
+        raise Exception(await response.text())
 
-    return response.json()
+    return await response.json()
