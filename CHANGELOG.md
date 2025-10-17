@@ -1,8 +1,22 @@
 # Changelog
 
-_Current version: 0.0.58_
+_Current version: 0.0.59_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.59 - October 17, 2025
+
+#### Added
+
+- Support for [Claude Haiku 4.5](https://www.anthropic.com/news/claude-haiku-4-5) via Anthropic.
+
+#### Changed
+
+- Updated the async client to use aiohttp instead of httpx, which is slightly faster and has a smaller dependecy footprint.
+
+#### Fixed
+
+- In v0.0.57 and v0.0.58, `claude-sonnet-4.5` from l2m2 mistakenly pointed to Anthropic's model ID for sonnet 4. This has been fixed to point to the correct sonnet 4.5 model ID.
 
 ### 0.0.58 - October 7, 2025
 
