@@ -23,17 +23,17 @@ async def test_sync_fn_wrapper(llm_client):
     async def dummy_fn(*args, **kwargs):
         return "dummy_result"
 
-    original_client = llm_client.httpx_client
+    original_client = llm_client.http_client
 
-    with patch("httpx.AsyncClient", autospec=True) as MockAsyncClient:
-        mock_temp_client = MockAsyncClient.return_value
+    with patch("aiohttp.ClientSession", autospec=True) as MockClientSession:
+        mock_temp_client = MockClientSession.return_value
         mock_temp_client.__aenter__.return_value = mock_temp_client
 
         result = await llm_client._sync_fn_wrapper(dummy_fn)
 
-        MockAsyncClient.assert_called_once()
+        MockClientSession.assert_called_once()
         assert result == "dummy_result"
-        assert llm_client.httpx_client == original_client
+        assert llm_client.http_client == original_client
 
 
 @pytest.mark.asyncio

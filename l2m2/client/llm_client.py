@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional, Union
 import asyncio
-import httpx
+import aiohttp
 
 from l2m2.client.base_llm_client import BaseLLMClient, DEFAULT_TIMEOUT_SECONDS
 from l2m2.memory.base_memory import BaseMemory
@@ -55,13 +55,13 @@ class LLMClient(BaseLLMClient):
         super(LLMClient, self).__init__(api_keys=providers, memory=memory)
 
     async def _sync_fn_wrapper(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
-        async with httpx.AsyncClient() as temp_client:
-            original_client = self.httpx_client
-            self.httpx_client = temp_client
+        async with aiohttp.ClientSession() as temp_client:
+            original_client = self.http_client
+            self.http_client = temp_client
             try:
                 return await fn(*args, **kwargs)
             finally:
-                self.httpx_client = original_client
+                self.http_client = original_client
 
     def call(  # type: ignore
         self,

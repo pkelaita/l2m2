@@ -5,26 +5,57 @@ from l2m2._internal.http import (
     local_llm_post,
 )
 import pytest
-import httpx
+import asyncio
 from l2m2.exceptions import LLMTimeoutError, LLMRateLimitError
 from l2m2.model_info import API_KEY, HOSTED_PROVIDERS, LOCAL_PROVIDERS, SERVICE_BASE_URL
 
 
-class MockTransport(httpx.AsyncBaseTransport):
-    def __init__(self, responses):
-        self.responses = responses
-        self.request_count = 0
+class FakeResponse:
+    def __init__(self, status: int, json: dict | None = None, text: str | None = None):
+        self.status = status
+        self._json = json
+        self._text = text or ""
+        self.request = type("Req", (), {"headers": {}})()
 
-    async def handle_async_request(self, _):
-        if self.request_count >= len(self.responses):
+    async def json(self):
+        if self._json is None:
+            raise ValueError("No JSON set on FakeResponse")
+        return self._json
+
+    async def text(self):
+        return self._text
+
+
+class FakeSession:
+    def __init__(self, responses):
+        self._responses = responses
+        self._i = 0
+        self._last_request_headers = None
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+    async def post(
+        self, endpoint, headers=None, json=None, timeout=None
+    ):  # noqa: ARG002
+        if self._i >= len(self._responses):
             raise Exception("No more mock responses available")
-        response = self.responses[self.request_count]
-        self.request_count += 1
-        if isinstance(response, Exception):
-            raise response
-        if isinstance(response, httpx.TimeoutException):
-            raise response
-        return response
+        self._last_request_headers = headers or {}
+        resp = self._responses[self._i]
+        self._i += 1
+        # attach headers to response.request for assertions
+        resp.request.headers = self._last_request_headers
+        return resp
+
+    async def get(self, url, headers=None):  # noqa: ARG002
+        if self._i >= len(self._responses):
+            raise Exception("No more mock responses available")
+        resp = self._responses[self._i]
+        self._i += 1
+        return resp
 
 
 # -- Tests for headers -- #
@@ -62,17 +93,11 @@ def test_get_headers():
 @pytest.mark.asyncio
 async def test_handle_replicate_201_success():
     responses = [
-        httpx.Response(
-            200,
-            json={
-                "status": "succeeded",
-                "output": "test output",
-            },
-        ),
+        FakeResponse(200, json={"status": "succeeded", "output": "test output"}),
     ]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
-        response = httpx.Response(
+    async with FakeSession(responses) as client:
+        response = FakeResponse(
             201,
             json={
                 "status": "processing",
@@ -87,17 +112,11 @@ async def test_handle_replicate_201_success():
 @pytest.mark.asyncio
 async def test_handle_replicate_201_failure():
     responses = [
-        httpx.Response(
-            200,
-            json={
-                "status": "failed",
-                "error": "Something went wrong",
-            },
-        ),
+        FakeResponse(200, json={"status": "failed", "error": "Something went wrong"}),
     ]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
-        response = httpx.Response(
+    async with FakeSession(responses) as client:
+        response = FakeResponse(
             201,
             json={
                 "status": "processing",
@@ -110,8 +129,8 @@ async def test_handle_replicate_201_failure():
 
 @pytest.mark.asyncio
 async def test_handle_replicate_201_invalid_response():
-    response = httpx.Response(201, json={"invalid": "response"})
-    async with httpx.AsyncClient() as client:
+    response = FakeResponse(201, json={"invalid": "response"})
+    async with FakeSession([]) as client:
         with pytest.raises(Exception):
             await _handle_replicate_201(client, response, "test_key")
 
@@ -119,10 +138,10 @@ async def test_handle_replicate_201_invalid_response():
 @pytest.mark.asyncio
 async def test_handle_replicate_201_status_check_failure():
     """Test case where the status check request fails"""
-    responses = [httpx.Response(400, text="Bad status check request")]
+    responses = [FakeResponse(400, text="Bad status check request")]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
-        response = httpx.Response(
+    async with FakeSession(responses) as client:
+        response = FakeResponse(
             201,
             json={
                 "status": "processing",
@@ -139,11 +158,9 @@ async def test_handle_replicate_201_status_check_failure():
 
 @pytest.mark.asyncio
 async def test_llm_post_success():
-    responses = [
-        httpx.Response(200, json={"result": "success"}),
-    ]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         result = await llm_post(
             client,
             "openai",
@@ -160,9 +177,9 @@ async def test_llm_post_success():
 @pytest.mark.asyncio
 @pytest.mark.parametrize("extra_param_value", ["bar", 123, 0.0])
 async def test_llm_post_success_with_extra_params(extra_param_value):
-    responses = [httpx.Response(200, json={"result": "success"})]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         result = await llm_post(
             client,
             "openai",
@@ -178,9 +195,11 @@ async def test_llm_post_success_with_extra_params(extra_param_value):
 
 @pytest.mark.asyncio
 async def test_llm_post_timeout():
-    responses = [httpx.ReadTimeout("Request timed out")]
+    class TimeoutSession(FakeSession):
+        async def post(self, *args, **kwargs):  # noqa: ARG002
+            raise asyncio.TimeoutError()
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with TimeoutSession([]) as client:
         with pytest.raises(LLMTimeoutError):
             await llm_post(
                 client,
@@ -196,11 +215,9 @@ async def test_llm_post_timeout():
 
 @pytest.mark.asyncio
 async def test_llm_post_rate_limit():
-    responses = [
-        httpx.Response(429, text="Rate limit exceeded"),
-    ]
+    responses = [FakeResponse(429, text="Rate limit exceeded")]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         with pytest.raises(LLMRateLimitError):
             await llm_post(
                 client,
@@ -216,11 +233,9 @@ async def test_llm_post_rate_limit():
 
 @pytest.mark.asyncio
 async def test_llm_post_error():
-    responses = [
-        httpx.Response(400, text="Bad request"),
-    ]
+    responses = [FakeResponse(400, text="Bad request")]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         with pytest.raises(Exception) as exc_info:
             await llm_post(
                 client,
@@ -238,23 +253,17 @@ async def test_llm_post_error():
 @pytest.mark.asyncio
 async def test_llm_post_replicate_success():
     responses = [
-        httpx.Response(
+        FakeResponse(
             201,
             json={
                 "status": "processing",
                 "urls": {"get": "https://api.replicate.com/status/1"},
             },
         ),
-        httpx.Response(
-            200,
-            json={
-                "status": "succeeded",
-                "output": "test output",
-            },
-        ),
+        FakeResponse(200, json={"status": "succeeded", "output": "test output"}),
     ]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         result = await llm_post(
             client,
             "replicate",
@@ -272,9 +281,7 @@ async def test_llm_post_replicate_success():
 @pytest.mark.asyncio
 async def test_llm_post_with_api_key_in_endpoint():
     """Test case where API_KEY needs to be replaced in the endpoint"""
-    responses = [
-        httpx.Response(200, json={"result": "success"}),
-    ]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
     original_HOSTED_PROVIDERS = HOSTED_PROVIDERS.copy()
     HOSTED_PROVIDERS["test_provider"] = {
@@ -283,7 +290,7 @@ async def test_llm_post_with_api_key_in_endpoint():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             result = await llm_post(
                 client,
                 "test_provider",
@@ -303,9 +310,9 @@ async def test_llm_post_with_api_key_in_endpoint():
 @pytest.mark.asyncio
 async def test_llm_post_with_extra_headers():
     """Test that extra headers are properly added to the request"""
-    responses = [httpx.Response(200, json={"result": "success"})]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
-    async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+    async with FakeSession(responses) as client:
         await llm_post(
             client,
             "openai",
@@ -316,7 +323,7 @@ async def test_llm_post_with_extra_headers():
             extra_params={},
             extra_headers={"X-Custom-Header": "test-value"},
         )
-        request = client._transport.responses[0].request  # type: ignore
+        request = client._responses[0].request  # type: ignore
         assert "X-Custom-Header" in request.headers
         assert request.headers["X-Custom-Header"] == "test-value"
         # Verify original headers are still present
@@ -330,9 +337,7 @@ async def test_llm_post_with_extra_headers():
 @pytest.mark.asyncio
 async def test_local_llm_post_success():
     """Test successful local LLM post with default base URL"""
-    responses = [
-        httpx.Response(200, json={"result": "success"}),
-    ]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -342,7 +347,7 @@ async def test_local_llm_post_success():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             result = await local_llm_post(
                 client,
                 "local_provider",
@@ -361,9 +366,7 @@ async def test_local_llm_post_success():
 @pytest.mark.asyncio
 async def test_local_llm_post_with_override():
     """Test local LLM post with overridden base URL"""
-    responses = [
-        httpx.Response(200, json={"result": "success"}),
-    ]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -373,7 +376,7 @@ async def test_local_llm_post_with_override():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             result = await local_llm_post(
                 client,
                 "local_provider",
@@ -392,7 +395,10 @@ async def test_local_llm_post_with_override():
 @pytest.mark.asyncio
 async def test_local_llm_post_timeout():
     """Test timeout handling in local LLM post"""
-    responses = [httpx.ReadTimeout("Request timed out")]
+
+    class TimeoutSession(FakeSession):
+        async def post(self, *args, **kwargs):  # noqa: ARG002
+            raise asyncio.TimeoutError()
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -402,7 +408,7 @@ async def test_local_llm_post_timeout():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with TimeoutSession([]) as client:
             with pytest.raises(LLMTimeoutError):
                 await local_llm_post(
                     client,
@@ -421,9 +427,7 @@ async def test_local_llm_post_timeout():
 @pytest.mark.asyncio
 async def test_local_llm_post_error():
     """Test error handling in local LLM post"""
-    responses = [
-        httpx.Response(400, text="Bad request"),
-    ]
+    responses = [FakeResponse(400, text="Bad request")]
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -433,7 +437,7 @@ async def test_local_llm_post_error():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             with pytest.raises(Exception) as exc_info:
                 await local_llm_post(
                     client,
@@ -454,7 +458,7 @@ async def test_local_llm_post_error():
 @pytest.mark.parametrize("extra_param_value", ["bar", 123, 0.7])
 async def test_local_llm_post_with_extra_params(extra_param_value):
     """Test local LLM post with various extra parameters"""
-    responses = [httpx.Response(200, json={"result": "success"})]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -464,7 +468,7 @@ async def test_local_llm_post_with_extra_params(extra_param_value):
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             result = await local_llm_post(
                 client,
                 "local_provider",
@@ -483,7 +487,7 @@ async def test_local_llm_post_with_extra_params(extra_param_value):
 @pytest.mark.asyncio
 async def test_local_llm_post_with_extra_headers():
     """Test that extra headers are properly added to the request for local providers"""
-    responses = [httpx.Response(200, json={"result": "success"})]
+    responses = [FakeResponse(200, json={"result": "success"})]
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
     LOCAL_PROVIDERS["local_provider"] = {
@@ -493,7 +497,7 @@ async def test_local_llm_post_with_extra_headers():
     }
 
     try:
-        async with httpx.AsyncClient(transport=MockTransport(responses)) as client:
+        async with FakeSession(responses) as client:
             await local_llm_post(
                 client,
                 "local_provider",
@@ -503,7 +507,7 @@ async def test_local_llm_post_with_extra_headers():
                 extra_params={},
                 extra_headers={"X-Custom-Header": "test-value"},
             )
-            request = client._transport.responses[0].request  # type: ignore
+            request = client._responses[0].request  # type: ignore
             assert "X-Custom-Header" in request.headers
             assert request.headers["X-Custom-Header"] == "test-value"
             # Verify original headers are still present

@@ -1,5 +1,5 @@
 from typing import Any, List, Set, Dict, Optional, Tuple, Union
-import httpx
+import aiohttp
 import os
 
 from l2m2.model_info import (
@@ -78,7 +78,7 @@ class BaseLLMClient:
         # Misc state
         self.preferred_providers: Dict[str, str] = {}  # model -> provider
         self.memory = memory
-        self.httpx_client = httpx.AsyncClient()
+        self.http_client: Optional[aiohttp.ClientSession] = None
 
         if api_keys is not None:
             for provider, api_key in api_keys.items():
@@ -92,11 +92,15 @@ class BaseLLMClient:
                 self.add_provider(provider, default_api_key)
 
     async def __aenter__(self) -> "BaseLLMClient":
-        await self.httpx_client.__aenter__()
+        # Lazily create the HTTP session in an async context to avoid requiring a running loop at init
+        if self.http_client is None:
+            self.http_client = aiohttp.ClientSession()
+        await self.http_client.__aenter__()
         return self
 
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        await self.httpx_client.__aexit__(exc_type, exc_val, exc_tb)
+        if self.http_client is not None:
+            await self.http_client.__aexit__(exc_type, exc_val, exc_tb)
 
     @staticmethod
     def get_available_providers() -> Set[str]:
@@ -551,7 +555,7 @@ class BaseLLMClient:
         data["generation_config"] = params
 
         result = await llm_post(
-            client=self.httpx_client,
+            client=self.http_client,
             provider="google",
             model_id=model_id,
             api_key=self.api_keys["google"],
@@ -594,7 +598,7 @@ class BaseLLMClient:
                 messages.append({"role": "assistant", "content": append_msg})
 
         result = await llm_post(
-            client=self.httpx_client,
+            client=self.http_client,
             provider="anthropic",
             model_id=model_id,
             api_key=self.api_keys["anthropic"],
@@ -656,7 +660,7 @@ class BaseLLMClient:
             params["system_prompt"] = system_prompt
 
         result = await llm_post(
-            client=self.httpx_client,
+            client=self.http_client,
             provider="replicate",
             model_id=model_id,
             api_key=self.api_keys["replicate"],
@@ -695,7 +699,7 @@ class BaseLLMClient:
         messages.append({"role": "user", "content": prompt})
 
         result = await local_llm_post(
-            client=self.httpx_client,
+            client=self.http_client,
             provider="ollama",
             data={"model": model_id, "messages": messages, **params},
             timeout=timeout,
@@ -749,7 +753,7 @@ class BaseLLMClient:
             extra_params.setdefault("store", False)
 
         result = await llm_post(
-            client=self.httpx_client,
+            client=self.http_client,
             provider=provider,
             model_id=model_id,
             api_key=self.api_keys[provider],
