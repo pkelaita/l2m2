@@ -1,8 +1,17 @@
 # Changelog
 
-_Current version: 0.0.59_
+_Current version: 0.0.60_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.60 - October 20, 2025
+
+> [!CAUTION]
+> This release drops support for Python 3.9! If you are using Python 3.9, please upgrade to Python 3.10 or higher to use l2m2 v0.0.60 or higher.
+
+#### Removed
+
+- Dropped support for Python 3.9 as it is [no longer officially supported](https://devguide.python.org/versions/).
 
 ### 0.0.59 - October 17, 2025
 
