@@ -1,4 +1,4 @@
-from typing import Any, List, Set, Dict, Optional, Tuple, Union
+from typing import Any
 import aiohttp
 import os
 
@@ -44,8 +44,8 @@ DEFAULT_PROVIDER_ENVS = {
 class BaseLLMClient:
     def __init__(
         self,
-        api_keys: Optional[Dict[str, str]] = None,
-        memory: Optional[BaseMemory] = None,
+        api_keys: dict[str, str] | None = None,
+        memory: BaseMemory | None = None,
     ) -> None:
         """Initializes the LLM Client.
 
@@ -67,18 +67,18 @@ class BaseLLMClient:
             L2M2UsageError: If an invalid provider is specified in `providers`.
         """
         # Hosted models and providers state
-        self.api_keys: Dict[str, str] = {}
-        self.active_hosted_providers: Set[str] = set()
-        self.active_hosted_models: Set[str] = set()
+        self.api_keys: dict[str, str] = {}
+        self.active_hosted_providers: set[str] = set()
+        self.active_hosted_models: set[str] = set()
 
         # Local models and providers state
-        self.local_model_pairings: Set[Tuple[str, str]] = set()  # (model, provider)
-        self.local_provider_overrides: Dict[str, str] = {}  # provider -> base url
+        self.local_model_pairings: set[tuple[str, str]] = set()  # (model, provider)
+        self.local_provider_overrides: dict[str, str] = {}  # provider -> base url
 
         # Misc state
-        self.preferred_providers: Dict[str, str] = {}  # model -> provider
+        self.preferred_providers: dict[str, str] = {}  # model -> provider
         self.memory = memory
-        self.http_client: Optional[aiohttp.ClientSession] = None
+        self.http_client: aiohttp.ClientSession | None = None
 
         if api_keys is not None:
             for provider, api_key in api_keys.items():
@@ -103,13 +103,13 @@ class BaseLLMClient:
             await self.http_client.__aexit__(exc_type, exc_val, exc_tb)
 
     @staticmethod
-    def get_available_providers() -> Set[str]:
+    def get_available_providers() -> set[str]:
         """Get the exhaustive set of L2M2's available model providers. This set includes
         all providers, regardless of whether they are currently active, and includes both hosted
         and local providers.
 
         Returns:
-            Set[str]: A set of available providers.
+            set[str]: A set of available providers.
         """
         return set(HOSTED_PROVIDERS.keys()) | set(LOCAL_PROVIDERS.keys())
 
@@ -117,30 +117,30 @@ class BaseLLMClient:
     @deprecated(
         "This set is no longer meaningful since L2M2 supports local models as of 0.0.41."
     )
-    def get_available_models() -> Set[str]:  # pragma: no cover
+    def get_available_models() -> set[str]:  # pragma: no cover
         """The set of L2M2's supported models. This set includes all models, regardless of
         whether they are currently active.
 
         Returns:
-            Set[str]: A set of available models.
+            set[str]: A set of available models.
         """
         return set(MODEL_INFO.keys())
 
-    def get_active_providers(self) -> Set[str]:
+    def get_active_providers(self) -> set[str]:
         """Get the set of currently active providers. Active providers are either hosted providers
         for which an API key has been set, or local providers for which a model has been added.
 
         Returns:
-            Set[str]: A set of active providers.
+            set[str]: A set of active providers.
         """
         return set(self.active_hosted_providers) | self._get_active_local_providers()
 
-    def get_active_models(self) -> Set[str]:
+    def get_active_models(self) -> set[str]:
         """Get the set of currently active models. Active models are those that are available and
         have a provider that is active.
 
         Returns:
-            Set[str]: A set of active models.
+            set[str]: A set of active models.
         """
         return set(self.active_hosted_models) | self._get_active_local_models()
 
@@ -257,7 +257,7 @@ class BaseLLMClient:
 
         self.local_provider_overrides.pop(local_provider, None)
 
-    def set_preferred_providers(self, preferred_providers: Dict[str, str]) -> None:
+    def set_preferred_providers(self, preferred_providers: dict[str, str]) -> None:
         """Set the preferred provider for each model. If a model is available from multiple active
         providers, the preferred provider will be used.
 
@@ -335,17 +335,17 @@ class BaseLLMClient:
         *,
         model: str,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        prefer_provider: Optional[str] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        prefer_provider: str | None = None,
         json_mode: bool = False,
-        json_mode_strategy: Optional[JsonModeStrategy] = None,
-        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        json_mode_strategy: JsonModeStrategy | None = None,
+        timeout: int | None = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
-        alt_memory: Optional[BaseMemory] = None,
-        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
-        extra_headers: Optional[Dict[str, str]] = None,
+        alt_memory: BaseMemory | None = None,
+        extra_params: dict[str, str | int | float] | None = None,
+        extra_headers: dict[str, str] | None = None,
     ) -> str:
         """Performs inference on any active model.
 
@@ -450,16 +450,16 @@ class BaseLLMClient:
         model_entry: ModelEntry,
         provider: str,
         prompt: str,
-        system_prompt: Optional[str],
-        temperature: Optional[float],
-        max_tokens: Optional[int],
+        system_prompt: str | None,
+        temperature: float | None,
+        max_tokens: int | None,
         json_mode: bool,
-        json_mode_strategy: Optional[JsonModeStrategy],
-        timeout: Optional[int],
+        json_mode_strategy: JsonModeStrategy | None,
+        timeout: int | None,
         bypass_memory: bool,
-        alt_memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        alt_memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
     ) -> str:
         # Prepare memory
         memory = alt_memory if alt_memory is not None else self.memory
@@ -475,7 +475,7 @@ class BaseLLMClient:
             )
 
         # Prepare params
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         _add_param(params, model_entry["params"], "temperature", temperature)
         _add_param(params, model_entry["params"], "max_tokens", max_tokens)
 
@@ -530,20 +530,20 @@ class BaseLLMClient:
         self,
         model_id: str,
         prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        system_prompt: str | None,
+        params: dict[str, Any],
+        timeout: int | None,
+        memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
         *_: Any,  # json_mode and json_mode_strategy, and extras are not used here
     ) -> str:
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
 
         if system_prompt is not None:
             data["system_instruction"] = {"parts": {"text": system_prompt}}
 
-        messages: List[Dict[str, Any]] = []
+        messages: list[dict[str, Any]] = []
         if isinstance(memory, ChatMemory):
             mem_items = memory.unpack("role", "parts", "user", "model")
             # Need to do this wrap – see https://ai.google.dev/api/rest/v1beta/cachedContents#Part
@@ -554,6 +554,7 @@ class BaseLLMClient:
         data["contents"] = messages
         data["generation_config"] = params
 
+        assert self.http_client is not None
         result = await llm_post(
             client=self.http_client,
             provider="google",
@@ -575,15 +576,15 @@ class BaseLLMClient:
         self,
         model_id: str,
         prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        system_prompt: str | None,
+        params: dict[str, Any],
+        timeout: int | None,
+        memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
-        _: Dict[str, Any],  # extras is not used here
+        _: dict[str, Any],  # extras is not used here
     ) -> str:
         if system_prompt is not None:
             params["system"] = system_prompt
@@ -597,6 +598,7 @@ class BaseLLMClient:
             if append_msg:
                 messages.append({"role": "assistant", "content": append_msg})
 
+        assert self.http_client is not None
         result = await llm_post(
             client=self.http_client,
             provider="anthropic",
@@ -635,15 +637,15 @@ class BaseLLMClient:
         self,
         model_id: str,
         prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        system_prompt: str | None,
+        params: dict[str, Any],
+        timeout: int | None,
+        memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
         _: bool,  # json_mode is not used here
         json_mode_strategy: JsonModeStrategy,
-        __: Dict[str, Any],  # extras is not used here
+        __: dict[str, Any],  # extras is not used here
     ) -> str:
         if isinstance(memory, ChatMemory):
             raise LLMOperationError(
@@ -659,6 +661,7 @@ class BaseLLMClient:
         if system_prompt is not None:
             params["system_prompt"] = system_prompt
 
+        assert self.http_client is not None
         result = await llm_post(
             client=self.http_client,
             provider="replicate",
@@ -681,15 +684,15 @@ class BaseLLMClient:
         self,
         model_id: str,
         prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        system_prompt: str | None,
+        params: dict[str, Any],
+        timeout: int | None,
+        memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
-        _: Dict[str, Any],  # extras is not used here
+        _: dict[str, Any],  # extras is not used here
     ) -> str:
         messages = []
         if system_prompt is not None:
@@ -698,6 +701,7 @@ class BaseLLMClient:
             messages.extend(memory.unpack("role", "content", "user", "assistant"))
         messages.append({"role": "user", "content": prompt})
 
+        assert self.http_client is not None
         result = await local_llm_post(
             client=self.http_client,
             provider="ollama",
@@ -714,15 +718,15 @@ class BaseLLMClient:
         provider: str,
         model_id: str,
         prompt: str,
-        system_prompt: Optional[str],
-        params: Dict[str, Any],
-        timeout: Optional[int],
-        memory: Optional[BaseMemory],
-        extra_params: Optional[Dict[str, Union[str, int, float]]],
-        extra_headers: Optional[Dict[str, str]],
+        system_prompt: str | None,
+        params: dict[str, Any],
+        timeout: int | None,
+        memory: BaseMemory | None,
+        extra_params: dict[str, str | int | float] | None,
+        extra_headers: dict[str, str] | None,
         json_mode: bool,
         json_mode_strategy: JsonModeStrategy,
-        extras: Dict[str, Any],
+        extras: dict[str, Any],
     ) -> str:
         """Generic call method for providers who follow the OpenAI API spec."""
         supports_native_json_mode = "json_mode_arg" in extras
@@ -752,6 +756,7 @@ class BaseLLMClient:
             extra_params = extra_params or {}
             extra_params.setdefault("store", False)
 
+        assert self.http_client is not None
         result = await llm_post(
             client=self.http_client,
             provider=provider,
@@ -804,17 +809,17 @@ class BaseLLMClient:
 
     # State-dependent helper methods
 
-    def _get_local_providers_for_model(self, model: str) -> Set[str]:
+    def _get_local_providers_for_model(self, model: str) -> set[str]:
         return {
             provider_i
             for model_i, provider_i in self.local_model_pairings  # comment to preserve formatting
             if model_i == model
         }
 
-    def _get_active_local_models(self) -> Set[str]:
+    def _get_active_local_models(self) -> set[str]:
         return {model_i for model_i, _ in self.local_model_pairings}
 
-    def _get_active_local_providers(self) -> Set[str]:
+    def _get_active_local_providers(self) -> set[str]:
         return {provider_i for _, provider_i in self.local_model_pairings}
 
 
@@ -823,12 +828,12 @@ class BaseLLMClient:
 
 def _get_local_model_entry(provider: str, model_id: str) -> ModelEntry:
     generic_model_entry = LOCAL_PROVIDERS[provider]["model_entry"]
-    return {**generic_model_entry, "model_id": model_id}  # ty: ignore
+    return {**generic_model_entry, "model_id": model_id}
 
 
 def _get_external_memory_prompts(
-    memory: ExternalMemory, system_prompt: Optional[str], prompt: str
-) -> Tuple[Optional[str], str]:
+    memory: ExternalMemory, system_prompt: str | None, prompt: str
+) -> tuple[str | None, str]:
     if memory.loading_type == ExternalMemoryLoadingType.SYSTEM_PROMPT_APPEND:
         contents = memory.get_contents()
         if system_prompt is not None:
@@ -843,7 +848,7 @@ def _get_external_memory_prompts(
 
 
 def _add_param(
-    params: Dict[str, Any],
+    params: dict[str, Any],
     param_info: ModelParams,
     name: ParamName,
     value: Any,

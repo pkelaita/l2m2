@@ -1,6 +1,6 @@
 """Information about models and providers supported by L2M2."""
 
-from typing import Any, Dict, Union, Literal, TypedDict
+from typing import Any, Literal, TypedDict, TypeAlias
 import sys
 
 PROVIDER_DEFAULT: Literal["<<PROVIDER_DEFAULT>>"] = "<<PROVIDER_DEFAULT>>"
@@ -11,7 +11,7 @@ SERVICE_BASE_URL = "<<SERVICE_BASE_URL>>"
 
 INF: int = sys.maxsize
 
-ParamName = Literal["temperature", "max_tokens"]
+ParamName: TypeAlias = Literal["temperature", "max_tokens"]
 
 
 class ParamOptionalFields(TypedDict, total=False):
@@ -19,12 +19,12 @@ class ParamOptionalFields(TypedDict, total=False):
 
 
 class FloatParam(ParamOptionalFields):
-    default: Union[float, Literal["<<PROVIDER_DEFAULT>>"]]
+    default: float | Literal["<<PROVIDER_DEFAULT>>"]
     max: float
 
 
 class IntParam(ParamOptionalFields):
-    default: Union[int, Literal["<<PROVIDER_DEFAULT>>"]]
+    default: int | Literal["<<PROVIDER_DEFAULT>>"]
     max: int
 
 
@@ -36,31 +36,31 @@ class ModelParams(TypedDict):
 class ModelEntry(TypedDict):
     model_id: str
     params: ModelParams
-    extras: Dict[str, Any]
+    extras: dict[str, Any]
 
 
 class GenericModelEntry(TypedDict):
     params: ModelParams
-    extras: Dict[str, Any]
+    extras: dict[str, Any]
 
 
 class ProviderEntry(TypedDict):
     name: str
     homepage: str
     endpoint: str
-    headers: Dict[str, str]
+    headers: dict[str, str]
 
 
 class LocalProviderEntry(TypedDict):
     name: str
     homepage: str
     endpoint: str
-    headers: Dict[str, str]
+    headers: dict[str, str]
     default_base_url: str
     model_entry: GenericModelEntry
 
 
-HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
+HOSTED_PROVIDERS: dict[str, ProviderEntry] = {
     "openai": {
         "name": "OpenAI",
         "homepage": "https://openai.com/api/",
@@ -134,7 +134,7 @@ HOSTED_PROVIDERS: Dict[str, ProviderEntry] = {
     },
 }
 
-LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
+LOCAL_PROVIDERS: dict[str, LocalProviderEntry] = {
     "ollama": {
         "name": "Ollama",
         "homepage": "https://ollama.ai/",
@@ -157,7 +157,7 @@ LOCAL_PROVIDERS: Dict[str, LocalProviderEntry] = {
     },
 }
 
-MODEL_INFO: Dict[str, Dict[str, ModelEntry]] = {
+MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
     "gpt-5": {
         "openai": {
             "model_id": "gpt-5-2025-08-07",

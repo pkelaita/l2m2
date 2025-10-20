@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Deque, Iterator, List, Dict
+from collections.abc import Iterator
 from enum import Enum
 
 from l2m2.memory.base_memory import BaseMemory
@@ -42,7 +42,7 @@ class ChatMemory(BaseMemory):
             raise L2M2UsageError("window_size must be a positive integer.")
 
         self.window_size: int = window_size
-        self.mem_window: Deque[ChatMemoryEntry] = deque(maxlen=window_size)
+        self.mem_window: deque[ChatMemoryEntry] = deque(maxlen=window_size)
 
     def add_user_message(self, text: str) -> None:
         """Adds a user message to the memory.
@@ -62,7 +62,7 @@ class ChatMemory(BaseMemory):
 
     def unpack(
         self, role_key: str, message_key: str, user_key: str, agent_key: str
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """Gets a representation of the memory as a list of objects designed to
         be passed directly into LLM provider APIs as JSON.
 
