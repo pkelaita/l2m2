@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![CI](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml/badge.svg?timestamp=1760731978)](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1760731978)](https://badge.fury.io/py/l2m2)
+[![CI](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml/badge.svg?timestamp=1760988644)](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1760988644)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API.
 
@@ -29,7 +29,7 @@ L2M2 supports <!--start-model-count-->68<!--end-model-count--> models from <!--s
 
 ### Requirements
 
-- Python >= 3.9
+- Python >= 3.10
 - At least one valid API key for a supported provider, or a working Ollama installation ([their docs](https://github.com/ollama/ollama#readme)).
 
 ### Installation
@@ -86,7 +86,7 @@ Contributions are welcome! Please see the below contribution guide.
 
 - **Requirements**
   - Python >= 3.14
-  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.9.0
+  - [uv](https://docs.astral.sh/uv/getting-started/installation/) >= 0.9.2
   - [GNU Make](https://www.gnu.org/software/make/)
 - **Setup**
   - Clone this repository and create a Python virtual environment.

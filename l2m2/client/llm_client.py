@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, Union
+from typing import Any
 import asyncio
 import aiohttp
 
@@ -24,8 +24,8 @@ def _is_async_context() -> bool:
 class LLMClient(BaseLLMClient):
     def __init__(
         self,
-        providers: Optional[Dict[str, str]] = None,
-        memory: Optional[BaseMemory] = None,
+        providers: dict[str, str] | None = None,
+        memory: BaseMemory | None = None,
     ) -> None:
         """Initializes the LLM Client.
 
@@ -68,16 +68,16 @@ class LLMClient(BaseLLMClient):
         *,
         model: str,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        prefer_provider: Optional[str] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        prefer_provider: str | None = None,
         json_mode: bool = False,
-        json_mode_strategy: Optional[JsonModeStrategy] = None,
-        timeout: Optional[int] = DEFAULT_TIMEOUT_SECONDS,
+        json_mode_strategy: JsonModeStrategy | None = None,
+        timeout: int | None = DEFAULT_TIMEOUT_SECONDS,
         bypass_memory: bool = False,
-        alt_memory: Optional[BaseMemory] = None,
-        extra_params: Optional[Dict[str, Union[str, int, float]]] = None,
+        alt_memory: BaseMemory | None = None,
+        extra_params: dict[str, str | int | float] | None = None,
     ) -> str:
         """Performs inference on any active model.
 

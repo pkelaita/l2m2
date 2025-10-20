@@ -38,9 +38,7 @@ class FakeSession:
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
-    async def post(
-        self, endpoint, headers=None, json=None, timeout=None
-    ):  # noqa: ARG002
+    async def post(self, endpoint, headers=None, json=None, timeout=None):
         if self._i >= len(self._responses):
             raise Exception("No more mock responses available")
         self._last_request_headers = headers or {}
@@ -50,7 +48,7 @@ class FakeSession:
         resp.request.headers = self._last_request_headers
         return resp
 
-    async def get(self, url, headers=None):  # noqa: ARG002
+    async def get(self, url, headers=None):
         if self._i >= len(self._responses):
             raise Exception("No more mock responses available")
         resp = self._responses[self._i]
@@ -196,7 +194,7 @@ async def test_llm_post_success_with_extra_params(extra_param_value):
 @pytest.mark.asyncio
 async def test_llm_post_timeout():
     class TimeoutSession(FakeSession):
-        async def post(self, *args, **kwargs):  # noqa: ARG002
+        async def post(self, *args, **kwargs):
             raise asyncio.TimeoutError()
 
     async with TimeoutSession([]) as client:
@@ -323,7 +321,7 @@ async def test_llm_post_with_extra_headers():
             extra_params={},
             extra_headers={"X-Custom-Header": "test-value"},
         )
-        request = client._responses[0].request  # type: ignore
+        request = client._responses[0].request
         assert "X-Custom-Header" in request.headers
         assert request.headers["X-Custom-Header"] == "test-value"
         # Verify original headers are still present
@@ -397,7 +395,7 @@ async def test_local_llm_post_timeout():
     """Test timeout handling in local LLM post"""
 
     class TimeoutSession(FakeSession):
-        async def post(self, *args, **kwargs):  # noqa: ARG002
+        async def post(self, *args, **kwargs):
             raise asyncio.TimeoutError()
 
     original_LOCAL_PROVIDERS = LOCAL_PROVIDERS.copy()
@@ -507,7 +505,7 @@ async def test_local_llm_post_with_extra_headers():
                 extra_params={},
                 extra_headers={"X-Custom-Header": "test-value"},
             )
-            request = client._responses[0].request  # type: ignore
+            request = client._responses[0].request
             assert "X-Custom-Header" in request.headers
             assert request.headers["X-Custom-Header"] == "test-value"
             # Verify original headers are still present

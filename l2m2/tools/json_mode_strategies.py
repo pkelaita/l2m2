@@ -1,4 +1,3 @@
-from typing import Optional
 from enum import Enum
 
 DEFAULT_PREFIX = "Here is the JSON response: "
@@ -13,7 +12,7 @@ class JsonModeStrategy:
     def __init__(
         self,
         strategy_name: StrategyName,
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
     ) -> None:
         self.strategy_name = strategy_name
         self.prefix = prefix
@@ -27,10 +26,10 @@ class JsonModeStrategy:
         return cls(StrategyName.PREPEND, custom_prefix)
 
 
-def get_extra_message(strategy: JsonModeStrategy) -> Optional[str]:
+def get_extra_message(strategy: JsonModeStrategy) -> str | None:
     if strategy.strategy_name == StrategyName.PREPEND:
         assert strategy.prefix is not None
-        return strategy.prefix + "{"  # ty: ignore
+        return strategy.prefix + "{"
 
     return None
 
@@ -38,13 +37,14 @@ def get_extra_message(strategy: JsonModeStrategy) -> Optional[str]:
 def run_json_strats_out(
     strategy: JsonModeStrategy,
     output: str,
-) -> str:  # ty: ignore
-    if strategy.strategy_name == StrategyName.PREPEND:
-        return "{" + output
+) -> str:
+    match strategy.strategy_name:
+        case StrategyName.PREPEND:
+            return "{" + output
 
-    if strategy.strategy_name == StrategyName.STRIP:
-        start = output.find("{")
-        end = output.rfind("}")
-        if start == -1 or end == -1 or start >= end:
-            return output
-        return output[start : end + 1]  # noqa: E203
+        case StrategyName.STRIP:
+            start = output.find("{")
+            end = output.rfind("}")
+            if start == -1 or end == -1 or start >= end:
+                return output
+            return output[start : end + 1]

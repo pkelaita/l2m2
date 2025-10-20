@@ -23,12 +23,14 @@ class PromptLoader:
         self.prompts_base_dir = prompts_base_dir
         self.var_open, self.var_close = variable_delimiters
 
-    def load_prompt_str(self, prompt: str, variables: dict[str, str] = {}) -> str:
+    def load_prompt_str(
+        self, prompt: str, variables: dict[str, str] | None = None
+    ) -> str:
         """Loads a prompt from a string and replaces variables with values.
 
         Args:
             prompt (str): The prompt string to load.
-            variables (dict, optional): A dictionary of variables to replace in the prompt. Defaults to {}.
+            variables (dict, optional): A dictionary of variables to replace in the prompt. Defaults to None.
 
         Returns:
             str: The loaded prompt with variables replaced.
@@ -36,6 +38,8 @@ class PromptLoader:
         Raises:
             L2M2UsageError: If a variable is denoted in the prompt but not provided in the variables dictionary.
         """
+        if variables is None:
+            variables = {}
 
         vlist = re.findall(
             f"{re.escape(self.var_open)}(.*?){re.escape(self.var_close)}",
@@ -52,12 +56,14 @@ class PromptLoader:
 
         return prompt
 
-    def load_prompt(self, prompt_file: str, variables: dict[str, str] = {}) -> str:
+    def load_prompt(
+        self, prompt_file: str, variables: dict[str, str] | None = None
+    ) -> str:
         """Loads a prompt from a file and replaces variables with values.
 
         Args:
             prompt_file (str): The name of the prompt file to load.
-            variables (dict, optional): A dictionary of variables to replace in the prompt. Defaults to {}.
+            variables (dict, optional): A dictionary of variables to replace in the prompt. Defaults to None.
 
         Returns:
             str: The loaded prompt with variables replaced.
@@ -65,6 +71,8 @@ class PromptLoader:
         Raises:
             L2M2UsageError: If a variable is denoted in the prompt but not provided in the variables dictionary.
         """
+        if variables is None:
+            variables = {}
 
         prompt_path = f"{self.prompts_base_dir}/{prompt_file}"
         with open(prompt_path, "r") as f:

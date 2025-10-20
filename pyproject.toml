@@ -5,14 +5,14 @@ description = "A very simple LLM manager for Python."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 urls.Homepage = "https://github.com/pkelaita/l2m2"
 urls.Documentation = "https://github.com/pkelaita/l2m2/blob/main/README.md"
 urls.Repository = "https://github.com/pkelaita/l2m2.git"
 urls.Issues = "https://github.com/pkelaita/l2m2/issues"
 dynamic = ["version"]
+dependencies = ["aiohttp>=3.13.1"]
 
-dependencies = ["aiohttp>=3.10.0"]
 [dependency-groups]
 dev = [
     "mypy>=1.18.2",
@@ -21,10 +21,10 @@ dev = [
     "pytest-cov>=7.0.0",
     "python-dotenv>=1.1.1",
     "requests-mock>=1.12.1",
-    "ruff>=0.14.0",
-    "tox>=4.30.3",
+    "ruff>=0.14.1",
+    "tox>=4.31.0",
     "twine>=6.2.0",
-    "ty>=0.0.1a21",
+    "ty>=0.0.1a23",
     "types-requests>=2.32.4.20250913",
 ]
 
@@ -50,7 +50,7 @@ disallow_any_generics = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_return_any = true
-python_version = "3.9"
+python_version = "3.10"
 
 [tool.ruff]
 line-length = 120

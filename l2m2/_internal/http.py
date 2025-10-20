@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, Union, Protocol
+from typing import Any, Protocol
 
 import asyncio
 import aiohttp
@@ -20,13 +20,13 @@ class AiohttpResponseLike(Protocol):
     async def text(self) -> str: ...
 
 
-def _get_headers(provider: str, api_key: str) -> Dict[str, str]:
+def _get_headers(provider: str, api_key: str) -> dict[str, str]:
     provider_info = HOSTED_PROVIDERS[provider]
     headers = provider_info["headers"].copy()
     return {key: value.replace(API_KEY, api_key) for key, value in headers.items()}
 
 
-def _get_timeout_message(timeout: Optional[int]) -> str:
+def _get_timeout_message(timeout: int | None) -> str:
     return (
         f"Request timed out after {timeout} seconds. Try increasing the timeout by passing "
         + "the timeout parameter into call, or reducing the expected size of the output."
@@ -63,10 +63,10 @@ async def llm_post(
     provider: str,
     model_id: str,
     api_key: str,
-    data: Dict[str, Any],
-    timeout: Optional[int],
-    extra_params: Optional[Dict[str, Union[str, int, float]]],
-    extra_headers: Optional[Dict[str, str]],
+    data: dict[str, Any],
+    timeout: int | None,
+    extra_params: dict[str, str | int | float] | None,
+    extra_headers: dict[str, str] | None,
 ) -> Any:
     endpoint = HOSTED_PROVIDERS[provider]["endpoint"]
     if API_KEY in endpoint:
@@ -111,11 +111,11 @@ async def llm_post(
 async def local_llm_post(
     client: aiohttp.ClientSession,
     provider: str,
-    data: Dict[str, Any],
-    timeout: Optional[int],
-    local_provider_overrides: Dict[str, str],
-    extra_params: Optional[Dict[str, Union[str, int, float]]],
-    extra_headers: Optional[Dict[str, str]],
+    data: dict[str, Any],
+    timeout: int | None,
+    local_provider_overrides: dict[str, str],
+    extra_params: dict[str, str | int | float] | None,
+    extra_headers: dict[str, str] | None,
 ) -> Any:
     provider_info = LOCAL_PROVIDERS[provider]
 

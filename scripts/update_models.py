@@ -69,7 +69,7 @@ def replace_between(full_string, start, end, replacement):
         if i_e == -1:
             break
         full_string = (
-            full_string[: i_s + len(start)] + str(replacement) + full_string[i_e:]  # type: ignore
+            full_string[: i_s + len(start)] + str(replacement) + full_string[i_e:]
         )
         i_s = full_string.find(start, i_e)
     return full_string
