@@ -1,8 +1,19 @@
 # Changelog
 
-_Current version: 0.0.60_
+_Current version: 0.0.61_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.61 - November 8, 2025
+
+#### Added
+
+- Support for provider [Moonshot AI](https://www.moonshot.ai/).
+- Support for the following models via Moonshot AI:
+  - `kimi-k2`
+  - `kimi-k2-turbo`
+  - `kimi-k2-thinking`
+  - `kimi-k2-thinking-turbo`
 
 ### 0.0.60 - October 20, 2025
 

@@ -65,7 +65,10 @@
 | `llama-3-8b` | [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/) | `llama3-8b-8192`, `meta/meta-llama-3-8b-instruct` |
 | `gpt-oss-120b` | [Groq](https://wow.groq.com/), [Cerebras](https://inference-docs.cerebras.ai) | `openai/gpt-oss-120b`, `gpt-oss-120b` |
 | `gpt-oss-20b` | [Groq](https://wow.groq.com/) | `openai/gpt-oss-20b` |
-| `kimi-k2` | [Groq](https://wow.groq.com/) | `moonshotai/kimi-k2-instruct-0905` |
+| `kimi-k2` | [Moonshot AI](https://www.moonshot.ai/), [Groq](https://wow.groq.com/) | `kimi-k2-0905-preview`, `moonshotai/kimi-k2-instruct-0905` |
+| `kimi-k2-turbo` | [Moonshot AI](https://www.moonshot.ai/) | `kimi-k2-turbo-preview` |
+| `kimi-k2-thinking` | [Moonshot AI](https://www.moonshot.ai/) | `kimi-k2-thinking` |
+| `kimi-k2-thinking-turbo` | [Moonshot AI](https://www.moonshot.ai/) | `kimi-k2-thinking-turbo` |
 | `qwen-3-480b` | [Cerebras](https://inference-docs.cerebras.ai) | `qwen-3-coder-480b` |
 | `qwen-3-235b` | [Cerebras](https://inference-docs.cerebras.ai) | `qwen-3-235b-a22b-instruct-2507` |
 | `qwen-3-235b-thinking` | [Cerebras](https://inference-docs.cerebras.ai) | `qwen-3-235b-a22b-thinking-2507` |
