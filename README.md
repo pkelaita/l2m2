@@ -1,6 +1,6 @@
 # L2M2: A Simple Python LLM Manager 💬👍
 
-[![CI](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml/badge.svg?timestamp=1760988644)](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1760988644)](https://badge.fury.io/py/l2m2)
+[![CI](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml/badge.svg?timestamp=1762637256)](https://github.com/pkelaita/l2m2/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/pkelaita/l2m2/graph/badge.svg?token=UWIB0L9PR8)](https://codecov.io/github/pkelaita/l2m2) [![PyPI version](https://badge.fury.io/py/l2m2.svg?timestamp=1762637256)](https://badge.fury.io/py/l2m2)
 
 **L2M2** ("LLM Manager" &rarr; "LLMM" &rarr; "L2M2") is a tiny and very simple LLM manager for Python that exposes lots of models through a unified API.
 
@@ -15,7 +15,7 @@
 
 ### Features
 
-- 60+ regularly updated supported models from popular hosted providers.
+- 70+ regularly updated supported models from popular hosted providers.
 - Support for self-hosted models via [Ollama](https://ollama.ai/).
 - Manageable chat memory – even across multiple models or with concurrent memory streams.
 - JSON mode
@@ -23,7 +23,7 @@
 
 ### Supported API-based Models
 
-L2M2 supports <!--start-model-count-->68<!--end-model-count--> models from <!--start-prov-list-->[OpenAI](https://openai.com/api/), [Google](https://ai.google.dev/), [Anthropic](https://www.anthropic.com/api), [Cohere](https://docs.cohere.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/), [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), and [Cerebras](https://inference-docs.cerebras.ai)<!--end-prov-list-->. The full list of supported models can be found [here](docs/supported_models.md).
+L2M2 supports <!--start-model-count-->71<!--end-model-count--> models from <!--start-prov-list-->[OpenAI](https://openai.com/api/), [Google](https://ai.google.dev/), [Anthropic](https://www.anthropic.com/api), [Cohere](https://docs.cohere.com/), [Mistral](https://docs.mistral.ai/deployment/laplateforme/overview/), [Groq](https://wow.groq.com/), [Replicate](https://replicate.com/), [Cerebras](https://inference-docs.cerebras.ai), and [Moonshot AI](https://www.moonshot.ai/)<!--end-prov-list-->. The full list of supported models can be found [here](docs/supported_models.md).
 
 ## Usage ([Full Docs](docs/usage_guide.md))
 

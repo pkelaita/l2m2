@@ -132,6 +132,15 @@ HOSTED_PROVIDERS: dict[str, ProviderEntry] = {
             "Content-Type": "application/json",
         },
     },
+    "moonshot": {
+        "name": "Moonshot AI",
+        "homepage": "https://www.moonshot.ai/",
+        "endpoint": "https://api.moonshot.ai/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+        },
+    },
 }
 
 LOCAL_PROVIDERS: dict[str, LocalProviderEntry] = {
@@ -1314,6 +1323,23 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
         },
     },
     "kimi-k2": {
+        "moonshot": {
+            "model_id": "kimi-k2-0905-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
         "groq": {
             "model_id": "moonshotai/kimi-k2-instruct-0905",
             "params": {
@@ -1328,6 +1354,61 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             },
             "extras": {
                 "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "kimi-k2-turbo": {
+        "moonshot": {
+            "model_id": "kimi-k2-turbo-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "kimi-k2-thinking": {
+        "moonshot": {
+            "model_id": "kimi-k2-thinking",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "kimi-k2-thinking-turbo": {
+        "moonshot": {
+            "model_id": "kimi-k2-thinking-turbo",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": INF,
+                },
+            },
+            "extras": {
                 "json_mode_arg": {"response_format": {"type": "json_object"}},
             },
         },

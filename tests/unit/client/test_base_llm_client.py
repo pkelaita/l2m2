@@ -403,6 +403,16 @@ async def test_call_cerebras(mock_get_extra_message, mock_llm_post, llm_client):
 
 
 @pytest.mark.asyncio
+@patch(LLM_POST_PATH)
+@patch(GET_EXTRA_MESSAGE_PATH)
+async def test_call_moonshot(mock_get_extra_message, mock_llm_post, llm_client):
+    mock_get_extra_message.return_value = "extra message"
+    mock_return_value = {"choices": [{"message": {"content": "response"}}]}
+    mock_llm_post.return_value = mock_return_value
+    await _generic_test_call(llm_client, "moonshot", "kimi-k2-turbo")
+
+
+@pytest.mark.asyncio
 @patch(LOCAL_LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_client):
