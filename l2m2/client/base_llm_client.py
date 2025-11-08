@@ -38,6 +38,7 @@ DEFAULT_PROVIDER_ENVS = {
     "replicate": "REPLICATE_API_TOKEN",
     "mistral": "MISTRAL_API_KEY",
     "cerebras": "CEREBRAS_API_KEY",
+    "moonshot": "MOONSHOT_API_KEY",
 }
 
 
@@ -679,6 +680,12 @@ class BaseLLMClient:
         *args: Any,
     ) -> str:
         return await self._generic_openai_spec_call("cerebras", *args)
+
+    async def _call_moonshot(
+        self,
+        *args: Any,
+    ) -> str:
+        return await self._generic_openai_spec_call("moonshot", *args)
 
     async def _call_ollama(
         self,
