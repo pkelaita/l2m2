@@ -52,6 +52,7 @@ If you plan to use an API-based model, at least one of the following environment
 | Replicate               | `REPLICATE_API_TOKEN` |
 | Mistral (La Plateforme) | `MISTRAL_API_KEY`     |
 | Cerebras                | `CEREBRAS_API_KEY`    |
+| Moonshot AI             | `MOONSHOT_API_KEY`    |
 
 Otherwise, ensure Ollama is running – by default L2M2 looks for it at `http://localhost:11434`, but this can be configured.
 
