@@ -4,6 +4,7 @@
 
 | Model Name | Provider(s) | Model Version(s) |
 | --- | --- | --- |
+| `gpt-5.1` | [OpenAI](https://openai.com/api/) | `gpt-5.1-2025-11-13` |
 | `gpt-5` | [OpenAI](https://openai.com/api/) | `gpt-5-2025-08-07` |
 | `gpt-5-mini` | [OpenAI](https://openai.com/api/) | `gpt-5-mini-2025-08-07` |
 | `gpt-5-nano` | [OpenAI](https://openai.com/api/) | `gpt-5-nano-2025-08-07` |
@@ -13,7 +14,6 @@
 | `o3-mini` | [OpenAI](https://openai.com/api/) | `o3-mini-2025-01-31` |
 | `o1-pro` | [OpenAI](https://openai.com/api/) | `o1-pro-2025-03-19` |
 | `o1` | [OpenAI](https://openai.com/api/) | `o1-2024-12-17` |
-| `gpt-4.5` | [OpenAI](https://openai.com/api/) | `gpt-4.5-preview-2025-02-27` |
 | `gpt-4.1` | [OpenAI](https://openai.com/api/) | `gpt-4.1-2025-04-14` |
 | `gpt-4.1-mini` | [OpenAI](https://openai.com/api/) | `gpt-4.1-mini-2025-04-14` |
 | `gpt-4.1-nano` | [OpenAI](https://openai.com/api/) | `gpt-4.1-nano-2025-04-14` |

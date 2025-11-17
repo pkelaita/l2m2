@@ -1,8 +1,33 @@
 # Changelog
 
-_Current version: 0.0.61_
+_Current version: 0.0.62_
 
 [PyPi link](https://pypi.org/project/l2m2/)
+
+### 0.0.62 - November 16, 2025
+
+#### Added
+
+- Support for [GPT-5.1](https://openai.com/index/gpt-5-1/) via OpenAI.
+
+#### Changed
+
+- Updated the max value of `max_tokens` for the following models via OpenAI to be consistent with OpenAI's latest limits via their API:
+  - `gpt-5`: 2<sup>16</sup> → 128000
+  - `gpt-5-mini`: 2<sup>16</sup> → 128000
+  - `gpt-5-nano`: 2<sup>16</sup> → 128000
+  - `o4-mini`: 4096 → 100000
+  - `o3-pro`: 4096 → 100000
+  - `o3`: 4096 → 100000
+  - `o3-mini`: 4096 → 100000
+  - `o1-pro`: 4096 → 100000
+  - `o1`: 4096 → 100000
+  - `gpt-4o`: 4096 → 2<sup>14</sup>
+  - `gpt-4o-mini`: 4096 → 2<sup>14</sup>
+
+#### Removed
+
+- Support for GPT-4.5, as it is been [deprecated](https://community.openai.com/t/gpt-4-5-preview-model-will-be-removed-from-the-api-on-2025-07-14/1230050) by OpenAI and has been unavailalbe via their API since July 2025.
 
 ### 0.0.61 - November 8, 2025
 
