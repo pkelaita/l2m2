@@ -28,7 +28,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model: str = "claude-haiku-4.5"
+test_model: str = "gpt-5.1"
 test_provider: Optional[str] = None
 
 LOCAL: bool = False
