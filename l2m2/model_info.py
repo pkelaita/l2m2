@@ -195,7 +195,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16,
+                    "max": 128_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -212,7 +212,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16,
+                    "max": 128_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -229,7 +229,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 2**16,
+                    "max": 128_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -246,7 +246,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -263,7 +263,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -280,7 +280,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -297,7 +297,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -314,7 +314,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -331,24 +331,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
-                },
-            },
-            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
-        },
-    },
-    "gpt-4.5": {
-        "openai": {
-            "model_id": "gpt-4.5-preview-2025-02-27",
-            "params": {
-                "temperature": {
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2,
-                },
-                "max_tokens": {
-                    "custom_key": "max_output_tokens",
-                    "default": PROVIDER_DEFAULT,
-                    "max": 2**14,
+                    "max": 100_000,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -416,7 +399,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 2**14,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
@@ -433,7 +416,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "custom_key": "max_output_tokens",
                     "default": PROVIDER_DEFAULT,
-                    "max": 4096,
+                    "max": 2**14,
                 },
             },
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
