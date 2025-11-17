@@ -28,7 +28,7 @@ print("L2M2 Version:", (l2m2).__version__)
 
 load_dotenv()
 
-test_model: str = "claude-haiku-4.5"
+test_model: str = "gpt-5.1"
 test_provider: Optional[str] = None
 
 LOCAL: bool = False
@@ -74,7 +74,7 @@ def test_basic():
             prompt="Tell me a very breif, well known fact.",
             system_prompt="Respond like a pirate.",
             temperature=1,
-            max_tokens=8000,
+            max_tokens=100000000000000000000000000000000000000000000,
             timeout=60,
         )
     )

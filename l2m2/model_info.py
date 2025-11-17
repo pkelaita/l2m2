@@ -167,6 +167,23 @@ LOCAL_PROVIDERS: dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
+    "gpt-5.1": {
+        "openai": {
+            "model_id": "gpt-5.1-2025-11-13",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 128_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
     "gpt-5": {
         "openai": {
             "model_id": "gpt-5-2025-08-07",
