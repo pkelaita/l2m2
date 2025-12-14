@@ -167,6 +167,42 @@ LOCAL_PROVIDERS: dict[str, LocalProviderEntry] = {
 }
 
 MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
+    # OpenAI GPT-5.2 Series (latest)
+    "gpt-5.2": {
+        "openai": {
+            "model_id": "gpt-5.2-2025-12-11",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 128_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "gpt-5.2-pro": {
+        "openai": {
+            "model_id": "gpt-5.2-pro-2025-12-11",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 128_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    # OpenAI GPT-5.1 Series
     "gpt-5.1": {
         "openai": {
             "model_id": "gpt-5.1-2025-11-13",
@@ -184,6 +220,24 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "gpt-5.1-mini": {
+        "openai": {
+            "model_id": "gpt-5.1-mini",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 128_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    # OpenAI GPT-5 Series
     "gpt-5": {
         "openai": {
             "model_id": "gpt-5-2025-08-07",
@@ -235,6 +289,24 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "gpt-5-pro": {
+        "openai": {
+            "model_id": "gpt-5-pro-2025-10-06",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 128_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    # OpenAI o4 Series (reasoning models)
     "o4-mini": {
         "openai": {
             "model_id": "o4-mini-2025-04-16",
@@ -252,9 +324,44 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "o4-mini-deep-research": {
+        "openai": {
+            "model_id": "o4-mini-deep-research-2025-06-26",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 100_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    # OpenAI o3 Series (reasoning models)
     "o3-pro": {
         "openai": {
             "model_id": "o3-pro-2025-06-10",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 100_000,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "o3-deep-research": {
+        "openai": {
+            "model_id": "o3-deep-research-2025-06-26",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -337,6 +444,62 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
         },
     },
+    "o1-preview": {
+        "openai": {
+            "model_id": "o1-preview-2024-09-12",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 32_768,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    "o1-mini": {
+        "openai": {
+            "model_id": "o1-mini-2024-09-12",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 65_536,
+                },
+            },
+            "extras": {"json_mode_arg": {"text": {"format": {"type": "json_object"}}}},
+        },
+    },
+    # OpenAI GPT-4.5 Series
+    "gpt-4.5-preview": {
+        "openai": {
+            "model_id": "gpt-4.5-preview-2025-02-27",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 16_384,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"text": {"format": {"type": "json_object"}}},
+            },
+        },
+    },
+    # OpenAI GPT-4.1 Series
     "gpt-4.1": {
         "openai": {
             "model_id": "gpt-4.1-2025-04-14",
@@ -544,6 +707,44 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
             "extras": {"json_mode_arg": {"response_mime_type": "application/json"}},
         },
     },
+    # Google Gemini 3 Series (latest)
+    "gemini-3-pro": {
+        "google": {
+            "model_id": "gemini-3-pro-preview",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2.0,
+                },
+                "max_tokens": {
+                    "custom_key": "max_output_tokens",
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**31 - 1,
+                },
+            },
+            "extras": {
+                "preview": True,
+                "json_mode_arg": {"response_mime_type": "application/json"},
+            },
+        },
+    },
+    # Anthropic Claude 4.5 Series (latest)
+    "claude-opus-4.5": {
+        "anthropic": {
+            "model_id": "claude-opus-4-5-20251101",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.0,
+                },
+                "max_tokens": {
+                    "default": 4096,  # L2M2 default, field is required
+                    "max": 64000,
+                },
+            },
+            "extras": {},
+        },
+    },
     "claude-sonnet-4.5": {
         "anthropic": {
             "model_id": "claude-sonnet-4-5-20250929",
@@ -553,7 +754,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 4096,  # L2M2 default, field is required,
+                    "default": 4096,  # L2M2 default, field is required
                     "max": 64000,
                 },
             },
@@ -569,13 +770,14 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 4096,  # L2M2 default, field is required,
+                    "default": 4096,  # L2M2 default, field is required
                     "max": 64000,
                 },
             },
             "extras": {},
         },
     },
+    # Anthropic Claude 4.1 Series
     "claude-opus-4.1": {
         "anthropic": {
             "model_id": "claude-opus-4-1-20250805",
@@ -585,13 +787,14 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 4096,  # L2M2 default, field is required,
+                    "default": 4096,  # L2M2 default, field is required
                     "max": 32000,
                 },
             },
             "extras": {},
         },
     },
+    # Anthropic Claude 4 Series
     "claude-opus-4": {
         "anthropic": {
             "model_id": "claude-opus-4-20250514",
@@ -601,7 +804,7 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                     "max": 1.0,
                 },
                 "max_tokens": {
-                    "default": 4096,  # L2M2 default, field is required,
+                    "default": 4096,  # L2M2 default, field is required
                     "max": 32000,
                 },
             },
@@ -755,6 +958,22 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
     "command-a-translate": {
         "cohere": {
             "model_id": "command-a-translate-08-2025",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 8000,
+                },
+            },
+            "extras": {},
+        },
+    },
+    "command-a-vision": {
+        "cohere": {
+            "model_id": "command-a-vision-07-2025",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -965,6 +1184,38 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
     "ministral-3b": {
         "mistral": {
             "model_id": "ministral-3b-2410",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "pixtral-large": {
+        "mistral": {
+            "model_id": "pixtral-large-2411",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 1.5,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**63 - 1,
+                },
+            },
+            "extras": {"json_mode_arg": {"response_format": {"type": "json_object"}}},
+        },
+    },
+    "pixtral-12b": {
+        "mistral": {
+            "model_id": "pixtral-12b-2409",
             "params": {
                 "temperature": {
                     "default": PROVIDER_DEFAULT,
@@ -1315,6 +1566,42 @@ MODEL_INFO: dict[str, dict[str, ModelEntry]] = {
                 "max_tokens": {
                     "default": PROVIDER_DEFAULT,
                     "max": 2**17,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "gpt-oss-safeguard-20b": {
+        "groq": {
+            "model_id": "openai/gpt-oss-safeguard-20b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**17,
+                },
+            },
+            "extras": {
+                "json_mode_arg": {"response_format": {"type": "json_object"}},
+            },
+        },
+    },
+    "llama-guard-4-12b": {
+        "groq": {
+            "model_id": "meta-llama/llama-guard-4-12b",
+            "params": {
+                "temperature": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2,
+                },
+                "max_tokens": {
+                    "default": PROVIDER_DEFAULT,
+                    "max": 2**15,
                 },
             },
             "extras": {
