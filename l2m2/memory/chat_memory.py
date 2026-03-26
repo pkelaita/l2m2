@@ -60,9 +60,7 @@ class ChatMemory(BaseMemory):
         """
         self.mem_window.append(ChatMemoryEntry(text, ChatMemoryEntry.Role.AGENT))
 
-    def unpack(
-        self, role_key: str, message_key: str, user_key: str, agent_key: str
-    ) -> list[dict[str, str]]:
+    def unpack(self, role_key: str, message_key: str, user_key: str, agent_key: str) -> list[dict[str, str]]:
         """Gets a representation of the memory as a list of objects designed to
         be passed directly into LLM provider APIs as JSON.
 
@@ -95,9 +93,7 @@ class ChatMemory(BaseMemory):
         """
         res = []
         for message in self.mem_window:
-            role_value = (
-                user_key if message.role == ChatMemoryEntry.Role.USER else agent_key
-            )
+            role_value = user_key if message.role == ChatMemoryEntry.Role.USER else agent_key
             res.append({role_key: role_value, message_key: message.text})
         return res
 

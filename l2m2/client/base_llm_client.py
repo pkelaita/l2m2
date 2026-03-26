@@ -86,10 +86,7 @@ class BaseLLMClient:
                 self.add_provider(provider, api_key)
 
         for provider, env_var in DEFAULT_PROVIDER_ENVS.items():
-            if (
-                provider not in self.active_hosted_providers
-                and (default_api_key := os.getenv(env_var)) is not None
-            ):
+            if provider not in self.active_hosted_providers and (default_api_key := os.getenv(env_var)) is not None:
                 self.add_provider(provider, default_api_key)
 
     async def __aenter__(self) -> "BaseLLMClient":
@@ -115,9 +112,7 @@ class BaseLLMClient:
         return set(HOSTED_PROVIDERS.keys()) | set(LOCAL_PROVIDERS.keys())
 
     @staticmethod
-    @deprecated(
-        "This set is no longer meaningful since L2M2 supports local models as of 0.0.41."
-    )
+    @deprecated("This set is no longer meaningful since L2M2 supports local models as of 0.0.41.")
     def get_available_models() -> set[str]:  # pragma: no cover
         """The set of L2M2's supported models. This set includes all models, regardless of
         whether they are currently active.
@@ -156,15 +151,11 @@ class BaseLLMClient:
             L2M2UsageError: If the provider is not one of the available providers.
         """
         if provider not in (providers := self.get_available_providers()):
-            raise L2M2UsageError(
-                f"Invalid provider: {provider}. Available providers: {providers}"
-            )
+            raise L2M2UsageError(f"Invalid provider: {provider}. Available providers: {providers}")
 
         self.api_keys[provider] = api_key
         self.active_hosted_providers.add(provider)
-        self.active_hosted_models.update(
-            model for model in MODEL_INFO.keys() if provider in MODEL_INFO[model].keys()
-        )
+        self.active_hosted_models.update(model for model in MODEL_INFO.keys() if provider in MODEL_INFO[model].keys())
 
     def remove_provider(self, provider_to_remove: str) -> None:
         """Remove a provider from the LLMClient, making its models unavailable for use.
@@ -198,9 +189,7 @@ class BaseLLMClient:
             L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise L2M2UsageError(
-                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
-            )
+            raise L2M2UsageError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
 
         self.local_model_pairings.add((model, local_provider))
 
@@ -236,9 +225,7 @@ class BaseLLMClient:
             L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise L2M2UsageError(
-                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
-            )
+            raise L2M2UsageError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
 
         self.local_provider_overrides[local_provider] = base_url
 
@@ -252,9 +239,7 @@ class BaseLLMClient:
             L2M2UsageError: If the local provider is invalid.
         """
         if local_provider not in LOCAL_PROVIDERS:
-            raise L2M2UsageError(
-                f"Local provider must be one of {LOCAL_PROVIDERS.keys()}"
-            )
+            raise L2M2UsageError(f"Local provider must be one of {LOCAL_PROVIDERS.keys()}")
 
         self.local_provider_overrides.pop(local_provider, None)
 
@@ -290,9 +275,7 @@ class BaseLLMClient:
                 if provider in HOSTED_PROVIDERS and (
                     model not in MODEL_INFO or provider not in MODEL_INFO[model].keys()
                 ):
-                    raise L2M2UsageError(
-                        f"Model {model} is not available from provider {provider}."
-                    )
+                    raise L2M2UsageError(f"Model {model} is not available from provider {provider}.")
 
         self.preferred_providers.update(preferred_providers)
 
@@ -393,18 +376,13 @@ class BaseLLMClient:
         if model not in self.get_active_models():
             raise L2M2UsageError(f"Invalid or non-active model: {model}")
 
-        if (
-            prefer_provider is not None
-            and prefer_provider not in self.get_active_providers()
-        ):
+        if prefer_provider is not None and prefer_provider not in self.get_active_providers():
             raise L2M2UsageError(
                 "Argument prefer_provider must either be None or an active provider."
                 + f" Active providers are {', '.join(self.get_active_providers())}"
             )
 
-        hosted_providers = (
-            set(MODEL_INFO.get(model, {}).keys()) & self.active_hosted_providers
-        )
+        hosted_providers = set(MODEL_INFO.get(model, {}).keys()) & self.active_hosted_providers
         local_providers = self._get_local_providers_for_model(model)
         providers = hosted_providers | local_providers
 
@@ -425,9 +403,7 @@ class BaseLLMClient:
             )
 
         model_entry = (
-            MODEL_INFO[model][provider]
-            if provider in HOSTED_PROVIDERS
-            else _get_local_model_entry(provider, model)
+            MODEL_INFO[model][provider] if provider in HOSTED_PROVIDERS else _get_local_model_entry(provider, model)
         )
 
         return await self._call_impl(
@@ -469,11 +445,7 @@ class BaseLLMClient:
 
         # Prepare JSON mode strategy
         if json_mode_strategy is None:
-            json_mode_strategy = (
-                JsonModeStrategy.strip()
-                if provider != "anthropic"
-                else JsonModeStrategy.prepend()
-            )
+            json_mode_strategy = JsonModeStrategy.strip() if provider != "anthropic" else JsonModeStrategy.prepend()
 
         # Prepare params
         params: dict[str, Any] = {}
@@ -489,9 +461,7 @@ class BaseLLMClient:
 
         # Update prompts if we're using external memory
         if isinstance(memory, ExternalMemory):
-            system_prompt, prompt = _get_external_memory_prompts(
-                memory, system_prompt, prompt
-            )
+            system_prompt, prompt = _get_external_memory_prompts(memory, system_prompt, prompt)
 
         # Run the LLM
         call_fn = getattr(self, f"_call_{provider}")
@@ -650,8 +620,7 @@ class BaseLLMClient:
     ) -> str:
         if isinstance(memory, ChatMemory):
             raise LLMOperationError(
-                "ChatMemory is not supported with Replicate."
-                + " Try using Groq, or using ExternalMemory instead."
+                "ChatMemory is not supported with Replicate." + " Try using Groq, or using ExternalMemory instead."
             )
         if json_mode_strategy.strategy_name == StrategyName.PREPEND:
             raise LLMOperationError(
@@ -792,9 +761,7 @@ class BaseLLMClient:
                 for output in content:
                     if output["type"] == "text":
                         return str(output["text"])
-                raise LLMOperationError(
-                    f"Unexpected response format from Cohere: {result}"
-                )
+                raise LLMOperationError(f"Unexpected response format from Cohere: {result}")
 
             else:
                 return str(result["message"]["content"][0]["text"])
@@ -805,9 +772,7 @@ class BaseLLMClient:
                 for output in result["choices"][0]["message"]["content"]:
                     if output.get("type") == "text":
                         return str(output["text"])
-                raise LLMOperationError(
-                    f"Unexpected response format from Mistral: {result}"
-                )
+                raise LLMOperationError(f"Unexpected response format from Mistral: {result}")
             else:
                 return str(result["choices"][0]["message"]["content"])
 

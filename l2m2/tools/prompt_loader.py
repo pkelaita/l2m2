@@ -23,9 +23,7 @@ class PromptLoader:
         self.prompts_base_dir = prompts_base_dir
         self.var_open, self.var_close = variable_delimiters
 
-    def load_prompt_str(
-        self, prompt: str, variables: dict[str, str] | None = None
-    ) -> str:
+    def load_prompt_str(self, prompt: str, variables: dict[str, str] | None = None) -> str:
         """Loads a prompt from a string and replaces variables with values.
 
         Args:
@@ -50,15 +48,11 @@ class PromptLoader:
             if var not in variables:
                 raise L2M2UsageError(f"Variable '{var}' not provided in variables.")
 
-            prompt = prompt.replace(
-                f"{self.var_open}{var}{self.var_close}", variables[var]
-            )
+            prompt = prompt.replace(f"{self.var_open}{var}{self.var_close}", variables[var])
 
         return prompt
 
-    def load_prompt(
-        self, prompt_file: str, variables: dict[str, str] | None = None
-    ) -> str:
+    def load_prompt(self, prompt_file: str, variables: dict[str, str] | None = None) -> str:
         """Loads a prompt from a file and replaces variables with values.
 
         Args:

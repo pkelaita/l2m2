@@ -142,9 +142,7 @@ def test_bypass_memory():
         bypass_memory=True,
     )
     print(response)
-    client.call(
-        model=test_model, prompt="My favorite color is red.", bypass_memory=True
-    )
+    client.call(model=test_model, prompt="My favorite color is red.", bypass_memory=True)
     response = client.call(
         model=test_model,
         prompt="What is my favorite color?",
@@ -177,9 +175,7 @@ async def test_concurrent():
             time = timeit.default_timer() - start_time
             print(f"{model}: {response} ({time:.2f}s)")
 
-        await asyncio.gather(
-            *[call_and_print(model, secret_word) for model, secret_word in calls]
-        )
+        await asyncio.gather(*[call_and_print(model, secret_word) for model, secret_word in calls])
 
 
 async def test_concurrent_memory():

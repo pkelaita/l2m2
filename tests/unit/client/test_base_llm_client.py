@@ -48,9 +48,7 @@ async def llm_client_mem_ext_sys():
 @pytest_asyncio.fixture
 async def llm_client_mem_ext_usr():
     async with BaseLLMClient(
-        memory=ExternalMemory(
-            loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND
-        ),
+        memory=ExternalMemory(loading_type=ExternalMemoryLoadingType.USER_PROMPT_APPEND),
     ) as b:
         yield b
 
@@ -66,9 +64,7 @@ def test_init(llm_client):
 
 @pytest.mark.asyncio
 async def test_init_with_api_keys_passed_in():
-    async with BaseLLMClient(
-        {"openai": "test-key-openai", "cohere": "test-key-cohere"}
-    ) as llm_client:
+    async with BaseLLMClient({"openai": "test-key-openai", "cohere": "test-key-cohere"}) as llm_client:
         assert llm_client.api_keys == {
             "openai": "test-key-openai",
             "cohere": "test-key-cohere",
@@ -172,9 +168,7 @@ def test_remove_provider_not_active(llm_client):
 
 
 def test_set_preferred_provider(llm_client):
-    llm_client.set_preferred_providers(
-        {"llama-3-8b": "groq", "llama-3-70b": "replicate"}
-    )
+    llm_client.set_preferred_providers({"llama-3-8b": "groq", "llama-3-70b": "replicate"})
     assert llm_client.preferred_providers == {
         "llama-3-8b": "groq",
         "llama-3-70b": "replicate",
@@ -297,9 +291,7 @@ async def _generic_test_call(
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "openai", "gpt-5")
 
@@ -309,11 +301,7 @@ async def test_call_openai(mock_get_extra_message, mock_llm_post, llm_client):
 @patch(GET_EXTRA_MESSAGE_PATH)
 async def test_call_google(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {
-        "candidates": [
-            {"content": {"parts": [{"text": "response"}]}, "finishReason": "STOP"}
-        ]
-    }
+    mock_return_value = {"candidates": [{"content": {"parts": [{"text": "response"}]}, "finishReason": "STOP"}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "google", "gemini-2.0-flash")
 
@@ -361,13 +349,9 @@ async def test_call_mistral(mock_get_extra_message, mock_llm_post, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_mistral_reasoning(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
+async def test_call_mistral_reasoning(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
-    mock_return_value = {
-        "choices": [{"message": {"content": [{"type": "text", "text": "response"}]}}]
-    }
+    mock_return_value = {"choices": [{"message": {"content": [{"type": "text", "text": "response"}]}}]}
     mock_llm_post.return_value = mock_return_value
     await _generic_test_call(llm_client, "mistral", "magistral-medium")
 
@@ -427,9 +411,7 @@ async def test_call_ollama(mock_get_extra_message, mock_local_llm_post, llm_clie
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_anthropic_thinking(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
+async def test_call_anthropic_thinking(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {
         "content": [
@@ -442,9 +424,7 @@ async def test_call_anthropic_thinking(
         ]
     }
     mock_llm_post.return_value = mock_return_value
-    await _generic_test_call(
-        llm_client, "anthropic", "claude-3.7-sonnet", "thinking response"
-    )
+    await _generic_test_call(llm_client, "anthropic", "claude-3.7-sonnet", "thinking response")
 
 
 # -- Tests for call errors -- #
@@ -453,9 +433,7 @@ async def test_call_anthropic_thinking(
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_openai_bad_response(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
+async def test_call_openai_bad_response(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"output": []}
     mock_llm_post.return_value = mock_return_value
@@ -476,9 +454,7 @@ async def test_call_google_bad_response(mock_llm_post, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_cohere_bad_response(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
+async def test_call_cohere_bad_response(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"message": {"content": []}}
     mock_llm_post.return_value = mock_return_value
@@ -489,9 +465,7 @@ async def test_call_cohere_bad_response(
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 @patch(GET_EXTRA_MESSAGE_PATH)
-async def test_call_mistral_bad_response(
-    mock_get_extra_message, mock_llm_post, llm_client
-):
+async def test_call_mistral_bad_response(mock_get_extra_message, mock_llm_post, llm_client):
     mock_get_extra_message.return_value = "extra message"
     mock_return_value = {"choices": [{"message": {"content": []}}]}
     mock_llm_post.return_value = mock_return_value
@@ -548,9 +522,7 @@ async def test_multi_provider(mock_call_replicate, mock_call_groq, llm_client):
 @pytest.mark.asyncio
 @patch(f"{CALL_BASE_PATH}groq")
 @patch(f"{CALL_BASE_PATH}replicate")
-async def test_multi_provider_with_defaults(
-    mock_call_replicate, mock_call_groq, llm_client
-):
+async def test_multi_provider_with_defaults(mock_call_replicate, mock_call_groq, llm_client):
     mock_call_groq.return_value = "hello from groq"
     mock_call_replicate.return_value = "hello from replicate"
 
@@ -592,9 +564,7 @@ async def test_multi_provider_pref_inactive(llm_client):
     llm_client.add_provider("groq", "test-key-groq")
     llm_client.add_provider("replicate", "test-key-replicate")
     with pytest.raises(L2M2UsageError):
-        await llm_client.call(
-            prompt="Hello", model="llama-3-70b", prefer_provider="openai"
-        )
+        await llm_client.call(prompt="Hello", model="llama-3-70b", prefer_provider="openai")
 
 
 # -- Tests for memory -- #
@@ -603,9 +573,7 @@ async def test_multi_provider_pref_inactive(llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_call_openai.return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
 
     llm_client_mem_chat.add_provider("openai", "fake-api-key")
 
@@ -625,10 +593,7 @@ async def test_chat_memory(mock_call_openai, llm_client_mem_chat):
     ]
 
     llm_client_mem_chat.clear_memory()
-    assert (
-        llm_client_mem_chat.get_memory().unpack("role", "content", "user", "assistant")
-        == []
-    )
+    assert llm_client_mem_chat.get_memory().unpack("role", "content", "user", "assistant") == []
 
 
 def test_chat_memory_errors(llm_client):
@@ -650,9 +615,7 @@ async def test_chat_memory_unsupported_provider(llm_client_mem_chat):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ext_sys):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_call_openai.return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
     llm_client_mem_ext_sys.add_provider("openai", "fake-api-key")
 
     memory = llm_client_mem_ext_sys.get_memory()
@@ -666,9 +629,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
         {"role": "user", "content": "Hello"},
     ]
 
-    await llm_client_mem_ext_sys.call(
-        system_prompt="system-123", prompt="Hello", model="gpt-5"
-    )
+    await llm_client_mem_ext_sys.call(system_prompt="system-123", prompt="Hello", model="gpt-5")
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "developer", "content": "system-123\nstuff"},
         {"role": "user", "content": "Hello"},
@@ -678,9 +639,7 @@ async def test_external_memory_system_prompt(mock_call_openai, llm_client_mem_ex
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_usr):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_call_openai.return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
     llm_client_mem_ext_usr.add_provider("openai", "fake-api-key")
 
     memory = llm_client_mem_ext_usr.get_memory()
@@ -693,9 +652,7 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
         {"role": "user", "content": "Hello\nstuff"},
     ]
 
-    await llm_client_mem_ext_usr.call(
-        system_prompt="system-123", prompt="Hello", model="gpt-5"
-    )
+    await llm_client_mem_ext_usr.call(system_prompt="system-123", prompt="Hello", model="gpt-5")
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "developer", "content": "system-123"},
         {"role": "user", "content": "Hello\nstuff"},
@@ -705,9 +662,7 @@ async def test_external_memory_user_prompt(mock_call_openai, llm_client_mem_ext_
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_call_openai.return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
     llm_client_mem_chat.add_provider("openai", "fake-api-key")
     llm_client_mem_chat.get_memory().add_user_message("A")
     llm_client_mem_chat.get_memory().add_agent_message("B")
@@ -716,9 +671,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
     assert mock_call_openai.call_args.kwargs["data"]["input"] == [
         {"role": "user", "content": "Hello"},
     ]
-    assert llm_client_mem_chat.get_memory().unpack(
-        "role", "content", "user", "assistant"
-    ) == [
+    assert llm_client_mem_chat.get_memory().unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
     ]
@@ -729,9 +682,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
         {"role": "assistant", "content": "B"},
         {"role": "user", "content": "Hello"},
     ]
-    assert llm_client_mem_chat.get_memory().unpack(
-        "role", "content", "user", "assistant"
-    ) == [
+    assert llm_client_mem_chat.get_memory().unpack("role", "content", "user", "assistant") == [
         {"role": "user", "content": "A"},
         {"role": "assistant", "content": "B"},
         {"role": "user", "content": "Hello"},
@@ -742,9 +693,7 @@ async def test_bypass_memory(mock_call_openai, llm_client_mem_chat):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_alt_memory(mock_call_openai, llm_client):
-    mock_call_openai.return_value = {
-        "output": [{"type": "message", "content": [{"text": "response"}]}]
-    }
+    mock_call_openai.return_value = {"output": [{"type": "message", "content": [{"text": "response"}]}]}
     llm_client.add_provider("openai", "fake-api-key")
 
     m1 = ChatMemory()
@@ -785,7 +734,6 @@ async def test_alt_memory(mock_call_openai, llm_client):
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
 async def test_json_mode_default_strategy_strip(mock_call, llm_client):
-
     # Cohere
     mock_call.return_value = {"message": {"content": [{"text": "--{response}--"}]}}
     llm_client.add_provider("cohere", "fake-api-key")
@@ -862,10 +810,7 @@ async def test_json_mode_strategy_prepend_anthropic(mock_call_anthropic, llm_cli
     )
 
     assert response == "{response"
-    assert (
-        mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
-        == "Here is the JSON response: {"
-    )
+    assert mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"] == "Here is the JSON response: {"
 
 
 @pytest.mark.asyncio
@@ -881,10 +826,7 @@ async def test_json_mode_strategy_prepend_cohere(mock_call_cohere, llm_client):
     )
 
     assert response == "{response"
-    assert (
-        mock_call_cohere.call_args.kwargs["data"]["messages"][-1]["content"]
-        == "Here is the JSON response: {"
-    )
+    assert mock_call_cohere.call_args.kwargs["data"]["messages"][-1]["content"] == "Here is the JSON response: {"
 
 
 @pytest.mark.asyncio
@@ -901,9 +843,7 @@ async def test_json_mode_strategy_prepend_replicate_throws_error(llm_client):
 
 @pytest.mark.asyncio
 @patch(LLM_POST_PATH)
-async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
-    mock_call_anthropic, llm_client
-):
+async def test_json_mode_strategy_prepend_custom_prefix_anthropic(mock_call_anthropic, llm_client):
     mock_call_anthropic.return_value = {"content": [{"text": "response"}]}
     llm_client.add_provider("anthropic", "fake-api-key")
     response = await llm_client.call(
@@ -914,7 +854,4 @@ async def test_json_mode_strategy_prepend_custom_prefix_anthropic(
     )
 
     assert response == "{response"
-    assert (
-        mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"]
-        == "custom-prefix-123{"
-    )
+    assert mock_call_anthropic.call_args.kwargs["data"]["messages"][-1]["content"] == "custom-prefix-123{"

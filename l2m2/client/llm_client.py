@@ -48,9 +48,7 @@ class LLMClient(BaseLLMClient):
             L2M2UsageError: If `LLMClient` is instantiated in an asynchronous context.
         """
         if _is_async_context():
-            raise L2M2UsageError(
-                "LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead."
-            )
+            raise L2M2UsageError("LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead.")
 
         super(LLMClient, self).__init__(api_keys=providers, memory=memory)
 
@@ -123,9 +121,7 @@ class LLMClient(BaseLLMClient):
                 unable to generate a completion.
         """
         if _is_async_context():
-            raise L2M2UsageError(
-                "LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead."
-            )
+            raise L2M2UsageError("LLMClient cannot be instantiated in an async context. Use AsyncLLMClient instead.")
         result = asyncio.run(
             self._sync_fn_wrapper(
                 super(LLMClient, self).call,

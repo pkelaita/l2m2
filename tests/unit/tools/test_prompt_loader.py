@@ -17,10 +17,7 @@ def test_load_prompt_str():
         "age": "24",
         "job": "developer",
     }
-    assert (
-        prompt_loader.load_prompt_str(prompt, variables)
-        == "Pierce is 24 years old, and Pierce is a developer."
-    )
+    assert prompt_loader.load_prompt_str(prompt, variables) == "Pierce is 24 years old, and Pierce is a developer."
 
 
 def test_load_prompt_str_missing_variable():
@@ -46,10 +43,7 @@ def test_load_prompt_str_custom_var_markers():
         "age": "24",
         "job": "developer",
     }
-    assert (
-        prompt_loader.load_prompt_str(prompt, variables)
-        == "Pierce is 24 years old, and Pierce is a developer."
-    )
+    assert prompt_loader.load_prompt_str(prompt, variables) == "Pierce is 24 years old, and Pierce is a developer."
 
 
 def test_load_prompt_str_no_variables():
@@ -67,10 +61,7 @@ def test_load_prompt(mock_open):
     prompt_loader = PromptLoader(prompts_base_dir="a/b/c")
     prompt_file = "test_prompt_loader.txt"
     variables = {"name": "world"}
-    assert (
-        prompt_loader.load_prompt(prompt_file, variables)
-        == "Hello, world! This is a test prompt."
-    )
+    assert prompt_loader.load_prompt(prompt_file, variables) == "Hello, world! This is a test prompt."
 
     prompt_file_path = f"{prompt_loader.prompts_base_dir}/{prompt_file}"
     mock_open.assert_called_once_with(prompt_file_path, "r")
@@ -84,9 +75,7 @@ def test_load_prompt(mock_open):
 def test_load_prompt_no_variables(mock_open):
     prompt_loader = PromptLoader(prompts_base_dir="a/b/c")
     prompt_file = "test_prompt_loader.txt"
-    assert (
-        prompt_loader.load_prompt(prompt_file) == "Hello, world! This is a test prompt."
-    )
+    assert prompt_loader.load_prompt(prompt_file) == "Hello, world! This is a test prompt."
 
     prompt_file_path = f"{prompt_loader.prompts_base_dir}/{prompt_file}"
     mock_open.assert_called_once_with(prompt_file_path, "r")
